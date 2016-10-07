@@ -53,7 +53,7 @@ dependencies {
     compile files("$buildDir/libs/$repackagedJarName") { builtBy 'jarjar' }
     compile 'com.android.support.test:rules:0.5'
     testCompile 'junit:junit:4.12'
-    androidTestCompile 'com.github.tmurakami:dexmockito:0.6.0'
+    androidTestCompile 'com.github.tmurakami:dexmockito:0.6.1'
 }
 
 task jarjar(type: Jar) {
