@@ -1,0 +1,21 @@
+machine:
+  environment:
+    ADB_INSTALL_TIMEOUT: 100
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+dependencies:
+  pre:
+    - mkdir $ANDROID_HOME/licenses
+    - echo $ANDROID_SDK_LICENSE > $ANDROID_HOME/licenses/android-sdk-license
+test:
+  pre:
+    - emulator -avd circleci-android23 -no-audio -no-window:
+        background: true
+        parallel: true
+  override:
+    - ./gradlew testDebug assembleDebugAndroidTest
+    - circle-android wait-for-boot
+    - ./gradlew connectedDebugAndroidTest
+  post:
+    - mkdir $CIRCLE_TEST_REPORTS/junit
+    - find . -type f -regex ".*/build/test-results/.*xml" -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;
+    - find . -type f -regex ".*/build/outputs/androidTest-results/.*xml" -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;
