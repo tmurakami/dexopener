@@ -51,9 +51,10 @@ dependencies {
     jarjar 'com.googlecode.jarjar:jarjar:1.3'
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackagedJarName") { builtBy 'jarjar' }
-    compile 'com.android.support.test:rules:0.5'
+    compile 'com.android.support.test:runner:0.5'
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.github.tmurakami:dexmockito:0.6.1'
+    androidTestCompile 'com.android.support.test:rules:0.6-alpha'
 }
 
 task jarjar(type: Jar) {

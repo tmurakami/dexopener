@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.test.internal.runner.TestRequestBuilder;
 import android.support.test.runner._AndroidJUnitRunner;
 
@@ -31,6 +32,24 @@ abstract class AbstractAndroidJUnitRunner extends _AndroidJUnitRunner {
     public Activity newActivity(ClassLoader cl, String className, Intent intent)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         return super.newActivity(classLoader, className, intent);
+    }
+
+    @Override
+    public void callApplicationOnCreate(Application app) {
+        replaceBaseContext(app);
+        super.callApplicationOnCreate(app);
+    }
+
+    @Override
+    public void callActivityOnCreate(Activity activity, Bundle bundle) {
+        replaceBaseContext(activity);
+        super.callActivityOnCreate(activity, bundle);
+    }
+
+    @Override
+    public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
+        replaceBaseContext(activity);
+        super.callActivityOnCreate(activity, icicle, persistentState);
     }
 
     @Override
@@ -79,20 +98,12 @@ abstract class AbstractAndroidJUnitRunner extends _AndroidJUnitRunner {
         this.targetContext = new InternalContextWrapper(targetContext, loader);
     }
 
-    private static class InternalContextWrapper extends ContextWrapper {
-
-        private final ClassLoader classLoader;
-
-        InternalContextWrapper(Context base, ClassLoader classLoader) {
-            super(base);
-            this.classLoader = classLoader;
+    private void replaceBaseContext(ContextWrapper context) {
+        Context base = context.getBaseContext();
+        if (base instanceof InternalContextWrapper) {
+            return;
         }
-
-        @Override
-        public ClassLoader getClassLoader() {
-            return classLoader;
-        }
-
+        ContextWrapperHelper.setBaseContext(context, new InternalContextWrapper(base, classLoader));
     }
 
 }
