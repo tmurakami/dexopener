@@ -41,7 +41,7 @@ final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
                 if (name.endsWith(".dex")) {
                     out.putNextEntry(new JarEntry(name));
                     ApplicationReader ar = new ApplicationReader(ASM4, readBytes(in));
-                    ApplicationWriter aw = new ApplicationWriter(ar);
+                    ApplicationWriter aw = new ApplicationWriter();
                     ar.accept(new InternalApplicationVisitor(ASM4, aw, classNameFilter), 0);
                     out.write(aw.toByteArray());
                     out.closeEntry();
