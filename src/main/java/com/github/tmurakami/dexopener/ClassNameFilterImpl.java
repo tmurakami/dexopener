@@ -3,21 +3,29 @@ package com.github.tmurakami.dexopener;
 class ClassNameFilterImpl implements ClassNameFilter {
 
     private static final String[] IGNORED_PACKAGES = {
-            "java.",
-            "javax.",
-            "dalvik.",
-            "junit.",
-            "org.junit.",
-            "org.hamcrest.",
             "android.support.annotation.",
             "android.support.multidex.",
             "android.support.test.",
-            "org.mockito.",
-            "net.bytebuddy.",
-            "org.objenesis.",
+            "com.android.internal.util.",
             "com.android.dx.",
             "com.github.tmurakami.dexmockito.",
             "com.github.tmurakami.dexopener.",
+            "com.sun.",
+            "dalvik.",
+            "java.",
+            "javax.",
+            "junit.",
+            "net.bytebuddy.",
+            "org.apache.http.",
+            "org.apache.harmony.dalvik.",
+            "org.hamcrest.",
+            "org.json.",
+            "org.junit.",
+            "org.mockito.",
+            "org.objenesis.",
+            "org.w3c.dom.",
+            "org.xml.sax.",
+            "org.xmlpull.v1.",
     };
 
     @Override
@@ -27,7 +35,15 @@ class ClassNameFilterImpl implements ClassNameFilter {
                 return false;
             }
         }
-        return true;
+        if (className.startsWith("android.") && !className.startsWith("android.support.")) {
+            return false;
+        }
+        int dollar = className.indexOf('$');
+        if (dollar == -1) {
+            return true;
+        }
+        String name = className.substring(0, dollar);
+        return !name.endsWith(".BuildConfig") && !name.endsWith(".R");
     }
 
 }
