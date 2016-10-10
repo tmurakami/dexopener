@@ -48,13 +48,6 @@ public class DexOpenerTest {
     }
 
     @Test
-    public void testCallApplicationOnCreate() {
-        Application app = new Application();
-        target.callApplicationOnCreate(app);
-        then(delegate).should().callApplicationOnCreate(app);
-    }
-
-    @Test
     public void testCreateTestRequestBuilder() {
         Instrumentation instr = new Instrumentation();
         Bundle arguments = new Bundle();

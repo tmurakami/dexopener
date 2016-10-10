@@ -15,8 +15,6 @@ interface DexOpenerDelegate {
 
     void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState);
 
-    void callApplicationOnCreate(Application app);
-
     TestRequestBuilder createTestRequestBuilder(Instrumentation instr, Bundle arguments);
 
     Context getContext();

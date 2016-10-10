@@ -11,6 +11,7 @@ import android.os.PersistableBundle;
 import android.support.test.internal.runner.TestRequestBuilder;
 import android.support.test.runner._AndroidJUnitRunner;
 
+@SuppressWarnings("WeakerAccess")
 @SuppressLint("NewApi")
 public final class DexOpener extends _AndroidJUnitRunner {
 
@@ -24,11 +25,6 @@ public final class DexOpener extends _AndroidJUnitRunner {
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
         delegate.callActivityOnCreate(activity, icicle, persistentState);
-    }
-
-    @Override
-    public void callApplicationOnCreate(Application app) {
-        delegate.callApplicationOnCreate(app);
     }
 
     @Override
@@ -65,9 +61,10 @@ public final class DexOpener extends _AndroidJUnitRunner {
 
     private DexOpenerDelegate newAndroidJUnitRunnerDelegate() {
         ClassNameFilter filter = new ClassNameFilterImpl();
-        return new DexOpenerDelegateImpl(
-                new SuperCalls(),
-                new DexOpenerHelperImpl(new ClassesJarGeneratorImpl(filter), new ClassLoaderFactoryImpl(filter)));
+        ClassesJarGenerator classesJarGenerator = new ClassesJarGeneratorImpl(filter);
+        ClassLoaderFactory classLoaderFactory = new ClassLoaderFactoryImpl(filter);
+        DexOpenerDelegateHelper helper = new DexOpenerDelegateHelperImpl(classesJarGenerator, classLoaderFactory);
+        return new DexOpenerDelegateImpl(new SuperCalls(), helper);
     }
 
     private class SuperCalls implements DexOpenerDelegate {
@@ -82,11 +79,6 @@ public final class DexOpener extends _AndroidJUnitRunner {
         public Activity newActivity(ClassLoader cl, String className, Intent intent)
                 throws InstantiationException, IllegalAccessException, ClassNotFoundException {
             return DexOpener.super.newActivity(cl, className, intent);
-        }
-
-        @Override
-        public void callApplicationOnCreate(Application app) {
-            DexOpener.super.callApplicationOnCreate(app);
         }
 
         @Override

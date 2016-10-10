@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -33,7 +34,7 @@ public class DexOpenerDelegateImplTest {
     @Mock
     DexOpenerDelegate delegate;
     @Mock
-    DexOpenerHelper helper;
+    DexOpenerDelegateHelper helper;
 
     @InjectMocks
     DexOpenerDelegateImpl target;
@@ -49,12 +50,10 @@ public class DexOpenerDelegateImplTest {
         target.callActivityOnCreate(activity, bundle);
         InOrder inOrder = inOrder(helper, delegate);
         then(helper).should(inOrder)
-                .setBaseContext(eq(activity), argThat(new ArgumentMatcher<Context>() {
+                .setBaseContext(eq(activity), argThat(new ArgumentMatcher<ContextWrapper>() {
                     @Override
-                    public boolean matches(Context c) {
-                        return c.getClassLoader() == classLoader
-                                && c instanceof InternalContextWrapper
-                                && ((InternalContextWrapper) c).getBaseContext() == base;
+                    public boolean matches(ContextWrapper c) {
+                        return c.getBaseContext() == base && c.getClassLoader() == classLoader;
                     }
                 }));
         then(delegate).should(inOrder).callActivityOnCreate(activity, bundle);
@@ -72,36 +71,13 @@ public class DexOpenerDelegateImplTest {
         target.callActivityOnCreate(activity, icicle, persistentState);
         InOrder inOrder = inOrder(helper, delegate);
         then(helper).should(inOrder)
-                .setBaseContext(eq(activity), argThat(new ArgumentMatcher<Context>() {
+                .setBaseContext(eq(activity), argThat(new ArgumentMatcher<ContextWrapper>() {
                     @Override
-                    public boolean matches(Context c) {
-                        return c.getClassLoader() == classLoader
-                                && c instanceof InternalContextWrapper
-                                && ((InternalContextWrapper) c).getBaseContext() == base;
+                    public boolean matches(ContextWrapper c) {
+                        return c.getBaseContext() == base && c.getClassLoader() == classLoader;
                     }
                 }));
         then(delegate).should(inOrder).callActivityOnCreate(activity, icicle, persistentState);
-    }
-
-    @Test
-    public void testCallApplicationOnCreate() {
-        Application app = mock(Application.class);
-        final Context base = mock(Context.class);
-        given(app.getBaseContext()).willReturn(base);
-        final ClassLoader classLoader = mock(ClassLoader.class);
-        target.classLoader = classLoader;
-        target.callApplicationOnCreate(app);
-        InOrder inOrder = inOrder(helper, delegate);
-        then(helper).should(inOrder)
-                .setBaseContext(eq(app), argThat(new ArgumentMatcher<Context>() {
-                    @Override
-                    public boolean matches(Context c) {
-                        return c.getClassLoader() == classLoader
-                                && c instanceof InternalContextWrapper
-                                && ((InternalContextWrapper) c).getBaseContext() == base;
-                    }
-                }));
-        then(delegate).should(inOrder).callApplicationOnCreate(app);
     }
 
     @Test
@@ -144,7 +120,7 @@ public class DexOpenerDelegateImplTest {
 
     @Test
     public void testNewApplication() throws Exception {
-        Context context = mock(Context.class);
+        final Context context = mock(Context.class);
         given(delegate.getContext()).willReturn(context);
         given(context.getPackageCodePath()).willReturn("test.apk");
         Context targetContext = mock(Context.class);
@@ -153,10 +129,15 @@ public class DexOpenerDelegateImplTest {
         File cacheDir = new File("");
         given(targetContext.getDir("dexopener", Context.MODE_PRIVATE)).willReturn(cacheDir);
         ClassLoader cl = getClass().getClassLoader();
-        ClassLoader classLoader = mock(ClassLoader.class);
+        final ClassLoader classLoader = mock(ClassLoader.class);
         given(helper.newClassLoader("target.apk", "test.apk", cacheDir, cl)).willReturn(classLoader);
         Application application = new Application();
-        given(delegate.newApplication(classLoader, "test", context)).willReturn(application);
+        given(delegate.newApplication(eq(classLoader), eq("test"), argThat(new ArgumentMatcher<ContextWrapper>() {
+            @Override
+            public boolean matches(ContextWrapper c) {
+                return c.getBaseContext() == context && c.getClassLoader() == classLoader;
+            }
+        }))).willReturn(application);
         assertSame(application, target.newApplication(cl, "test", context));
     }
 

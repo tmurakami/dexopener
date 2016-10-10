@@ -1,7 +1,10 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationVisitor;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ClassVisitor;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.MethodVisitor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -14,6 +17,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_FINAL;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
 final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
@@ -26,7 +30,7 @@ final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
 
     @Override
     public String generateClassesJar(String apkPath, File cacheDir) throws IOException {
-        File jar = File.createTempFile("classes-", ".jar", cacheDir);
+        File jar = File.createTempFile("classes", ".jar", cacheDir);
         JarInputStream in = null;
         JarOutputStream out = null;
         try {
@@ -66,6 +70,44 @@ final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
             } catch (IOException ignored) {
             }
         }
+    }
+
+    private static class InternalApplicationVisitor extends ApplicationVisitor {
+
+        private final ClassNameFilter classNameFilter;
+
+        InternalApplicationVisitor(int api, ApplicationVisitor av, ClassNameFilter classNameFilter) {
+            super(api, av);
+            this.classNameFilter = classNameFilter;
+        }
+
+        @Override
+        public ClassVisitor visitClass(int access, String name, String[] signature, String superName, String[] interfaces) {
+            String className = name.substring(1, name.length() - 1).replace('/', '.');
+            if (!classNameFilter.accept(className)) {
+                return null;
+            }
+            return new InternalClassVisitor(api, super.visitClass(access & ~ACC_FINAL, name, signature, superName, interfaces));
+        }
+
+    }
+
+    private static class InternalClassVisitor extends ClassVisitor {
+
+        InternalClassVisitor(int api, ClassVisitor cv) {
+            super(api, cv);
+        }
+
+        @Override
+        public void visitInnerClass(String name, String outerName, String innerName, int access) {
+            super.visitInnerClass(name, outerName, innerName, access & ~ACC_FINAL);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String desc, String[] signature, String[] exceptions) {
+            return super.visitMethod(access & ~ACC_FINAL, name, desc, signature, exceptions);
+        }
+
     }
 
 }

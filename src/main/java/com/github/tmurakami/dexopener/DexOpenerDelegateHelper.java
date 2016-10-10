@@ -6,7 +6,7 @@ import android.content.ContextWrapper;
 import java.io.File;
 import java.io.IOException;
 
-interface DexOpenerHelper {
+interface DexOpenerDelegateHelper {
 
     void setBaseContext(ContextWrapper context, Context base);
 

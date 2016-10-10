@@ -17,7 +17,7 @@ import java.io.IOException;
 final class DexOpenerDelegateImpl implements DexOpenerDelegate {
 
     private final DexOpenerDelegate delegate;
-    private final DexOpenerHelper helper;
+    private final DexOpenerDelegateHelper helper;
 
     @VisibleForTesting
     ClassLoader classLoader;
@@ -26,7 +26,7 @@ final class DexOpenerDelegateImpl implements DexOpenerDelegate {
     @VisibleForTesting
     Context targetContext;
 
-    DexOpenerDelegateImpl(DexOpenerDelegate delegate, DexOpenerHelper helper) {
+    DexOpenerDelegateImpl(DexOpenerDelegate delegate, DexOpenerDelegateHelper helper) {
         this.delegate = delegate;
         this.helper = helper;
     }
@@ -41,12 +41,6 @@ final class DexOpenerDelegateImpl implements DexOpenerDelegate {
     public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
         replaceBaseContext(activity);
         delegate.callActivityOnCreate(activity, icicle, persistentState);
-    }
-
-    @Override
-    public void callApplicationOnCreate(Application app) {
-        replaceBaseContext(app);
-        delegate.callApplicationOnCreate(app);
     }
 
     @Override
@@ -78,7 +72,8 @@ final class DexOpenerDelegateImpl implements DexOpenerDelegate {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return delegate.newApplication(classLoader, className, context);
+        ClassLoader loader = classLoader;
+        return delegate.newApplication(loader, className, new InternalContextWrapper(context, loader));
     }
 
     @Override
@@ -93,18 +88,37 @@ final class DexOpenerDelegateImpl implements DexOpenerDelegate {
         String apkPath = targetContext.getPackageCodePath();
         String testApkPath = context.getPackageCodePath();
         File cacheDir = targetContext.getDir("dexopener", Context.MODE_PRIVATE);
-        ClassLoader classLoader = helper.newClassLoader(apkPath, testApkPath, cacheDir, cl);
-        this.classLoader = classLoader;
-        this.context = new InternalContextWrapper(context, classLoader);
-        this.targetContext = new InternalContextWrapper(targetContext, classLoader);
+        ClassLoader loader = helper.newClassLoader(apkPath, testApkPath, cacheDir, cl);
+        this.classLoader = loader;
+        this.context = new InternalContextWrapper(context, loader);
+        this.targetContext = new InternalContextWrapper(context, loader);
     }
 
     private void replaceBaseContext(ContextWrapper context) {
-        Context base = context.getBaseContext();
-        if (base instanceof InternalContextWrapper) {
-            return;
+        helper.setBaseContext(context, new InternalContextWrapper(context.getBaseContext(), classLoader));
+    }
+
+    private static class InternalContextWrapper extends ContextWrapper {
+
+        private final Context base;
+        private final ClassLoader classLoader;
+
+        InternalContextWrapper(Context base, ClassLoader classLoader) {
+            super(base);
+            this.base = base;
+            this.classLoader = classLoader;
         }
-        helper.setBaseContext(context, new InternalContextWrapper(base, classLoader));
+
+        @Override
+        public Context getBaseContext() {
+            return base;
+        }
+
+        @Override
+        public ClassLoader getClassLoader() {
+            return classLoader;
+        }
+
     }
 
 }

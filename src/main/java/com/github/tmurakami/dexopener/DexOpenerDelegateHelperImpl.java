@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-final class DexOpenerHelperImpl implements DexOpenerHelper {
+final class DexOpenerDelegateHelperImpl implements DexOpenerDelegateHelper {
 
     private static final Field M_BASE;
 
@@ -24,8 +24,8 @@ final class DexOpenerHelperImpl implements DexOpenerHelper {
     private final ClassesJarGenerator classesJarGenerator;
     private final ClassLoaderFactory classLoaderFactory;
 
-    DexOpenerHelperImpl(ClassesJarGenerator classesJarGenerator,
-                        ClassLoaderFactory classLoaderFactory) {
+    DexOpenerDelegateHelperImpl(ClassesJarGenerator classesJarGenerator,
+                                ClassLoaderFactory classLoaderFactory) {
         this.classesJarGenerator = classesJarGenerator;
         this.classLoaderFactory = classLoaderFactory;
     }
@@ -50,12 +50,12 @@ final class DexOpenerHelperImpl implements DexOpenerHelper {
                                       String testApkPath,
                                       File cacheDir,
                                       ClassLoader parent) throws IOException {
-        List<String> dexPaths = new ArrayList<>(2);
-        dexPaths.add(classesJarGenerator.generateClassesJar(apkPath, cacheDir));
+        List<String> paths = new ArrayList<>(2);
+        paths.add(classesJarGenerator.generateClassesJar(apkPath, cacheDir));
         if (!testApkPath.equals(apkPath)) {
-            dexPaths.add(testApkPath);
+            paths.add(testApkPath);
         }
-        return classLoaderFactory.newClassLoader(dexPaths, cacheDir.getCanonicalPath(), parent);
+        return classLoaderFactory.newClassLoader(parent, cacheDir, paths.toArray(new String[paths.size()]));
     }
 
 }
