@@ -6,26 +6,29 @@ class ClassNameFilterImpl implements ClassNameFilter {
             "android.support.annotation.",
             "android.support.multidex.",
             "android.support.test.",
-            "com.android.internal.util.",
-            "com.android.dx.",
+            "com.android.",
             "com.github.tmurakami.dexmockito.",
             "com.github.tmurakami.dexopener.",
             "com.sun.",
             "dalvik.",
             "java.",
             "javax.",
+            "libcore.",
             "junit.",
             "net.bytebuddy.",
-            "org.apache.http.",
             "org.apache.harmony.dalvik.",
+            "org.apache.http.",
+            "org.ccil.cowan.tagsoup.",
             "org.hamcrest.",
             "org.json.",
+            "org.kxml2.io.",
             "org.junit.",
             "org.mockito.",
             "org.objenesis.",
             "org.w3c.dom.",
             "org.xml.sax.",
             "org.xmlpull.v1.",
+            "sun.",
     };
 
     @Override
@@ -38,11 +41,11 @@ class ClassNameFilterImpl implements ClassNameFilter {
         if (className.startsWith("android.") && !className.startsWith("android.support.")) {
             return false;
         }
+        String name = className;
         int dollar = className.indexOf('$');
-        if (dollar == -1) {
-            return true;
+        if (dollar > -1) {
+            name = name.substring(0, dollar);
         }
-        String name = className.substring(0, dollar);
         return !name.endsWith(".BuildConfig") && !name.endsWith(".R");
     }
 
