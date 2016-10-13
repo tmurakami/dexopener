@@ -1,52 +1,37 @@
 package com.github.tmurakami.dexopener;
 
-class ClassNameFilterImpl implements ClassNameFilter {
+final class ClassNameFilterImpl implements ClassNameFilter {
 
     private static final String[] IGNORED_PACKAGES = {
-            "android.support.annotation.",
-            "android.support.multidex.",
-            "android.support.test.",
-            "com.android.",
-            "com.github.tmurakami.dexmockito.",
-            "com.github.tmurakami.dexopener.",
-            "com.sun.",
-            "dalvik.",
-            "java.",
-            "javax.",
-            "libcore.",
-            "junit.",
-            "net.bytebuddy.",
-            "org.apache.harmony.dalvik.",
-            "org.apache.http.",
-            "org.ccil.cowan.tagsoup.",
-            "org.hamcrest.",
-            "org.json.",
-            "org.kxml2.io.",
-            "org.junit.",
-            "org.mockito.",
-            "org.objenesis.",
-            "org.w3c.dom.",
-            "org.xml.sax.",
-            "org.xmlpull.v1.",
-            "sun.",
+            "Landroid/support/annotation/",
+            "Landroid/support/multidex/",
+            "Landroid/support/test/",
+            "Lcom/android/dex/",
+            "Lcom/android/dx/",
+            "Lcom/android/internal/",
+            "Lcom/github/tmurakami/dexmockito/",
+            "Lcom/github/tmurakami/dexopener/",
+            "Ljunit/",
+            "Lnet/bytebuddy/",
+            "Lorg/hamcrest/",
+            "Lorg/junit/",
+            "Lorg/mockito/",
+            "Lorg/objenesis/",
     };
 
     @Override
-    public boolean accept(String className) {
+    public boolean accept(String name) {
         for (String pkg : IGNORED_PACKAGES) {
-            if (className.startsWith(pkg)) {
+            if (name.startsWith(pkg)) {
                 return false;
             }
         }
-        if (className.startsWith("android.") && !className.startsWith("android.support.")) {
-            return false;
-        }
-        String name = className;
-        int dollar = className.indexOf('$');
+        String n = name.substring(0, name.length() - 1);
+        int dollar = n.lastIndexOf('$');
         if (dollar > -1) {
-            name = name.substring(0, dollar);
+            n = n.substring(0, dollar);
         }
-        return !name.endsWith(".BuildConfig") && !name.endsWith(".R");
+        return !n.endsWith("/R") && !n.endsWith("/BuildConfig");
     }
 
 }

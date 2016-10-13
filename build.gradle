@@ -38,8 +38,8 @@ android {
 }
 
 repositories {
-    jcenter()
     maven { url 'https://jitpack.io' }
+    jcenter()
 }
 
 configurations {
@@ -52,10 +52,11 @@ dependencies {
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackagedJarName") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
+    debugCompile 'com.android.support:support-v4:24.1.1'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.1.0'
+    androidTestCompile 'com.android.support.test:rules:0.5'
     androidTestCompile 'com.github.tmurakami:dexmockito:0.6.1'
-    androidTestCompile 'com.android.support.test:rules:0.6-alpha'
 }
 
 task jarjar(type: Jar) {

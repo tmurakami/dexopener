@@ -19,9 +19,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader.SKIP_CODE;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader.SKIP_DEBUG;
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ClassesJarGeneratorImplTest {
+public class DexConverterImplTest {
 
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
@@ -40,23 +40,22 @@ public class ClassesJarGeneratorImplTest {
     ClassNameFilter classNameFilter;
 
     @InjectMocks
-    ClassesJarGeneratorImpl target;
+    DexConverterImpl target;
 
     @Test
-    public void testGenerateClassesJar() throws IOException {
-        String name = getClass().getName() + "$C";
-        final String internalName = 'L' + name.replace('.', '/') + ';';
+    public void testConvert() throws IOException {
+        final String name = 'L' + getClass().getName().replace('.', '/') + "$C;";
         given(classNameFilter.accept(name)).willReturn(true);
-        String apkPath = generateClassesJar(internalName);
-        String jarPath = target.generateClassesJar(apkPath, folder.newFolder());
-        JarInputStream in = new JarInputStream(new FileInputStream(jarPath));
+        File apk = generateClassesZip(name);
+        File zip = target.convert(apk, folder.newFolder());
+        ZipInputStream in = new ZipInputStream(new FileInputStream(zip));
         try {
             ZipEntry e = in.getNextEntry();
             assertEquals("classes.dex", e.getName());
             new ApplicationReader(ASM4, in).accept(new ApplicationVisitor(ASM4) {
                 @Override
                 public ClassVisitor visitClass(int access, String name, String[] signature, String superName, String[] interfaces) {
-                    assertEquals(internalName, name);
+                    assertEquals(name, name);
                     assertEquals(0, access & ACC_FINAL);
                     return new ClassVisitor(ASM4, super.visitClass(access, name, signature, superName, interfaces)) {
                         @Override
@@ -73,14 +72,14 @@ public class ClassesJarGeneratorImplTest {
         }
     }
 
-    private String generateClassesJar(String internalName) throws IOException {
+    private File generateClassesZip(String internalName) throws IOException {
         ApplicationWriter aw = new ApplicationWriter();
         aw.visit();
         ClassVisitor cv = aw.visitClass(ACC_FINAL, internalName, null, "Ljava/lang/Object;", null);
         cv.visitMethod(ACC_FINAL, "foo", "V", null, null);
         aw.visitEnd();
         File file = folder.newFile();
-        JarOutputStream out = new JarOutputStream(new FileOutputStream(file));
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
         try {
             out.putNextEntry(new ZipEntry("classes.dex"));
             out.write(aw.toByteArray());
@@ -88,7 +87,7 @@ public class ClassesJarGeneratorImplTest {
         } finally {
             IOUtil.closeQuietly(out);
         }
-        return file.getCanonicalPath();
+        return file;
     }
 
 }

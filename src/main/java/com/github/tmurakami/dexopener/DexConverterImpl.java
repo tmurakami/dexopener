@@ -12,34 +12,34 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_FINAL;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
-final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
+final class DexConverterImpl implements DexConverter {
 
     private final ClassNameFilter classNameFilter;
 
-    ClassesJarGeneratorImpl(ClassNameFilter classNameFilter) {
+    DexConverterImpl(ClassNameFilter classNameFilter) {
         this.classNameFilter = classNameFilter;
     }
 
     @Override
-    public String generateClassesJar(String apkPath, File cacheDir) throws IOException {
-        File jar = File.createTempFile("classes", ".jar", cacheDir);
-        JarInputStream in = null;
-        JarOutputStream out = null;
+    public File convert(File zip, File cacheDir) throws IOException {
+        File file = File.createTempFile("classes", ".zip", cacheDir);
+        ZipInputStream in = null;
+        ZipOutputStream out = null;
         try {
-            in = new JarInputStream(new FileInputStream(apkPath));
-            out = new JarOutputStream(new FileOutputStream(jar));
+            in = new ZipInputStream(new FileInputStream(zip));
+            out = new ZipOutputStream(new FileOutputStream(file));
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
                 String name = e.getName();
                 if (name.endsWith(".dex")) {
-                    out.putNextEntry(new JarEntry(name));
+                    out.putNextEntry(new ZipEntry(name));
                     ApplicationReader ar = new ApplicationReader(ASM4, readBytes(in));
                     ApplicationWriter aw = new ApplicationWriter();
                     ar.accept(new InternalApplicationVisitor(ASM4, aw, classNameFilter), 0);
@@ -51,10 +51,10 @@ final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
         } finally {
             closeQuietly(in, out);
         }
-        return jar.getCanonicalPath();
+        return file;
     }
 
-    private static byte[] readBytes(JarInputStream in) throws IOException {
+    private static byte[] readBytes(InputStream in) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
         byte[] buffer = new byte[8192];
         for (int l; (l = in.read(buffer)) != -1; ) {
@@ -65,9 +65,11 @@ final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
 
     private static void closeQuietly(Closeable... closeables) {
         for (Closeable c : closeables) {
-            try {
-                c.close();
-            } catch (IOException ignored) {
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (IOException ignored) {
+                }
             }
         }
     }
@@ -83,8 +85,7 @@ final class ClassesJarGeneratorImpl implements ClassesJarGenerator {
 
         @Override
         public ClassVisitor visitClass(int access, String name, String[] signature, String superName, String[] interfaces) {
-            String className = name.substring(1, name.length() - 1).replace('/', '.');
-            if (!classNameFilter.accept(className)) {
+            if (!classNameFilter.accept(name)) {
                 return null;
             }
             return new InternalClassVisitor(api, super.visitClass(access & ~ACC_FINAL, name, signature, superName, interfaces));

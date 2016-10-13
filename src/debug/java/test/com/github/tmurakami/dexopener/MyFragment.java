@@ -1,11 +1,11 @@
 package test.com.github.tmurakami.dexopener;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.app.Fragment;
 
-public class MyActivity extends Activity {
+public class MyFragment extends Fragment {
 
     @VisibleForTesting
     MyService service = new MyService();
@@ -14,7 +14,7 @@ public class MyActivity extends Activity {
     Object result;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         result = service.doIt();
     }

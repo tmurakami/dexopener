@@ -1,7 +1,7 @@
 package test.com.github.tmurakami.dexopener;
 
 final class MyService {
-    Object doIt() {
+    final Object doIt() {
         throw new UnsupportedOperationException();
     }
 }

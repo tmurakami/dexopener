@@ -1,105 +1,55 @@
 package com.github.tmurakami.dexopener;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
-import android.app.Instrumentation;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.test.internal.runner.TestRequestBuilder;
-import android.support.test.runner._AndroidJUnitRunner;
+import android.support.test.runner.AndroidJUnitRunner;
 
-@SuppressWarnings("WeakerAccess")
-@SuppressLint("NewApi")
-public final class DexOpener extends _AndroidJUnitRunner {
+import java.io.IOException;
 
-    private DexOpenerDelegate delegate = newAndroidJUnitRunnerDelegate();
+public class DexOpener extends AndroidJUnitRunner {
 
-    @Override
-    public void callActivityOnCreate(Activity activity, Bundle bundle) {
-        delegate.callActivityOnCreate(activity, bundle);
-    }
+    private DexInstaller installer = DexInstaller.create();
+    private SuperCalls superCalls = new SuperCallsImpl();
+
+    private boolean initialized;
 
     @Override
-    public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
-        delegate.callActivityOnCreate(activity, icicle, persistentState);
-    }
-
-    @Override
-    protected TestRequestBuilder createTestRequestBuilder(Instrumentation instr, Bundle arguments) {
-        return delegate.createTestRequestBuilder(instr, arguments);
-    }
-
-    @Override
-    public Context getContext() {
-        return delegate.getContext();
-    }
-
-    @Override
-    public Context getTargetContext() {
-        return delegate.getTargetContext();
-    }
-
-    @Override
-    public Activity newActivity(ClassLoader cl, String className, Intent intent)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        return delegate.newActivity(cl, className, intent);
+    public void onCreate(Bundle arguments) {
+        init();
+        superCalls.onCreate(arguments);
     }
 
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        return delegate.newApplication(cl, className, context);
+        init();
+        return superCalls.newApplication(cl, className, context);
     }
 
-    @Override
-    public void onStart() {
-        delegate.onStart();
+    private void init() {
+        if (!initialized) {
+            initialized = true;
+            try {
+                installer.install(superCalls.getTargetContext());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
-    private DexOpenerDelegate newAndroidJUnitRunnerDelegate() {
-        ClassNameFilter filter = new ClassNameFilterImpl();
-        ClassesJarGenerator classesJarGenerator = new ClassesJarGeneratorImpl(filter);
-        ClassLoaderFactory classLoaderFactory = new ClassLoaderFactoryImpl(filter);
-        DexOpenerDelegateHelper helper = new DexOpenerDelegateHelperImpl(classesJarGenerator, classLoaderFactory);
-        return new DexOpenerDelegateImpl(new SuperCalls(), helper);
+    interface SuperCalls {
+
+        Context getTargetContext();
+
+        void onCreate(Bundle arguments);
+
+        Application newApplication(ClassLoader cl, String className, Context context)
+                throws InstantiationException, IllegalAccessException, ClassNotFoundException;
+
     }
 
-    private class SuperCalls implements DexOpenerDelegate {
-
-        @Override
-        public Application newApplication(ClassLoader cl, String className, Context context)
-                throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-            return DexOpener.super.newApplication(cl, className, context);
-        }
-
-        @Override
-        public Activity newActivity(ClassLoader cl, String className, Intent intent)
-                throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-            return DexOpener.super.newActivity(cl, className, intent);
-        }
-
-        @Override
-        public void callActivityOnCreate(Activity activity, Bundle bundle) {
-            DexOpener.super.callActivityOnCreate(activity, bundle);
-        }
-
-        @Override
-        public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
-            DexOpener.super.callActivityOnCreate(activity, icicle, persistentState);
-        }
-
-        @Override
-        public void onStart() {
-            DexOpener.super.onStart();
-        }
-
-        @Override
-        public Context getContext() {
-            return DexOpener.super.getContext();
-        }
+    private class SuperCallsImpl implements SuperCalls {
 
         @Override
         public Context getTargetContext() {
@@ -107,8 +57,14 @@ public final class DexOpener extends _AndroidJUnitRunner {
         }
 
         @Override
-        public TestRequestBuilder createTestRequestBuilder(Instrumentation instr, Bundle arguments) {
-            return DexOpener.super.createTestRequestBuilder(instr, arguments);
+        public void onCreate(Bundle arguments) {
+            DexOpener.super.onCreate(arguments);
+        }
+
+        @Override
+        public Application newApplication(ClassLoader cl, String className, Context context)
+                throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+            return DexOpener.super.newApplication(cl, className, context);
         }
 
     }

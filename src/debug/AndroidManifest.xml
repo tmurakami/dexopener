@@ -2,9 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.tmurakami.dexopener">
 
-    <application>
-        <activity android:name="android.app.Activity" />
-        <activity android:name="test.com.github.tmurakami.dexopener.MyActivity" />
+    <application android:name="test.com.github.tmurakami.dexopener.MyApplication">
+        <activity android:name="android.support.v4.app.FragmentActivity" />
     </application>
 
 </manifest>

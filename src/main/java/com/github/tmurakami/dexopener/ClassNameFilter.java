@@ -1,5 +1,5 @@
 package com.github.tmurakami.dexopener;
 
 interface ClassNameFilter {
-    boolean accept(String className);
+    boolean accept(String name);
 }
