@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 public class DexOpenerTest {
 
     @Mock
-    DexInstaller dexInstaller;
+    DexInstaller installer;
     @Mock
     DexOpener.SuperCalls superCalls;
     @Mock
@@ -37,8 +37,8 @@ public class DexOpenerTest {
         given(superCalls.getTargetContext()).willReturn(targetContext);
         Bundle arguments = new Bundle();
         target.onCreate(arguments);
-        InOrder inOrder = inOrder(dexInstaller, superCalls);
-        then(dexInstaller).should(inOrder).install(targetContext);
+        InOrder inOrder = inOrder(installer, superCalls);
+        then(installer).should(inOrder).install(targetContext);
         then(superCalls).should(inOrder).onCreate(arguments);
     }
 
@@ -50,7 +50,15 @@ public class DexOpenerTest {
         Application application = new Application();
         given(superCalls.newApplication(cl, "a", context)).willReturn(application);
         assertSame(application, target.newApplication(cl, "a", context));
-        then(dexInstaller).should().install(targetContext);
+        then(installer).should().install(targetContext);
+    }
+
+    @Test
+    public void testInit_twice() {
+        given(superCalls.getTargetContext()).willReturn(targetContext);
+        target.onCreate(new Bundle());
+        target.onCreate(new Bundle());
+        then(installer).should().install(targetContext);
     }
 
 }

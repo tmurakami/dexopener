@@ -5,8 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.test.runner.AndroidJUnitRunner;
 
-import java.io.IOException;
-
+@SuppressWarnings("WeakerAccess")
 public class DexOpener extends AndroidJUnitRunner {
 
     private DexInstaller installer = DexInstaller.create();
@@ -30,11 +29,7 @@ public class DexOpener extends AndroidJUnitRunner {
     private void init() {
         if (!initialized) {
             initialized = true;
-            try {
-                installer.install(superCalls.getTargetContext());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            installer.install(superCalls.getTargetContext());
         }
     }
 

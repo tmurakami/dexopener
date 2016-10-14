@@ -6,30 +6,30 @@ import android.content.pm.ApplicationInfo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-
-import dalvik.system.DexFile;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DexInstallerImplTest {
 
     @Mock
-    MultiDex multiDex;
+    MultiDexHelper multiDexHelper;
     @Mock
-    DexConverter dexConverter;
+    DexFactory dexFactory;
     @Mock
-    DexFileLoader dexFileLoader;
+    ClassLoaderFactory classLoaderFactory;
     @Mock
-    ClassLoaderInstaller classLoaderInstaller;
+    ClassLoaderHelper classLoaderHelper;
     @Mock
     Context context;
     @Mock
@@ -41,24 +41,27 @@ public class DexInstallerImplTest {
     DexInstallerImpl target;
 
     @Test
-    public void testInstall() throws IOException {
-        File cacheDir = new File("/dexopener");
+    public void testInstall() {
+        File cacheDir = new File("path/to/cacheDir");
         given(context.getDir("dexopener", Context.MODE_PRIVATE)).willReturn(cacheDir);
         given(context.getSharedPreferences("multidex.version", Context.MODE_PRIVATE)).willReturn(prefs);
         given(prefs.getInt("dex.number", 1)).willReturn(2);
         ApplicationInfo ai = new ApplicationInfo();
         given(context.getApplicationInfo()).willReturn(ai);
-        ai.sourceDir = "apk";
-        given(dexConverter.convert(new File("apk"), cacheDir)).willReturn(new File("/zip"));
-        DexFile dexFile = new DexFile("dexFile");
-        given(dexFileLoader.load("/zip", "/dexopener/zip.dex")).willReturn(dexFile);
-        ai.dataDir = "/data";
-        given(dexConverter.convert(new File("/data/code_cache/secondary-dexes/apk.classes2.zip"), cacheDir)).willReturn(new File("/zip2"));
-        DexFile dexFile2 = new DexFile("dexFile2");
-        given(dexFileLoader.load("/zip2", "/dexopener/zip2.dex")).willReturn(dexFile2);
-        given(context.getClassLoader()).willReturn(classLoader);
+        ai.sourceDir = "path/to/apk";
+        Dex dex = mock(Dex.class);
+        given(dexFactory.newDex(new File("path/to/apk"), cacheDir)).willReturn(dex);
+        ai.dataDir = "path/to/dataDir";
+        Dex dex2 = mock(Dex.class);
+        given(dexFactory.newDex(new File("path/to/dataDir/code_cache/secondary-dexes/apk.classes2.zip"), cacheDir)).willReturn(dex2);
+        ClassLoader loader = mock(ClassLoader.class);
+        given(context.getClassLoader()).willReturn(loader);
+        given(classLoaderFactory.newClassLoader(loader, Arrays.asList(dex, dex2))).willReturn(classLoader);
         target.install(context);
-        then(classLoaderInstaller).should().install(classLoader, Arrays.asList(dexFile, dexFile2));
+        InOrder inOrder = inOrder(multiDexHelper, context, classLoaderHelper);
+        then(multiDexHelper).should(inOrder).installMultiDex(context);
+        then(context).should(inOrder).getApplicationInfo();
+        then(classLoaderHelper).should(inOrder).setParent(loader, classLoader);
     }
 
 }
