@@ -29,17 +29,17 @@ final class DexInstallerImpl extends DexInstaller {
     @Override
     public void install(Context context) {
         multiDexHelper.installMultiDex(context);
-        File cacheDir = context.getDir("dexopener", Context.MODE_PRIVATE);
-        List<Dex> dices = collectDices(context, cacheDir);
+        List<Dex> dices = collectDices(context);
         ClassLoader classLoader = context.getClassLoader();
         classLoaderHelper.setParent(classLoader, classLoaderFactory.newClassLoader(classLoader, dices));
     }
 
-    private List<Dex> collectDices(Context context, File cacheDir) {
+    private List<Dex> collectDices(Context context) {
         int total = context.getSharedPreferences("multidex.version", getMode()).getInt("dex.number", 1);
         List<Dex> dices = new ArrayList<>(total);
         ApplicationInfo ai = context.getApplicationInfo();
         File apk = new File(ai.sourceDir);
+        File cacheDir = context.getDir("dexopener", Context.MODE_PRIVATE);
         dices.add(dexFactory.newDex(apk, cacheDir));
         File dexDir = new File(ai.dataDir, "code_cache/secondary-dexes");
         String prefix = apk.getName() + ".classes";

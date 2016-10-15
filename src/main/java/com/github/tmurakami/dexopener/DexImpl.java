@@ -1,8 +1,10 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationVisitor;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,7 +44,7 @@ final class DexImpl implements Dex {
                 out.putNextEntry(new ZipEntry("classes.dex"));
                 out.write(bytes);
             } finally {
-                IOUtils.closeQuietly(out);
+                closeQuietly(out);
             }
             dex = new File(cacheDir, zip.getName() + ".dex");
             dexFile = fileLoader.load(zip.getCanonicalPath(), dex.getCanonicalPath());
@@ -55,17 +57,18 @@ final class DexImpl implements Dex {
 
     private byte[] getBytes(String name) throws IOException {
         String[] names = {'L' + name.replace('.', '/') + ';'};
-        ApplicationReader ar = getApplicationReader(future);
+        ApplicationReader ar = getApplicationReader();
+        ApplicationWriter aw = new ApplicationWriter();
+        ApplicationVisitor av = new InternalApplicationVisitor(aw);
         try {
-            ApplicationWriter aw = new ApplicationWriter();
-            ar.accept(new InternalApplicationVisitor(aw), names, 0);
-            return aw.toByteArray();
-        } catch (NullPointerException ignored) {
+            ar.accept(av, names, 0);
+        } catch (NullPointerException e) {
+            return null;
         }
-        return null;
+        return aw.toByteArray();
     }
 
-    private static ApplicationReader getApplicationReader(Future<ApplicationReader> future) throws IOException {
+    private ApplicationReader getApplicationReader() throws IOException {
         try {
             return future.get();
         } catch (ExecutionException e) {
@@ -85,7 +88,16 @@ final class DexImpl implements Dex {
         }
     }
 
-    private static void closeQuietly(dalvik.system.DexFile dexFile) {
+    private static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    private static void closeQuietly(DexFile dexFile) {
         if (dexFile != null) {
             try {
                 dexFile.close();

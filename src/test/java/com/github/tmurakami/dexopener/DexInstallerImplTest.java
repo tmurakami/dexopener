@@ -14,6 +14,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.File;
 import java.util.Arrays;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.inOrder;
@@ -42,13 +44,13 @@ public class DexInstallerImplTest {
 
     @Test
     public void testInstall() {
-        File cacheDir = new File("path/to/cacheDir");
-        given(context.getDir("dexopener", Context.MODE_PRIVATE)).willReturn(cacheDir);
         given(context.getSharedPreferences("multidex.version", Context.MODE_PRIVATE)).willReturn(prefs);
         given(prefs.getInt("dex.number", 1)).willReturn(2);
         ApplicationInfo ai = new ApplicationInfo();
         given(context.getApplicationInfo()).willReturn(ai);
         ai.sourceDir = "path/to/apk";
+        File cacheDir = new File("path/to/cacheDir");
+        given(context.getDir("dexopener", Context.MODE_PRIVATE)).willReturn(cacheDir);
         Dex dex = mock(Dex.class);
         given(dexFactory.newDex(new File("path/to/apk"), cacheDir)).willReturn(dex);
         ai.dataDir = "path/to/dataDir";
@@ -60,7 +62,7 @@ public class DexInstallerImplTest {
         target.install(context);
         InOrder inOrder = inOrder(multiDexHelper, context, classLoaderHelper);
         then(multiDexHelper).should(inOrder).installMultiDex(context);
-        then(context).should(inOrder).getApplicationInfo();
+        then(context).should(inOrder).getSharedPreferences(anyString(), anyInt());
         then(classLoaderHelper).should(inOrder).setParent(loader, classLoader);
     }
 
