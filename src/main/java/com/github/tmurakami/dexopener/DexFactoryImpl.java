@@ -4,35 +4,41 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReade
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
-final class ApplicationReaderTask implements Callable<ApplicationReader> {
+final class DexFactoryImpl implements DexFactory {
 
-    private final File file;
+    private final DexFileLoader fileLoader;
 
-    ApplicationReaderTask(File file) {
-        this.file = file;
+    DexFactoryImpl(DexFileLoader fileLoader) {
+        this.fileLoader = fileLoader;
     }
 
     @Override
-    public ApplicationReader call() throws Exception {
-        ZipFile zipFile = new ZipFile(file);
+    public Dex newDex(File file, File cacheDir) {
+        return new DexImpl(newApplicationReader(file), cacheDir, fileLoader);
+    }
+
+    private static ApplicationReader newApplicationReader(File file) {
+        ZipFile zipFile = null;
         try {
+            zipFile = new ZipFile(file);
             ZipEntry e = zipFile.getEntry("classes.dex");
             if (e == null) {
                 throw new Error(file + " does not contain the classes.dex");
             }
             return new ApplicationReader(ASM4, zipFile.getInputStream(e));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } finally {
             closeQuietly(zipFile);
         }
     }
 
-    private void closeQuietly(ZipFile zipFile) {
+    private static void closeQuietly(ZipFile zipFile) {
         if (zipFile != null) {
             try {
                 zipFile.close();

@@ -14,7 +14,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import dalvik.system.DexFile;
 
@@ -30,8 +29,6 @@ public class DexImplTest {
     public final TemporaryFolder folder = new TemporaryFolder();
 
     @Mock
-    Future<ApplicationReader> future;
-    @Mock
     DexFileLoader fileLoader;
     @Mock
     DexFile dexFile;
@@ -40,7 +37,6 @@ public class DexImplTest {
 
     @Test
     public void testLoadClass() throws ExecutionException, InterruptedException, IOException {
-        given(future.get()).willReturn(new ApplicationReader(ASM4, generateBytes()));
         final File cacheDir = folder.newFolder();
         given(fileLoader.load(
                 argThat(new ArgumentMatcher<String>() {
@@ -64,7 +60,8 @@ public class DexImplTest {
                     }
                 }))).willReturn(dexFile);
         given(dexFile.loadClass(C.class.getName(), classLoader)).willReturn(C.class);
-        assertSame(C.class, new DexImpl(future, cacheDir, fileLoader).loadClass(C.class.getName(), classLoader));
+        ApplicationReader ar = new ApplicationReader(ASM4, generateBytes());
+        assertSame(C.class, new DexImpl(ar, cacheDir, fileLoader).loadClass(C.class.getName(), classLoader));
     }
 
     private byte[] generateBytes() {

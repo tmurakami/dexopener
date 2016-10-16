@@ -1,7 +1,5 @@
 package com.github.tmurakami.dexopener;
 
-import java.util.List;
-
 interface ClassLoaderFactory {
-    ClassLoader newClassLoader(ClassLoader classLoader, List<Dex> dices);
+    ClassLoader newClassLoader(ClassLoader classLoader, Iterable<Dex> dexes);
 }

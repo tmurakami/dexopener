@@ -1,15 +1,13 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
-import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationVisitor;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.DexFileReader;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -18,22 +16,24 @@ import dalvik.system.DexFile;
 
 final class DexImpl implements Dex {
 
-    private final Future<ApplicationReader> future;
+    private final ApplicationReader ar;
     private final File cacheDir;
     private final DexFileLoader fileLoader;
 
-    DexImpl(Future<ApplicationReader> future, File cacheDir, DexFileLoader fileLoader) {
-        this.future = future;
+    DexImpl(ApplicationReader ar, File cacheDir, DexFileLoader fileLoader) {
+        this.ar = ar;
         this.cacheDir = cacheDir;
         this.fileLoader = fileLoader;
     }
 
     @Override
-    public Class loadClass(String name, ClassLoader classLoader) throws IOException {
-        byte[] bytes = getBytes(name);
-        if (bytes == null) {
+    public Class loadClass(String name, ClassLoader classLoader) {
+        String internalName = 'L' + name.replace('.', '/') + ';';
+        if (!hasClassDefinition(ar, internalName)) {
             return null;
         }
+        ApplicationWriter aw = new ApplicationWriter();
+        ar.accept(new InternalApplicationVisitor(aw), new String[]{internalName}, 0);
         File zip = null;
         File dex = null;
         DexFile dexFile = null;
@@ -42,50 +42,31 @@ final class DexImpl implements Dex {
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
             try {
                 out.putNextEntry(new ZipEntry("classes.dex"));
-                out.write(bytes);
+                out.write(aw.toByteArray());
             } finally {
                 closeQuietly(out);
             }
             dex = new File(cacheDir, zip.getName() + ".dex");
             dexFile = fileLoader.load(zip.getCanonicalPath(), dex.getCanonicalPath());
             return dexFile.loadClass(name, classLoader);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } finally {
             closeQuietly(dexFile);
             deleteFiles(zip, dex);
         }
     }
 
-    private byte[] getBytes(String name) throws IOException {
-        String[] names = {'L' + name.replace('.', '/') + ';'};
-        ApplicationReader ar = getApplicationReader();
-        ApplicationWriter aw = new ApplicationWriter();
-        ApplicationVisitor av = new InternalApplicationVisitor(aw);
-        try {
-            ar.accept(av, names, 0);
-        } catch (NullPointerException e) {
-            return null;
-        }
-        return aw.toByteArray();
-    }
-
-    private ApplicationReader getApplicationReader() throws IOException {
-        try {
-            return future.get();
-        } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof Error) {
-                throw (Error) cause;
-            } else if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            } else if (cause instanceof IOException) {
-                throw (IOException) cause;
-            } else {
-                throw new RuntimeException(cause);
+    private static boolean hasClassDefinition(ApplicationReader ar, String internalName) {
+        DexFileReader r = (DexFileReader) ar.getDexFile();
+        int size = r.getClassDefinitionsSize();
+        for (int i = 0; i < size; ++i) {
+            r.seek(r.getClassDefinitionOffset(i));
+            if (r.getStringItemFromTypeIndex(r.uint()).equals(internalName)) {
+                return true;
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
         }
+        return false;
     }
 
     private static void closeQuietly(Closeable closeable) {
