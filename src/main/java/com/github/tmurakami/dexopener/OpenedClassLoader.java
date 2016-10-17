@@ -3,6 +3,7 @@ package com.github.tmurakami.dexopener;
 final class OpenedClassLoader extends ClassLoader {
 
     private static final String[] IGNORED_PACKAGES = {
+            "android.databinding.",
             "android.support.",
             "com.android.dx.",
             "com.android.test.",

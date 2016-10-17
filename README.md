@@ -23,6 +23,23 @@ android {
 }
 ```
 
+## Limitation
+
+This library is **NOT** able to create *final* mocks of the following classes:
+
+- Android Classes
+- [Android Data Binding Library](https://developer.android.com/topic/libraries/data-binding/index.html)
+- [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
+- [Android Testing Support Library](https://developer.android.com/topic/libraries/testing-support-library/index.html)
+- [Byte Buddy](http://bytebuddy.net/)
+- [Dexmaker](https://github.com/crittercism/dexmaker)
+- [DexMockito](https://github.com/tmurakami/dexmockito)
+- DexOpener
+- [JUnit](http://junit.org/)
+- [Kotlin](https://kotlinlang.org/)
+- [Mockito](http://site.mockito.org/)
+- [Objenesis](http://objenesis.org/)
+
 ## Notice
 
 This library includes [ASMDEX](http://asm.ow2.org/asmdex-index.html) that has been repackaged using [Jar Jar Links](https://code.google.com/archive/p/jarjar/).

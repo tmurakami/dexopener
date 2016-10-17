@@ -43,6 +43,7 @@ public class OpenedClassLoaderTest {
     @Parameterized.Parameters(name = "className={0}")
     public static Iterable<Object[]> parameters() {
         return Arrays.asList(
+                new Object[]{"android.databinding.DataBindingUtil", C.class},
                 new Object[]{"android.support.v4.app.Fragment", C.class},
                 new Object[]{"com.android.dx.Version", C.class},
                 new Object[]{"com.android.test.runner.MultiDexTestRunner", C.class},
