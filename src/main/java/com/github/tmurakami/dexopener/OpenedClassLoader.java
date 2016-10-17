@@ -3,12 +3,12 @@ package com.github.tmurakami.dexopener;
 final class OpenedClassLoader extends ClassLoader {
 
     private static final String[] IGNORED_PACKAGES = {
-            "android.support.annotation.",
-            "android.support.multidex.",
-            "android.support.test.",
+            "android.support.",
             "com.android.dx.",
+            "com.android.test.",
             "com.github.tmurakami.dexmockito.",
             "com.github.tmurakami.dexopener.",
+            "kotlin.",
             "net.bytebuddy.",
             "org.hamcrest.",
             "org.junit.",

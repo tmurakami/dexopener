@@ -1,8 +1,5 @@
 package com.github.tmurakami.dexopener;
 
-import android.support.annotation.AnimatorRes;
-import android.support.test.InstrumentationRegistry;
-
 import net.bytebuddy.ByteBuddy;
 
 import org.hamcrest.CoreMatchers;
@@ -49,12 +46,12 @@ public class OpenedClassLoaderTest {
     @Parameterized.Parameters(name = "className={0}")
     public static Iterable<Object[]> parameters() {
         return Arrays.asList(
-                new Object[]{AnimatorRes.class.getName(), null},
-                new Object[]{"android.support.multidex.MultiDex", null},
-                new Object[]{InstrumentationRegistry.class.getName(), null},
+                new Object[]{"android.support.v4.app.Fragment", null},
                 new Object[]{"com.android.dx.Version", null},
+                new Object[]{"com.android.test.runner.MultiDexTestRunner", null},
                 new Object[]{"com.github.tmurakami.dexmockito.DexMockitoMockMaker", null},
                 new Object[]{DexOpener.class.getName(), null},
+                new Object[]{"kotlin.Unit", null},
                 new Object[]{ByteBuddy.class.getName(), null},
                 new Object[]{CoreMatchers.class.getName(), null},
                 new Object[]{Test.class.getName(), null},
@@ -63,10 +60,13 @@ public class OpenedClassLoaderTest {
                 new Object[]{"foo.BuildConfig", null},
                 new Object[]{"foo.R", null},
                 new Object[]{"foo.R$string", null},
-                new Object[]{"foo.Bar$R", C.class},
+                new Object[]{"BuildConfig", C.class},
+                new Object[]{"R", C.class},
+                new Object[]{"R$string", C.class},
                 new Object[]{"foo.Bar$BuildConfig", C.class},
-                new Object[]{"foo.Bar", C.class},
-                new Object[]{"android.support.v4.app.Fragment", C.class});
+                new Object[]{"foo.Bar$R", C.class},
+                new Object[]{"foo.Bar$R$string", C.class},
+                new Object[]{"foo.Bar", C.class});
     }
 
     @Before
