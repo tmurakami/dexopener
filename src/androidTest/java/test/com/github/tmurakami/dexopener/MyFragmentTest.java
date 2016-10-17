@@ -32,15 +32,9 @@ public class MyFragmentTest {
 
     @Test
     public void testOnCreate() {
-        final Object o = new Object();
+        Object o = new Object();
         willReturn(o).given(service).doIt();
-        final FragmentActivity activity = rule.launchActivity(null);
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                activity.getSupportFragmentManager().beginTransaction().add(target, null).commitNow();
-            }
-        });
+        rule.launchActivity(null).getSupportFragmentManager().beginTransaction().add(target, null).commit();
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertEquals(o, target.result);
     }
