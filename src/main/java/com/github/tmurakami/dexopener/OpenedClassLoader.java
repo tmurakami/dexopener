@@ -1,6 +1,6 @@
 package com.github.tmurakami.dexopener;
 
-final class InternalClassLoader extends ClassLoader {
+final class OpenedClassLoader extends ClassLoader {
 
     private static final String[] IGNORED_PACKAGES = {
             "android.support.annotation.",
@@ -17,31 +17,25 @@ final class InternalClassLoader extends ClassLoader {
     };
 
     private final ClassLoader classLoader;
-    private final Iterable<Dex> dexes;
-    private SuperCalls superCalls = new SuperCalls() {
-        @Override
-        public Class findClass(String name) throws ClassNotFoundException {
-            return InternalClassLoader.super.findClass(name);
-        }
-    };
+    private final Iterable<DexElement> elements;
 
-    InternalClassLoader(ClassLoader classLoader, Iterable<Dex> dexes) {
+    OpenedClassLoader(ClassLoader classLoader, Iterable<DexElement> elements) {
         super(classLoader.getParent());
         this.classLoader = classLoader;
-        this.dexes = dexes;
+        this.elements = elements;
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         if (shouldLoad(name)) {
-            for (Dex d : dexes) {
-                Class<?> c = d.loadClass(name, classLoader);
+            for (DexElement e : elements) {
+                Class<?> c = e.loadClass(name, classLoader);
                 if (c != null) {
                     return c;
                 }
             }
         }
-        return superCalls.findClass(name);
+        return null;
     }
 
     private static boolean shouldLoad(String name) {
@@ -56,10 +50,6 @@ final class InternalClassLoader extends ClassLoader {
             s = s.substring(0, dollar);
         }
         return !s.endsWith(".BuildConfig") && !s.endsWith(".R");
-    }
-
-    interface SuperCalls {
-        Class findClass(String name) throws ClassNotFoundException;
     }
 
 }

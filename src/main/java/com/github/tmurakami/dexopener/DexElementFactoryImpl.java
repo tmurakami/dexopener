@@ -9,17 +9,17 @@ import java.util.zip.ZipFile;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
-final class DexFactoryImpl implements DexFactory {
+final class DexElementFactoryImpl implements DexElementFactory {
 
     private final DexFileLoader fileLoader;
 
-    DexFactoryImpl(DexFileLoader fileLoader) {
+    DexElementFactoryImpl(DexFileLoader fileLoader) {
         this.fileLoader = fileLoader;
     }
 
     @Override
-    public Dex newDex(File file, File cacheDir) {
-        return new DexImpl(newApplicationReader(file), cacheDir, fileLoader);
+    public DexElement newDexElement(File file, File cacheDir) {
+        return new DexElementImpl(newApplicationReader(file), cacheDir, fileLoader);
     }
 
     private static ApplicationReader newApplicationReader(File file) {

@@ -9,19 +9,19 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-final class DexInstallerImpl extends DexInstaller {
+final class InstallerImpl extends Installer {
 
     private final MultiDexHelper multiDexHelper;
-    private final DexFactory dexFactory;
+    private final DexElementFactory elementFactory;
     private final ClassLoaderFactory classLoaderFactory;
     private final ClassLoaderHelper classLoaderHelper;
 
-    DexInstallerImpl(MultiDexHelper multiDexHelper,
-                     DexFactory dexFactory,
-                     ClassLoaderFactory classLoaderFactory,
-                     ClassLoaderHelper classLoaderHelper) {
+    InstallerImpl(MultiDexHelper multiDexHelper,
+                  DexElementFactory elementFactory,
+                  ClassLoaderFactory classLoaderFactory,
+                  ClassLoaderHelper classLoaderHelper) {
         this.multiDexHelper = multiDexHelper;
-        this.dexFactory = dexFactory;
+        this.elementFactory = elementFactory;
         this.classLoaderFactory = classLoaderFactory;
         this.classLoaderHelper = classLoaderHelper;
     }
@@ -29,25 +29,25 @@ final class DexInstallerImpl extends DexInstaller {
     @Override
     public void install(Context context) {
         multiDexHelper.installMultiDex(context);
-        List<Dex> dexes = collectDexes(context);
+        List<DexElement> elements = collectDexElements(context);
         ClassLoader classLoader = context.getClassLoader();
-        classLoaderHelper.setParent(classLoader, classLoaderFactory.newClassLoader(classLoader, dexes));
+        classLoaderHelper.setParent(classLoader, classLoaderFactory.newClassLoader(classLoader, elements));
     }
 
-    private List<Dex> collectDexes(Context context) {
+    private List<DexElement> collectDexElements(Context context) {
         ApplicationInfo ai = context.getApplicationInfo();
         File apk = new File(ai.sourceDir);
-        File[] files = getSecondaryDexes(ai, apk);
-        List<Dex> dexes = new ArrayList<>(files.length + 1);
+        File[] files = getSecondaryZipFiles(ai, apk);
+        List<DexElement> elements = new ArrayList<>(files.length + 1);
         File cacheDir = context.getDir("dexopener", Context.MODE_PRIVATE);
-        dexes.add(dexFactory.newDex(apk, cacheDir));
+        elements.add(elementFactory.newDexElement(apk, cacheDir));
         for (File f : files) {
-            dexes.add(dexFactory.newDex(f, cacheDir));
+            elements.add(elementFactory.newDexElement(f, cacheDir));
         }
-        return dexes;
+        return elements;
     }
 
-    private static File[] getSecondaryDexes(ApplicationInfo ai, File apk) {
+    private static File[] getSecondaryZipFiles(ApplicationInfo ai, File apk) {
         File dir = new File(ai.dataDir, "code_cache/secondary-dexes");
         final String prefix = apk.getName() + ".classes";
         File[] files = dir.listFiles(new FileFilter() {

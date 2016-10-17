@@ -8,7 +8,7 @@ import android.support.test.runner.AndroidJUnitRunner;
 @SuppressWarnings("WeakerAccess")
 public class DexOpener extends AndroidJUnitRunner {
 
-    private DexInstaller installer = DexInstaller.create();
+    private Installer installer = Installer.create();
     private SuperCalls superCalls = new SuperCallsImpl();
 
     private boolean initialized;

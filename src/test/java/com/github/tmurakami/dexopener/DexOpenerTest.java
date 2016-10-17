@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 public class DexOpenerTest {
 
     @Mock
-    DexInstaller installer;
+    Installer installer;
     @Mock
     DexOpener.SuperCalls superCalls;
     @Mock

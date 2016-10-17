@@ -1,5 +1,5 @@
 package com.github.tmurakami.dexopener;
 
-interface Dex {
+interface DexElement {
     Class loadClass(String name, ClassLoader classLoader);
 }

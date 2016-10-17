@@ -7,9 +7,9 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.MethodVisitor;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_FINAL;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
-final class InternalApplicationVisitor extends ApplicationVisitor {
+final class ApplicationOpener extends ApplicationVisitor {
 
-    InternalApplicationVisitor(ApplicationVisitor av) {
+    ApplicationOpener(ApplicationVisitor av) {
         super(ASM4, av);
     }
 

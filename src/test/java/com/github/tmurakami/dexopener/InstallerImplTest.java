@@ -22,7 +22,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DexInstallerImplTest {
+public class InstallerImplTest {
 
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
@@ -30,7 +30,7 @@ public class DexInstallerImplTest {
     @Mock
     MultiDexHelper multiDexHelper;
     @Mock
-    DexFactory dexFactory;
+    DexElementFactory elementFactory;
     @Mock
     ClassLoaderFactory classLoaderFactory;
     @Mock
@@ -41,7 +41,7 @@ public class DexInstallerImplTest {
     ClassLoader classLoader;
 
     @InjectMocks
-    DexInstallerImpl target;
+    InstallerImpl target;
 
     @Test
     public void testInstall() throws IOException {
@@ -50,15 +50,15 @@ public class DexInstallerImplTest {
         ai.sourceDir = "apk";
         File cacheDir = new File("cacheDir");
         given(context.getDir("dexopener", Context.MODE_PRIVATE)).willReturn(cacheDir);
-        Dex dex = mock(Dex.class);
-        given(dexFactory.newDex(new File("apk"), cacheDir)).willReturn(dex);
+        DexElement element = mock(DexElement.class);
+        given(elementFactory.newDexElement(new File("apk"), cacheDir)).willReturn(element);
         ai.dataDir = folder.getRoot().getCanonicalPath();
         folder.newFolder("code_cache", "secondary-dexes");
-        Dex dex2 = mock(Dex.class);
-        given(dexFactory.newDex(folder.newFile("code_cache/secondary-dexes/apk.classes2.zip"), cacheDir)).willReturn(dex2);
+        DexElement element2 = mock(DexElement.class);
+        given(elementFactory.newDexElement(folder.newFile("code_cache/secondary-dexes/apk.classes2.zip"), cacheDir)).willReturn(element2);
         ClassLoader loader = mock(ClassLoader.class);
         given(context.getClassLoader()).willReturn(loader);
-        given(classLoaderFactory.newClassLoader(loader, Arrays.asList(dex, dex2))).willReturn(classLoader);
+        given(classLoaderFactory.newClassLoader(loader, Arrays.asList(element, element2))).willReturn(classLoader);
         target.install(context);
         InOrder inOrder = inOrder(multiDexHelper, context, classLoaderHelper);
         then(multiDexHelper).should(inOrder).installMultiDex(context);

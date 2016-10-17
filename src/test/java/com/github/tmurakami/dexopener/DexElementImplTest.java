@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DexImplTest {
+public class DexElementImplTest {
 
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
@@ -61,7 +61,7 @@ public class DexImplTest {
                 }))).willReturn(dexFile);
         given(dexFile.loadClass(C.class.getName(), classLoader)).willReturn(C.class);
         ApplicationReader ar = new ApplicationReader(ASM4, generateBytes());
-        assertSame(C.class, new DexImpl(ar, cacheDir, fileLoader).loadClass(C.class.getName(), classLoader));
+        assertSame(C.class, new DexElementImpl(ar, cacheDir, fileLoader).loadClass(C.class.getName(), classLoader));
     }
 
     private byte[] generateBytes() {

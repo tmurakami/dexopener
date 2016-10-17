@@ -14,13 +14,13 @@ import java.util.zip.ZipOutputStream;
 
 import dalvik.system.DexFile;
 
-final class DexImpl implements Dex {
+final class DexElementImpl implements DexElement {
 
     private final ApplicationReader ar;
     private final File cacheDir;
     private final DexFileLoader fileLoader;
 
-    DexImpl(ApplicationReader ar, File cacheDir, DexFileLoader fileLoader) {
+    DexElementImpl(ApplicationReader ar, File cacheDir, DexFileLoader fileLoader) {
         this.ar = ar;
         this.cacheDir = cacheDir;
         this.fileLoader = fileLoader;
@@ -33,7 +33,7 @@ final class DexImpl implements Dex {
             return null;
         }
         ApplicationWriter aw = new ApplicationWriter();
-        ar.accept(new InternalApplicationVisitor(aw), new String[]{internalName}, 0);
+        ar.accept(new ApplicationOpener(aw), new String[]{internalName}, 0);
         File zip = null;
         File dex = null;
         DexFile dexFile = null;
