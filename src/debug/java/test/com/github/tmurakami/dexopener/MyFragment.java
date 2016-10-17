@@ -7,8 +7,7 @@ import android.support.v4.app.Fragment;
 
 public class MyFragment extends Fragment {
 
-    @VisibleForTesting
-    MyService service = new MyService();
+    private MyService service = new MyService();
 
     @VisibleForTesting
     Object result;

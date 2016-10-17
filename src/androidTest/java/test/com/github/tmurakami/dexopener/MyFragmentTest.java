@@ -1,12 +1,12 @@
 package test.com.github.tmurakami.dexopener;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.FragmentActivity;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -21,21 +21,26 @@ public class MyFragmentTest {
     @Mock
     MyService service;
 
-    private final MyFragment target = new MyFragment();
+    @InjectMocks
+    MyFragment target;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        target.service = service;
     }
 
     @Test
     public void testOnCreate() {
-        Object o = new Object();
+        final Object o = new Object();
         willReturn(o).given(service).doIt();
-        rule.getActivity().getSupportFragmentManager().beginTransaction().add(target, null).commit();
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-        assertEquals(o, target.result);
+        final FragmentActivity activity = rule.getActivity();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getSupportFragmentManager().beginTransaction().add(target, null).commitNow();
+                assertEquals(o, target.result);
+            }
+        });
     }
 
 }
