@@ -16,7 +16,7 @@ import static org.mockito.BDDMockito.willReturn;
 public class MyFragmentTest {
 
     @Rule
-    public final ActivityTestRule<FragmentActivity> rule = new ActivityTestRule<>(FragmentActivity.class, false, false);
+    public final ActivityTestRule<FragmentActivity> rule = new ActivityTestRule<>(FragmentActivity.class);
 
     @Mock
     MyService service;
@@ -33,7 +33,7 @@ public class MyFragmentTest {
     public void testOnCreate() {
         Object o = new Object();
         willReturn(o).given(service).doIt();
-        rule.launchActivity(null).getSupportFragmentManager().beginTransaction().add(target, null).commit();
+        rule.getActivity().getSupportFragmentManager().beginTransaction().add(target, null).commit();
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertEquals(o, target.result);
     }
