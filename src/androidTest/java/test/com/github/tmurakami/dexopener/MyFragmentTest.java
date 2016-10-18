@@ -1,8 +1,9 @@
 package test.com.github.tmurakami.dexopener;
 
+import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import android.support.v4.app.FragmentActivity;
+import android.support.test.runner.intercepting.SingleActivityFactory;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,7 +18,12 @@ import static org.mockito.BDDMockito.willReturn;
 public class MyFragmentTest {
 
     @Rule
-    public final ActivityTestRule<FragmentActivity> rule = new ActivityTestRule<>(FragmentActivity.class, true, false);
+    public final ActivityTestRule<MyActivity> rule = new ActivityTestRule<>(new SingleActivityFactory<MyActivity>(MyActivity.class) {
+        @Override
+        protected MyActivity create(Intent intent) {
+            return new MyActivity(target);
+        }
+    }, true, false);
 
     @Mock
     MyService service;
@@ -34,7 +40,7 @@ public class MyFragmentTest {
     public void testOnCreate() {
         Object o = new Object();
         willReturn(o).given(service).doIt();
-        rule.launchActivity(null).getSupportFragmentManager().beginTransaction().add(target, null).commit();
+        rule.launchActivity(null);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertEquals(o, target.result);
     }

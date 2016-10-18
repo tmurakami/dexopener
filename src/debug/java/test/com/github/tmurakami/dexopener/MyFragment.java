@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 
-public class MyFragment extends Fragment {
+public final class MyFragment extends Fragment {
 
     private MyService service = new MyService();
 

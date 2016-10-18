@@ -3,7 +3,7 @@
     package="com.github.tmurakami.dexopener">
 
     <application android:name="test.com.github.tmurakami.dexopener.MyApplication">
-        <activity android:name="android.support.v4.app.FragmentActivity" />
+        <activity android:name="test.com.github.tmurakami.dexopener.MyActivity" />
     </application>
 
 </manifest>
