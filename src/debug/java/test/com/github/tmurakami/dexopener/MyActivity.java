@@ -7,22 +7,25 @@ import android.support.v4.app.FragmentActivity;
 
 public final class MyActivity extends FragmentActivity {
 
-    private final MyFragment fragment;
+    private final MyService service;
+
+    @VisibleForTesting
+    Object result;
 
     @SuppressWarnings("unused")
     public MyActivity() {
-        this(new MyFragment());
+        this(new MyService());
     }
 
     @VisibleForTesting
-    MyActivity(MyFragment fragment) {
-        this.fragment = fragment;
+    MyActivity(MyService service) {
+        this.service = service;
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportFragmentManager().beginTransaction().add(fragment, null).commitNow();
+        result = service.doIt();
     }
 
 }
