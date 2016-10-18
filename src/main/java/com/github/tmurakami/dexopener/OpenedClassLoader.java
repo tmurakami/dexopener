@@ -19,12 +19,6 @@ final class OpenedClassLoader extends ClassLoader {
 
     private final ClassLoader classLoader;
     private final Iterable<DexElement> elements;
-    private SuperCalls superCalls = new SuperCalls() {
-        @Override
-        public Class findClass(String name) throws ClassNotFoundException {
-            return OpenedClassLoader.super.findClass(name);
-        }
-    };
 
     OpenedClassLoader(ClassLoader classLoader, Iterable<DexElement> elements) {
         super(classLoader.getParent());
@@ -42,7 +36,7 @@ final class OpenedClassLoader extends ClassLoader {
                 }
             }
         }
-        return superCalls.findClass(name);
+        return super.findClass(name);
     }
 
     private static boolean shouldLoad(String name) {
@@ -57,10 +51,6 @@ final class OpenedClassLoader extends ClassLoader {
             s = s.substring(0, dollar);
         }
         return !s.endsWith(".BuildConfig") && !s.endsWith(".R");
-    }
-
-    interface SuperCalls {
-        Class findClass(String name) throws ClassNotFoundException;
     }
 
 }

@@ -13,7 +13,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import dalvik.system.DexFile;
 
@@ -36,7 +35,7 @@ public class DexElementImplTest {
     ClassLoader classLoader;
 
     @Test
-    public void testLoadClass() throws ExecutionException, InterruptedException, IOException {
+    public void testLoadClass() throws IOException {
         final File cacheDir = folder.newFolder();
         given(fileLoader.load(
                 argThat(new ArgumentMatcher<String>() {

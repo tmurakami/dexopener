@@ -11,8 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -33,7 +31,7 @@ public class DexOpenerTest {
     DexOpener target;
 
     @Test
-    public void testOnCreate() throws IOException {
+    public void testOnCreate() {
         given(superCalls.getTargetContext()).willReturn(targetContext);
         Bundle arguments = new Bundle();
         target.onCreate(arguments);
@@ -43,7 +41,7 @@ public class DexOpenerTest {
     }
 
     @Test
-    public void testNewApplication() throws Exception {
+    public void testNewApplication() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         given(superCalls.getTargetContext()).willReturn(targetContext);
         ClassLoader cl = mock(ClassLoader.class);
         Context context = mock(Context.class);

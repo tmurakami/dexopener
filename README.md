@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/tmurakami/dexopener.svg?style=shield)](https://circleci.com/gh/tmurakami/dexopener)
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
 
-A library that is able to mock final classes and methods on Dalvik/ART.
+A library that provides the ability to mock final classes and methods on Android.
 
 ## Installation
 
@@ -15,7 +15,11 @@ repositories {
 dependencies {
     androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
 }
+```
 
+And set DexOpener as the default test instrumentation runner.
+
+```groovy
 android {
     defaultConfig {
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpener'
@@ -25,11 +29,9 @@ android {
 
 ## Limitation
 
-This library is **NOT** able to create *final* mocks of the following classes:
+The following final classes and methods cannot be mocked.
 
-- Android Classes
-- [Android Data Binding Library](https://developer.android.com/topic/libraries/data-binding/index.html)
-- [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
+- [Android APIs](https://developer.android.com/reference/packages.html), including [Support Library](https://developer.android.com/topic/libraries/support-library/index.html) and [Data Binding Library](https://developer.android.com/topic/libraries/data-binding/index.html)
 - [Android Testing Support Library](https://developer.android.com/topic/libraries/testing-support-library/index.html)
 - [Byte Buddy](http://bytebuddy.net/)
 - [Dexmaker](https://github.com/crittercism/dexmaker)
