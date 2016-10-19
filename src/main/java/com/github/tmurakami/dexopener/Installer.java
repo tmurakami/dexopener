@@ -12,7 +12,7 @@ abstract class Installer {
 
     static Installer create() {
         DexElementFactory elementFactory = new DexElementFactoryImpl(newDexFileLoader());
-        ClassLoaderFactory classLoaderFactory = newClassLoaderFactory();
+        ClassLoaderFactory classLoaderFactory = newClassLoaderFactory(new ClassNameFilterImpl());
         return new InstallerImpl(new MultiDexHelperImpl(), elementFactory, classLoaderFactory, new ClassLoaderHelperImpl());
     }
 
@@ -25,11 +25,11 @@ abstract class Installer {
         };
     }
 
-    private static ClassLoaderFactory newClassLoaderFactory() {
+    private static ClassLoaderFactory newClassLoaderFactory(final ClassNameFilter classNameFilter) {
         return new ClassLoaderFactory() {
             @Override
             public ClassLoader newClassLoader(ClassLoader classLoader, Iterable<DexElement> elements) {
-                return new OpenedClassLoader(classLoader, elements);
+                return new OpenedClassLoader(classLoader, classNameFilter, new DexElements(elements));
             }
         };
     }
