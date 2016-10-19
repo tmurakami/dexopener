@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -34,6 +35,7 @@ final class DexElementImpl implements DexElement {
         }
         ApplicationWriter aw = new ApplicationWriter();
         ar.accept(new ApplicationOpener(aw), new String[]{internalName}, 0);
+        byte[] bytes = aw.toByteArray();
         File zip = null;
         File dex = null;
         DexFile dexFile = null;
@@ -41,8 +43,14 @@ final class DexElementImpl implements DexElement {
             zip = File.createTempFile("classes", ".zip", cacheDir);
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
             try {
-                out.putNextEntry(new ZipEntry("classes.dex"));
-                out.write(aw.toByteArray());
+                out.setMethod(ZipOutputStream.STORED);
+                ZipEntry e = new ZipEntry("classes.dex");
+                e.setSize(bytes.length);
+                CRC32 crc32 = new CRC32();
+                crc32.update(bytes);
+                e.setCrc(crc32.getValue());
+                out.putNextEntry(e);
+                out.write(bytes);
             } finally {
                 closeQuietly(out);
             }

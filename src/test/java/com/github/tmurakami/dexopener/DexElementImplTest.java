@@ -16,6 +16,8 @@ import java.io.IOException;
 
 import dalvik.system.DexFile;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_PRIVATE;
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_STATIC;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -42,9 +44,9 @@ public class DexElementImplTest {
                     @Override
                     public boolean matches(String path) {
                         File file = new File(path);
-                        return file.exists()
+                        return path.endsWith(".zip")
+                                && file.exists()
                                 && file.getName().startsWith("classes")
-                                && file.getName().endsWith(".zip")
                                 && file.getParentFile().equals(cacheDir);
                     }
                 }),
@@ -52,9 +54,9 @@ public class DexElementImplTest {
                     @Override
                     public boolean matches(String path) {
                         File file = new File(path);
-                        return !file.exists()
+                        return path.endsWith(".zip.dex")
+                                && !file.exists()
                                 && file.getName().startsWith("classes")
-                                && file.getName().endsWith(".zip.dex")
                                 && file.getParentFile().equals(cacheDir);
                     }
                 }))).willReturn(dexFile);
@@ -63,11 +65,11 @@ public class DexElementImplTest {
         assertSame(C.class, new DexElementImpl(ar, cacheDir, fileLoader).loadClass(C.class.getName(), classLoader));
     }
 
-    private byte[] generateBytes() {
-        String name = 'L' + getClass().getName().replace('.', '/') + "$C;";
+    private static byte[] generateBytes() {
+        String name = 'L' + C.class.getName().replace('.', '/') + ';';
         ApplicationWriter aw = new ApplicationWriter();
         aw.visit();
-        aw.visitClass(0, name, null, "Ljava/lang/Object;", null);
+        aw.visitClass(ACC_PRIVATE | ACC_STATIC, name, null, "Ljava/lang/Object;", null);
         aw.visitEnd();
         return aw.toByteArray();
     }
