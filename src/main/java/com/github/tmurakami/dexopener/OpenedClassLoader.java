@@ -45,12 +45,7 @@ final class OpenedClassLoader extends ClassLoader {
                 return false;
             }
         }
-        String s = name;
-        int dollar = s.indexOf('$');
-        if (dollar > -1) {
-            s = s.substring(0, dollar);
-        }
-        return !s.endsWith(".BuildConfig") && !s.endsWith(".R");
+        return !name.endsWith(".R") && !name.contains(".R$");
     }
 
 }

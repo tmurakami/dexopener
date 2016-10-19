@@ -59,13 +59,10 @@ public class OpenedClassLoaderTest {
                 notFound(Test.class.getName()),
                 notFound(Mockito.class.getName()),
                 notFound(Objenesis.class.getName()),
-                notFound("foo.BuildConfig"),
                 notFound("foo.R"),
                 notFound("foo.R$string"),
-                found("BuildConfig"),
                 found("R"),
                 found("R$string"),
-                found("foo.Bar$BuildConfig"),
                 found("foo.Bar$R"),
                 found("foo.Bar$R$string"),
                 found("foo.Bar"));
@@ -112,8 +109,8 @@ public class OpenedClassLoaderTest {
 
     }
 
-    private static Tester found(String className) {
-        return new Tester(className, new TestExecutor() {
+    private static Tester found(String name) {
+        return new Tester(name, new TestExecutor() {
             @Override
             public void test(String name, OpenedClassLoader target, DexElement element, ClassLoader classLoader) {
                 given(element.loadClass(name, classLoader)).willReturn(C.class);
@@ -128,8 +125,8 @@ public class OpenedClassLoaderTest {
         });
     }
 
-    private static Tester notFound(String className) {
-        return new Tester(className, new TestExecutor() {
+    private static Tester notFound(String name) {
+        return new Tester(name, new TestExecutor() {
             @Override
             public void test(String name, OpenedClassLoader target, DexElement element, ClassLoader classLoader) {
                 try {

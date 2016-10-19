@@ -55,7 +55,7 @@ dependencies {
     provided 'com.android.support:multidex:1.0.1'
     debugCompile 'com.android.support:support-v4:24.1.1'
     testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.2.4'
+    testCompile 'org.mockito:mockito-core:2.2.5'
     androidTestCompile 'com.android.support.test:rules:0.6-alpha'
     androidTestCompile 'com.github.tmurakami:dexmockito:0.6.2'
 }
