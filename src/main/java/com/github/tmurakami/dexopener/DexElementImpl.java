@@ -4,7 +4,6 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReade
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.DexFileReader;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,7 +51,7 @@ final class DexElementImpl implements DexElement {
                 out.putNextEntry(e);
                 out.write(bytes);
             } finally {
-                closeQuietly(out);
+                IOUtils.closeQuietly(out);
             }
             dex = new File(cacheDir, zip.getName() + ".dex");
             dexFile = fileLoader.load(zip.getCanonicalPath(), dex.getCanonicalPath());
@@ -60,7 +59,7 @@ final class DexElementImpl implements DexElement {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            closeQuietly(dexFile);
+            IOUtils.closeQuietly(dexFile);
             deleteFiles(zip, dex);
         }
     }
@@ -75,24 +74,6 @@ final class DexElementImpl implements DexElement {
             }
         }
         return false;
-    }
-
-    private static void closeQuietly(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-    private static void closeQuietly(DexFile dexFile) {
-        if (dexFile != null) {
-            try {
-                dexFile.close();
-            } catch (IOException ignored) {
-            }
-        }
     }
 
     private static void deleteFiles(File... files) {
