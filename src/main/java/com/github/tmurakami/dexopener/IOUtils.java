@@ -1,7 +1,9 @@
 package com.github.tmurakami.dexopener;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
@@ -30,12 +32,27 @@ final class IOUtils {
         }
     }
 
-    static void closeQuietly(ZipFile dexFile) {
-        if (dexFile != null) {
+    static void closeQuietly(ZipFile zipFile) {
+        if (zipFile != null) {
             try {
-                dexFile.close();
+                zipFile.close();
             } catch (IOException ignored) {
             }
+        }
+    }
+
+    static void forceDelete(File file) {
+        if (file == null) {
+            return;
+        }
+        File[] files = file.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                forceDelete(f);
+            }
+        }
+        if (file.exists() && !file.delete()) {
+            Logger.getLogger("com.github.tmurakami.dexopener").warning("Cannot delete " + file);
         }
     }
 

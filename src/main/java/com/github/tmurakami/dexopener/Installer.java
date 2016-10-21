@@ -11,8 +11,9 @@ abstract class Installer {
     abstract void install(Context context);
 
     static Installer create() {
-        DexElementFactory elementFactory = new DexElementFactoryImpl(newDexFileLoader());
-        ClassLoaderFactory classLoaderFactory = newClassLoaderFactory(new ClassNameFilterImpl());
+        ClassNameFilter classNameFilter = new ClassNameFilterImpl();
+        DexElementFactory elementFactory = new DexElementFactoryImpl(classNameFilter, newDexFileLoader());
+        ClassLoaderFactory classLoaderFactory = newClassLoaderFactory(classNameFilter);
         return new InstallerImpl(elementFactory, classLoaderFactory, new ClassLoaderHelperImpl());
     }
 

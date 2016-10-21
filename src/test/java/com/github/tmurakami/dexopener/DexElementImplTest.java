@@ -30,6 +30,8 @@ public class DexElementImplTest {
     public final TemporaryFolder folder = new TemporaryFolder();
 
     @Mock
+    ClassNameFilter classNameFilter;
+    @Mock
     DexFileLoader fileLoader;
     @Mock
     DexFile dexFile;
@@ -38,6 +40,7 @@ public class DexElementImplTest {
 
     @Test
     public void testLoadClass() throws IOException {
+        given(classNameFilter.accept(C.class.getName())).willReturn(true);
         final File cacheDir = folder.newFolder();
         given(fileLoader.load(
                 argThat(new ArgumentMatcher<String>() {
@@ -62,7 +65,7 @@ public class DexElementImplTest {
                 }))).willReturn(dexFile);
         given(dexFile.loadClass(C.class.getName(), classLoader)).willReturn(C.class);
         ApplicationReader ar = new ApplicationReader(ASM4, generateBytes());
-        assertSame(C.class, new DexElementImpl(ar, cacheDir, fileLoader).loadClass(C.class.getName(), classLoader));
+        assertSame(C.class, new DexElementImpl(ar, cacheDir, classNameFilter, fileLoader).loadClass(C.class.getName(), classLoader));
     }
 
     private static byte[] generateBytes() {

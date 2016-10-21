@@ -43,10 +43,10 @@ public class InstallerImplTest {
         ApplicationInfo ai = new ApplicationInfo();
         given(context.getApplicationInfo()).willReturn(ai);
         ai.sourceDir = "apk";
-        File cacheDir = new File("cacheDir");
-        given(context.getDir("dexopener", Context.MODE_PRIVATE)).willReturn(cacheDir);
+        File dataDir = folder.newFolder();
+        ai.dataDir = dataDir.getCanonicalPath();
         DexElement element = mock(DexElement.class);
-        given(elementFactory.newDexElement(new File("apk"), cacheDir)).willReturn(element);
+        given(elementFactory.newDexElement(new File("apk"), new File(dataDir, "code_cache/dexopener"))).willReturn(element);
         ClassLoader loader = mock(ClassLoader.class);
         given(context.getClassLoader()).willReturn(loader);
         given(classLoaderFactory.newClassLoader(loader, element)).willReturn(classLoader);

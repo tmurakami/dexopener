@@ -1,6 +1,7 @@
 package com.github.tmurakami.dexopener;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 
 import java.io.File;
 
@@ -20,9 +21,13 @@ final class InstallerImpl extends Installer {
 
     @Override
     public void install(Context context) {
-        File file = new File(context.getApplicationInfo().sourceDir);
-        File cacheDir = context.getDir("dexopener", Context.MODE_PRIVATE);
-        DexElement element = elementFactory.newDexElement(file, cacheDir);
+        ApplicationInfo ai = context.getApplicationInfo();
+        File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
+        IOUtils.forceDelete(cacheDir);
+        if (!cacheDir.mkdirs()) {
+            throw new Error("Cannot create " + cacheDir);
+        }
+        DexElement element = elementFactory.newDexElement(new File(ai.sourceDir), cacheDir);
         ClassLoader classLoader = context.getClassLoader();
         classLoaderHelper.setParent(classLoader, classLoaderFactory.newClassLoader(classLoader, element));
     }
