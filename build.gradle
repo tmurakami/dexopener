@@ -25,7 +25,7 @@ android {
     compileSdkVersion 24
     buildToolsVersion '24.0.2'
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpener'
         testInstrumentationRunnerArguments.package = "test.$packageName" as String
     }
@@ -52,7 +52,7 @@ dependencies {
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackagedJarName") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
-    debugCompile 'com.android.support:support-v4:24.1.1'
+    debugCompile 'com.android.support:support-fragment:24.2.1'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.2.5'
     androidTestCompile 'com.android.support.test:rules:0.6-alpha'
