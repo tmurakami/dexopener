@@ -12,7 +12,9 @@ abstract class Installer {
 
     static Installer create() {
         ClassNameFilter classNameFilter = new ClassNameFilterImpl();
-        DexElementFactory elementFactory = new DexElementFactoryImpl(classNameFilter, newDexFileLoader());
+        DexFileLoader fileLoader = newDexFileLoader();
+        DexGenerator dexGenerator = new DexGeneratorImpl();
+        DexElementFactory elementFactory = new DexElementFactoryImpl(classNameFilter, dexGenerator, fileLoader);
         ClassLoaderFactory classLoaderFactory = newClassLoaderFactory(classNameFilter);
         return new InstallerImpl(elementFactory, classLoaderFactory, new ClassLoaderHelperImpl());
     }

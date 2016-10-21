@@ -1,22 +1,15 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
-import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
-import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.DexFileReader;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.CRC32;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import dalvik.system.DexFile;
 
@@ -27,18 +20,21 @@ final class DexElementImpl implements DexElement {
 
     private final ApplicationReader ar;
     private final File cacheDir;
+    private final DexGenerator dexGenerator;
     private final DexFileLoader fileLoader;
-    private final Collection<String> unloadedClassNames;
+    private final List<String> unloadedClassNames;
     private final List<DexFile> dexFiles = new ArrayList<>();
 
     DexElementImpl(ApplicationReader ar,
+                   Collection<String> classNames,
                    File cacheDir,
-                   ClassNameFilter classNameFilter,
+                   DexGenerator dexGenerator,
                    DexFileLoader fileLoader) {
         this.ar = ar;
         this.cacheDir = cacheDir;
+        this.dexGenerator = dexGenerator;
+        this.unloadedClassNames = new ArrayList<>(classNames);
         this.fileLoader = fileLoader;
-        this.unloadedClassNames = collectClassNames(ar, classNameFilter);
     }
 
     @Override
@@ -49,48 +45,23 @@ final class DexElementImpl implements DexElement {
                 return c;
             }
         }
-        DexFile dexFile = loadDexFileFor(name);
-        if (dexFile == null) {
+        String[] classesToVisit = findClassesToVisit(name, unloadedClassNames);
+        if (classesToVisit.length == 0) {
             return null;
+        }
+        DexFile dexFile;
+        try {
+            File source = dexGenerator.generateDexFile(ar, cacheDir, classesToVisit);
+            File output = new File(cacheDir, source.getName() + ".dex");
+            dexFile = fileLoader.load(source.getCanonicalPath(), output.getCanonicalPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         dexFiles.add(dexFile);
         return dexFile.loadClass(name, classLoader);
     }
 
-    private DexFile loadDexFileFor(String name) {
-        String[] classesToVisit = findClassesToVisit(name);
-        if (classesToVisit.length == 0) {
-            return null;
-        }
-        ApplicationWriter aw = new ApplicationWriter();
-        ar.accept(new ApplicationOpener(aw), classesToVisit, 0);
-        byte[] bytes = aw.toByteArray();
-        File zip = null;
-        try {
-            zip = File.createTempFile("classes", ".zip", cacheDir);
-            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
-            try {
-                out.setMethod(ZipOutputStream.STORED);
-                ZipEntry e = new ZipEntry("classes.dex");
-                e.setSize(bytes.length);
-                CRC32 crc32 = new CRC32();
-                crc32.update(bytes);
-                e.setCrc(crc32.getValue());
-                out.putNextEntry(e);
-                out.write(bytes);
-            } finally {
-                IOUtils.closeQuietly(out);
-            }
-            File dex = new File(cacheDir, zip.getName() + ".dex");
-            return fileLoader.load(zip.getCanonicalPath(), dex.getCanonicalPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.forceDelete(zip);
-        }
-    }
-
-    private String[] findClassesToVisit(String name) {
+    private static String[] findClassesToVisit(String name, Collection<String> unloadedClassNames) {
         String className = 'L' + name.replace('.', '/') + ';';
         if (!unloadedClassNames.contains(className)) {
             return EMPTY_STRINGS;
@@ -110,21 +81,6 @@ final class DexElementImpl implements DexElement {
             }
         }
         return names.toArray(new String[names.size()]);
-    }
-
-    private static Collection<String> collectClassNames(ApplicationReader ar, ClassNameFilter classNameFilter) {
-        DexFileReader r = (DexFileReader) ar.getDexFile();
-        int size = r.getClassDefinitionsSize();
-        List<String> names = new ArrayList<>(size);
-        for (int i = 0; i < size; ++i) {
-            r.seek(r.getClassDefinitionOffset(i));
-            String name = r.getStringItemFromTypeIndex(r.uint());
-            if (classNameFilter.accept(name.substring(1, name.length() - 1).replace('/', '.'))) {
-                names.add(name);
-            }
-        }
-        Collections.sort(names);
-        return names;
     }
 
 }
