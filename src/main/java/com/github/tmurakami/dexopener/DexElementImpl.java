@@ -6,10 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import dalvik.system.DexFile;
 
@@ -20,21 +18,20 @@ final class DexElementImpl implements DexElement {
 
     private final ApplicationReader ar;
     private final File cacheDir;
-    private final DexGenerator dexGenerator;
-    private final DexFileLoader fileLoader;
+    private final DexFileGenerator fileGenerator;
     private final List<String> unloadedClassNames;
     private final List<DexFile> dexFiles = new ArrayList<>();
 
     DexElementImpl(ApplicationReader ar,
                    Collection<String> classNames,
                    File cacheDir,
-                   DexGenerator dexGenerator,
-                   DexFileLoader fileLoader) {
+                   DexFileGenerator fileGenerator) {
         this.ar = ar;
         this.cacheDir = cacheDir;
-        this.dexGenerator = dexGenerator;
-        this.unloadedClassNames = new ArrayList<>(classNames);
-        this.fileLoader = fileLoader;
+        this.fileGenerator = fileGenerator;
+        List<String> names = new ArrayList<>(classNames);
+        Collections.sort(names);
+        this.unloadedClassNames = names;
     }
 
     @Override
@@ -51,9 +48,7 @@ final class DexElementImpl implements DexElement {
         }
         DexFile dexFile;
         try {
-            File source = dexGenerator.generateDexFile(ar, cacheDir, classesToVisit);
-            File output = new File(cacheDir, source.getName() + ".dex");
-            dexFile = fileLoader.load(source.getCanonicalPath(), output.getCanonicalPath());
+            dexFile = fileGenerator.generateDexFile(ar, cacheDir, classesToVisit);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -61,25 +56,15 @@ final class DexElementImpl implements DexElement {
         return dexFile.loadClass(name, classLoader);
     }
 
-    private static String[] findClassesToVisit(String name, Collection<String> unloadedClassNames) {
+    private static String[] findClassesToVisit(String name, List<String> unloadedClassNames) {
         String className = 'L' + name.replace('.', '/') + ';';
-        if (!unloadedClassNames.contains(className)) {
+        int from = Collections.binarySearch(unloadedClassNames, className);
+        if (from < 0) {
             return EMPTY_STRINGS;
         }
-        Set<String> names = new HashSet<>();
-        names.add(className);
-        int slash = className.lastIndexOf('/');
-        String pkg = slash == -1 ? null : className.substring(0, slash) + '/';
-        for (Iterator<String> it = unloadedClassNames.iterator(); it.hasNext(); ) {
-            String s = it.next();
-            if (pkg == null || s.startsWith(pkg)) {
-                names.add(s);
-                it.remove();
-                if (names.size() > CLASSES_PER_DEX_FILE) {
-                    break;
-                }
-            }
-        }
+        int to = Math.min(from + CLASSES_PER_DEX_FILE, unloadedClassNames.size());
+        List<String> names = new ArrayList<>(unloadedClassNames.subList(from, to));
+        unloadedClassNames.removeAll(names);
         return names.toArray(new String[names.size()]);
     }
 

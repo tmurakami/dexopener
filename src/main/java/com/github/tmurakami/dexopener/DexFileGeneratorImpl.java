@@ -10,11 +10,20 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-final class DexGeneratorImpl implements DexGenerator {
+import dalvik.system.DexFile;
+
+final class DexFileGeneratorImpl implements DexFileGenerator {
+
+    private final DexFileLoader fileLoader;
+
+    DexFileGeneratorImpl(DexFileLoader fileLoader) {
+        this.fileLoader = fileLoader;
+    }
+
     @Override
-    public File generateDexFile(ApplicationReader ar,
-                                File cacheDir,
-                                String... classesToVisit) throws IOException {
+    public DexFile generateDexFile(ApplicationReader ar,
+                                   File cacheDir,
+                                   String... classesToVisit) throws IOException {
         ApplicationWriter aw = new ApplicationWriter();
         ar.accept(new ApplicationOpener(aw), classesToVisit, 0);
         byte[] bytes = aw.toByteArray();
@@ -32,6 +41,7 @@ final class DexGeneratorImpl implements DexGenerator {
         } finally {
             IOUtils.closeQuietly(out);
         }
-        return zip;
+        String sourcePathName = zip.getCanonicalPath();
+        return fileLoader.load(sourcePathName, sourcePathName + ".dex");
     }
 }

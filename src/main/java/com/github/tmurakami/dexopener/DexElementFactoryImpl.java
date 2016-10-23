@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -18,15 +17,11 @@ import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.A
 final class DexElementFactoryImpl implements DexElementFactory {
 
     private final ClassNameFilter classNameFilter;
-    private final DexGenerator dexGenerator;
-    private final DexFileLoader fileLoader;
+    private final DexFileGenerator dexGenerator;
 
-    DexElementFactoryImpl(ClassNameFilter classNameFilter,
-                          DexGenerator dexGenerator,
-                          DexFileLoader fileLoader) {
+    DexElementFactoryImpl(ClassNameFilter classNameFilter, DexFileGenerator dexGenerator) {
         this.classNameFilter = classNameFilter;
         this.dexGenerator = dexGenerator;
-        this.fileLoader = fileLoader;
     }
 
     @Override
@@ -54,7 +49,7 @@ final class DexElementFactoryImpl implements DexElementFactory {
     private DexElement newDexElement(InputStream in, File cacheDir) throws IOException {
         ApplicationReader ar = new ApplicationReader(ASM4, in);
         Collection<String> classNames = collectClassNames((DexFileReader) ar.getDexFile(), classNameFilter);
-        return new DexElementImpl(ar, classNames, cacheDir, dexGenerator, fileLoader);
+        return new DexElementImpl(ar, classNames, cacheDir, dexGenerator);
     }
 
     private static Collection<String> collectClassNames(DexFileReader r, ClassNameFilter classNameFilter) {
@@ -67,7 +62,6 @@ final class DexElementFactoryImpl implements DexElementFactory {
                 names.add(name);
             }
         }
-        Collections.sort(names);
         return names;
     }
 

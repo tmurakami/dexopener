@@ -24,9 +24,7 @@ public class DexElementImplTest {
     @Mock
     ApplicationReader ar;
     @Mock
-    DexGenerator fileGenerator;
-    @Mock
-    DexFileLoader fileLoader;
+    DexFileGenerator fileGenerator;
     @Mock
     Callable<DexFile> task;
     @Mock
@@ -39,11 +37,9 @@ public class DexElementImplTest {
         String name = 'L' + C.class.getName().replace('.', '/') + ';';
         List<String> classNames = Collections.singletonList(name);
         File cacheDir = new File("cacheDir");
-        File file = new File("classes.zip");
-        given(fileGenerator.generateDexFile(ar, cacheDir, name)).willReturn(file);
-        given(fileLoader.load(file.getCanonicalPath(), new File(cacheDir, "classes.zip.dex").getCanonicalPath())).willReturn(dexFile);
+        given(fileGenerator.generateDexFile(ar, cacheDir, name)).willReturn(dexFile);
         given(dexFile.loadClass(C.class.getName(), classLoader)).willReturn(C.class);
-        assertSame(C.class, new DexElementImpl(ar, classNames, cacheDir, fileGenerator, fileLoader).loadClass(C.class.getName(), classLoader));
+        assertSame(C.class, new DexElementImpl(ar, classNames, cacheDir, fileGenerator).loadClass(C.class.getName(), classLoader));
     }
 
     private static class C {
