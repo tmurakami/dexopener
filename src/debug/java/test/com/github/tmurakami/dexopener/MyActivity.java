@@ -1,26 +1,17 @@
 package test.com.github.tmurakami.dexopener;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.app.FragmentActivity;
 
-public final class MyActivity extends FragmentActivity {
+public final class MyActivity extends Activity {
 
-    private final MyService service;
+    @VisibleForTesting
+    MyService service = new MyService();
 
     @VisibleForTesting
     Object result;
-
-    @SuppressWarnings("unused")
-    public MyActivity() {
-        this(new MyService());
-    }
-
-    @VisibleForTesting
-    MyActivity(MyService service) {
-        this.service = service;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
