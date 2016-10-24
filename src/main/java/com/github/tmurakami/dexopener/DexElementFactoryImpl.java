@@ -53,8 +53,8 @@ final class DexElementFactoryImpl implements DexElementFactory {
     }
 
     private static Collection<String> collectClassNames(DexFileReader r, ClassNameFilter classNameFilter) {
+        List<String> names = new ArrayList<>();
         int size = r.getClassDefinitionsSize();
-        List<String> names = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             r.seek(r.getClassDefinitionOffset(i));
             String name = r.getStringItemFromTypeIndex(r.uint());

@@ -5,6 +5,7 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReade
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -13,8 +14,7 @@ import dalvik.system.DexFile;
 
 final class DexElementImpl implements DexElement {
 
-    private static final String[] EMPTY_STRINGS = new String[0];
-    private static final int CLASSES_PER_DEX_FILE = 100;
+    private static final int MAX_CLASSES_PER_DEX_FILE = 100;
 
     private final ApplicationReader ar;
     private final File cacheDir;
@@ -43,7 +43,7 @@ final class DexElementImpl implements DexElement {
             }
         }
         String[] classesToVisit = findClassesToVisit(name, unloadedClassNames);
-        if (classesToVisit.length == 0) {
+        if (classesToVisit == null) {
             return null;
         }
         DexFile dexFile;
@@ -60,12 +60,12 @@ final class DexElementImpl implements DexElement {
         String className = 'L' + name.replace('.', '/') + ';';
         int from = Collections.binarySearch(unloadedClassNames, className);
         if (from < 0) {
-            return EMPTY_STRINGS;
+            return null;
         }
-        int to = Math.min(from + CLASSES_PER_DEX_FILE, unloadedClassNames.size());
-        List<String> names = new ArrayList<>(unloadedClassNames.subList(from, to));
-        unloadedClassNames.removeAll(names);
-        return names.toArray(new String[names.size()]);
+        int to = Math.min(from + MAX_CLASSES_PER_DEX_FILE, unloadedClassNames.size());
+        String[] names = unloadedClassNames.subList(from, to).toArray(new String[to - from]);
+        unloadedClassNames.removeAll(Arrays.asList(names));
+        return names;
     }
 
 }

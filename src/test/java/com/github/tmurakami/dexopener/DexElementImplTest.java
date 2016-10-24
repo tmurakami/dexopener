@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import dalvik.system.DexFile;
 
@@ -25,8 +24,6 @@ public class DexElementImplTest {
     ApplicationReader ar;
     @Mock
     DexFileGenerator fileGenerator;
-    @Mock
-    Callable<DexFile> task;
     @Mock
     DexFile dexFile;
     @Mock
