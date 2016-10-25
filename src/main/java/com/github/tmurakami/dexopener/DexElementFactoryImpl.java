@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -62,7 +63,7 @@ final class DexElementFactoryImpl implements DexElementFactory {
                 names.add(name);
             }
         }
-        return names;
+        return Collections.unmodifiableCollection(names);
     }
 
 }

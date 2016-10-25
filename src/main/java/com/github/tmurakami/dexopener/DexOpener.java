@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.test.runner.AndroidJUnitRunner;
 
-@SuppressWarnings("WeakerAccess")
 public class DexOpener extends AndroidJUnitRunner {
 
     private Installer installer = Installer.create();

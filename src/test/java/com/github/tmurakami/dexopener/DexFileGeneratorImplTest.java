@@ -12,10 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.zip.ZipFile;
 
@@ -81,21 +79,15 @@ public class DexFileGeneratorImplTest {
     }
 
     private static byte[] readClassesDex(File file) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(file);
-            InputStream in = zipFile.getInputStream(zipFile.getEntry("classes.dex"));
-            byte[] buffer = new byte[8192];
-            for (int l; (l = in.read(buffer)) != -1; ) {
-                out.write(buffer, 0, l);
-            }
+            return new ApplicationReader(ASM4, zipFile.getInputStream(zipFile.getEntry("classes.dex"))).byteCode;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(zipFile);
         }
-        return out.toByteArray();
     }
 
 }

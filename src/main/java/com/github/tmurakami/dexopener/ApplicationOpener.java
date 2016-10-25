@@ -15,12 +15,12 @@ final class ApplicationOpener extends ApplicationVisitor {
 
     @Override
     public ClassVisitor visitClass(int access, String name, String[] signature, String superName, String[] interfaces) {
-        return new InternalClassVisitor(api, super.visitClass(access & ~ACC_FINAL, name, signature, superName, interfaces));
+        return new ClassOpener(api, super.visitClass(access & ~ACC_FINAL, name, signature, superName, interfaces));
     }
 
-    private static class InternalClassVisitor extends ClassVisitor {
+    private static class ClassOpener extends ClassVisitor {
 
-        InternalClassVisitor(int api, ClassVisitor cv) {
+        ClassOpener(int api, ClassVisitor cv) {
             super(api, cv);
         }
 

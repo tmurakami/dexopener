@@ -44,4 +44,5 @@ final class DexFileGeneratorImpl implements DexFileGenerator {
         String sourcePathName = zip.getCanonicalPath();
         return fileLoader.load(sourcePathName, sourcePathName + ".dex");
     }
+
 }
