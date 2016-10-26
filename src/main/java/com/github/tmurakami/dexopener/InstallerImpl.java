@@ -23,10 +23,10 @@ final class InstallerImpl extends Installer {
     public void install(Context context) {
         ApplicationInfo ai = context.getApplicationInfo();
         File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
-        IOUtils.forceDelete(cacheDir);
-        if (!cacheDir.mkdirs()) {
+        if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
             throw new Error("Cannot create " + cacheDir);
         }
+        IOUtils.deleteFiles(cacheDir.listFiles());
         DexElement element = elementFactory.newDexElement(new File(ai.sourceDir), cacheDir);
         ClassLoader classLoader = context.getClassLoader();
         classLoaderHelper.setParent(classLoader, classLoaderFactory.newClassLoader(classLoader, element));

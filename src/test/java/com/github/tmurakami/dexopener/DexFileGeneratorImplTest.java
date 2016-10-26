@@ -53,7 +53,7 @@ public class DexFileGeneratorImplTest {
                                 && name.startsWith("classes")
                                 && name.endsWith(".zip")
                                 && f.getParentFile().equals(cacheDir)
-                                && Arrays.equals(bytes, readClassesDex(f));
+                                && Arrays.equals(bytes, readDexBytes(f));
                     }
                 }),
                 argThat(new ArgumentMatcher<String>() {
@@ -78,7 +78,7 @@ public class DexFileGeneratorImplTest {
         return aw.toByteArray();
     }
 
-    private static byte[] readClassesDex(File file) {
+    private static byte[] readDexBytes(File file) {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(file);

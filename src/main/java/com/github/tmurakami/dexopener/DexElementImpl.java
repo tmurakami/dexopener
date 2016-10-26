@@ -3,7 +3,6 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,12 +45,7 @@ final class DexElementImpl implements DexElement {
         if (classesToVisit == null) {
             return null;
         }
-        DexFile dexFile;
-        try {
-            dexFile = fileGenerator.generateDexFile(ar, cacheDir, classesToVisit);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        DexFile dexFile = fileGenerator.generateDexFile(ar, cacheDir, classesToVisit);
         dexFiles.add(dexFile);
         return dexFile.loadClass(name, classLoader);
     }

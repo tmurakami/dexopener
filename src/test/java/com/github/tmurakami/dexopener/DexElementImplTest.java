@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class DexElementImplTest {
     ClassLoader classLoader;
 
     @Test
-    public void testLoadClass() throws IOException {
+    public void testLoadClass() {
         String name = 'L' + C.class.getName().replace('.', '/') + ';';
         List<String> classNames = Collections.singletonList(name);
         File cacheDir = new File("cacheDir");

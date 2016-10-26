@@ -21,28 +21,33 @@ final class DexFileGeneratorImpl implements DexFileGenerator {
     }
 
     @Override
-    public DexFile generateDexFile(ApplicationReader ar,
-                                   File cacheDir,
-                                   String... classesToVisit) throws IOException {
+    public DexFile generateDexFile(ApplicationReader ar, File cacheDir, String... classesToVisit) {
         ApplicationWriter aw = new ApplicationWriter();
         ar.accept(new ApplicationOpener(aw), classesToVisit, 0);
         byte[] bytes = aw.toByteArray();
-        File zip = File.createTempFile("classes", ".zip", cacheDir);
-        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
+        File zip = null;
         try {
-            out.setMethod(ZipOutputStream.STORED);
-            ZipEntry e = new ZipEntry("classes.dex");
-            e.setSize(bytes.length);
-            CRC32 crc32 = new CRC32();
-            crc32.update(bytes);
-            e.setCrc(crc32.getValue());
-            out.putNextEntry(e);
-            out.write(bytes);
+            zip = File.createTempFile("classes", ".zip", cacheDir);
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
+            try {
+                out.setMethod(ZipOutputStream.STORED);
+                ZipEntry e = new ZipEntry("classes.dex");
+                e.setSize(bytes.length);
+                CRC32 crc32 = new CRC32();
+                crc32.update(bytes);
+                e.setCrc(crc32.getValue());
+                out.putNextEntry(e);
+                out.write(bytes);
+            } finally {
+                IOUtils.closeQuietly(out);
+            }
+            String sourcePathName = zip.getCanonicalPath();
+            return fileLoader.load(sourcePathName, sourcePathName + ".dex");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } finally {
-            IOUtils.closeQuietly(out);
+            IOUtils.deleteFiles(zip);
         }
-        String sourcePathName = zip.getCanonicalPath();
-        return fileLoader.load(sourcePathName, sourcePathName + ".dex");
     }
 
 }
