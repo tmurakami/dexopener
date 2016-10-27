@@ -5,9 +5,9 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReade
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import dalvik.system.DexFile;
 
@@ -22,7 +22,7 @@ final class DexElementImpl implements DexElement {
     private final List<DexFile> dexFiles = new ArrayList<>();
 
     DexElementImpl(ApplicationReader ar,
-                   Collection<String> classNames,
+                   Set<String> classNames,
                    File cacheDir,
                    DexFileGenerator fileGenerator) {
         this.ar = ar;

@@ -6,6 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -19,6 +22,10 @@ public class OpenedClassLoaderTest {
     @Mock
     ClassNameFilter classNameFilter;
     @Mock
+    Iterable<DexElement> elements;
+    @Mock
+    Iterator<DexElement> iterator;
+    @Mock
     DexElement element;
 
     @InjectMocks
@@ -27,6 +34,9 @@ public class OpenedClassLoaderTest {
     @Test
     public void testFindClass_found() throws ClassNotFoundException {
         given(classNameFilter.accept("a")).willReturn(true);
+        given(elements.iterator()).willReturn(iterator);
+        given(iterator.hasNext()).willReturn(true, false);
+        given(iterator.next()).willReturn(element).willThrow(NoSuchElementException.class);
         given(element.loadClass("a", classLoader)).willReturn(C.class);
         assertSame(C.class, target.findClass("a"));
     }
@@ -37,7 +47,7 @@ public class OpenedClassLoaderTest {
         try {
             target.findClass("a");
         } finally {
-            then(element).should(never()).loadClass("a", classLoader);
+            then(elements).should(never()).iterator();
         }
     }
 

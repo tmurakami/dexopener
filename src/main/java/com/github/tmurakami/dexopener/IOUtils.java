@@ -1,8 +1,10 @@
 package com.github.tmurakami.dexopener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Logger;
 
 final class IOUtils {
@@ -37,6 +39,15 @@ final class IOUtils {
                 }
             }
         }
+    }
+
+    static byte[] readBytes(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buffer = new byte[16384];
+        for (int l; (l = in.read(buffer)) != -1; ) {
+            out.write(buffer, 0, l);
+        }
+        return out.toByteArray();
     }
 
 }

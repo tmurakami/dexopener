@@ -9,7 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import dalvik.system.DexFile;
 
@@ -31,7 +31,7 @@ public class DexElementImplTest {
     @Test
     public void testLoadClass() {
         String name = 'L' + C.class.getName().replace('.', '/') + ';';
-        List<String> classNames = Collections.singletonList(name);
+        Set<String> classNames = Collections.singleton(name);
         File cacheDir = new File("cacheDir");
         given(fileGenerator.generateDexFile(ar, cacheDir, name)).willReturn(dexFile);
         given(dexFile.loadClass(C.class.getName(), classLoader)).willReturn(C.class);

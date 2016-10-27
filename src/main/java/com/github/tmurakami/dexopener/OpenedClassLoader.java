@@ -4,21 +4,23 @@ final class OpenedClassLoader extends ClassLoader {
 
     private final ClassLoader classLoader;
     private final ClassNameFilter classNameFilter;
-    private final DexElement element;
+    private final Iterable<DexElement> elements;
 
-    OpenedClassLoader(ClassLoader classLoader, ClassNameFilter classNameFilter, DexElement element) {
+    OpenedClassLoader(ClassLoader classLoader, ClassNameFilter classNameFilter, Iterable<DexElement> elements) {
         super(classLoader.getParent());
         this.classLoader = classLoader;
         this.classNameFilter = classNameFilter;
-        this.element = element;
+        this.elements = elements;
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         if (classNameFilter.accept(name)) {
-            Class<?> c = element.loadClass(name, classLoader);
-            if (c != null) {
-                return c;
+            for (DexElement e : elements) {
+                Class<?> c = e.loadClass(name, classLoader);
+                if (c != null) {
+                    return c;
+                }
             }
         }
         return super.findClass(name);

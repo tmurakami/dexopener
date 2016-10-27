@@ -39,15 +39,15 @@ public class DexFileGeneratorImplTest {
     DexFileGeneratorImpl target;
 
     @Test
-    public void testGenerateDex() throws IOException {
+    public void testGenerateDexFile() throws IOException {
         String name = 'L' + getClass().getName().replace('.', '/') + ';';
         final byte[] bytes = generateDexBytes(name);
         final File cacheDir = folder.newFolder();
         given(fileLoader.load(
                 argThat(new ArgumentMatcher<String>() {
                     @Override
-                    public boolean matches(String path) {
-                        File f = new File(path);
+                    public boolean matches(String argument) {
+                        File f = new File(argument);
                         String name = f.getName();
                         return f.exists()
                                 && name.startsWith("classes")
@@ -58,8 +58,8 @@ public class DexFileGeneratorImplTest {
                 }),
                 argThat(new ArgumentMatcher<String>() {
                     @Override
-                    public boolean matches(String path) {
-                        File f = new File(path);
+                    public boolean matches(String argument) {
+                        File f = new File(argument);
                         String name = f.getName();
                         return !f.exists()
                                 && name.startsWith("classes")
@@ -78,7 +78,8 @@ public class DexFileGeneratorImplTest {
         return aw.toByteArray();
     }
 
-    private static byte[] readDexBytes(File file) {
+    @SuppressWarnings("WeakerAccess")
+    static byte[] readDexBytes(File file) {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(file);
