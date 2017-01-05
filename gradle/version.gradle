@@ -1,4 +1,4 @@
-ext.versionName = new ByteArrayOutputStream().withStream { out ->
+ext.version_name = new ByteArrayOutputStream().withStream { out ->
     if (exec {
         ignoreExitValue = true
         commandLine 'git describe'.split()
