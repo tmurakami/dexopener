@@ -5,5 +5,5 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.De
 import java.util.Set;
 
 interface ClassNameReader {
-    Set<String> readClassNames(DexFileReader reader);
+    Set<Set<String>> read(DexFileReader reader);
 }

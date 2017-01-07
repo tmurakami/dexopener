@@ -6,6 +6,7 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWrite
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -21,9 +22,12 @@ final class DexFileGeneratorImpl implements DexFileGenerator {
     }
 
     @Override
-    public DexFile generateDexFile(ApplicationReader ar, File cacheDir, String... classesToVisit) {
+    public DexFile generateDexFile(ApplicationReader ar,
+                                   File cacheDir,
+                                   Collection<String> classesToVisit) {
         ApplicationWriter aw = new ApplicationWriter();
-        ar.accept(new ApplicationOpener(aw), classesToVisit, 0);
+        String[] names = classesToVisit.toArray(new String[classesToVisit.size()]);
+        ar.accept(new ApplicationOpener(aw), names, 0);
         byte[] bytes = aw.toByteArray();
         File zip = null;
         try {

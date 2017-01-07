@@ -10,9 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Set;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 
@@ -32,9 +32,11 @@ public class ClassNameReaderImplTest {
         DexFileReader reader = new DexFileReader();
         String internalName = 'L' + name.replace('.', '/') + ';';
         reader.parse(generateDexBytes(internalName));
-        Collection<String> result = target.readClassNames(reader);
-        assertSame(1, result.size());
-        assertTrue(result.contains(internalName));
+        Set<Set<String>> result = target.read(reader);
+        assertEquals(1, result.size());
+        Set<String> names = result.iterator().next();
+        assertEquals(1, names.size());
+        assertTrue(names.contains(internalName));
     }
 
     private static byte[] generateDexBytes(String name) {

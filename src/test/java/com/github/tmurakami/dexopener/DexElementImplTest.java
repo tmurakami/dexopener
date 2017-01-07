@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dalvik.system.DexFile;
 
@@ -30,12 +31,13 @@ public class DexElementImplTest {
 
     @Test
     public void testLoadClass() {
-        String name = 'L' + C.class.getName().replace('.', '/') + ';';
-        Set<String> classNames = Collections.singleton(name);
         File cacheDir = new File("cacheDir");
-        given(fileGenerator.generateDexFile(ar, cacheDir, name)).willReturn(dexFile);
+        Set<String> classNames = Collections.singleton('L' + C.class.getName().replace('.', '/') + ';');
+        given(fileGenerator.generateDexFile(ar, cacheDir, classNames)).willReturn(dexFile);
         given(dexFile.loadClass(C.class.getName(), classLoader)).willReturn(C.class);
-        assertSame(C.class, new DexElementImpl(ar, classNames, cacheDir, fileGenerator).loadClass(C.class.getName(), classLoader));
+        Set<Set<String>> classNamesSet = Collections.singleton(classNames);
+        ConcurrentHashMap<Set<String>, DexFile> dexFileMap = new ConcurrentHashMap<>();
+        assertSame(C.class, new DexElementImpl(ar, cacheDir, fileGenerator, classNamesSet, dexFileMap).loadClass(C.class.getName(), classLoader));
     }
 
     private static class C {

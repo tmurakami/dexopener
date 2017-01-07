@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
@@ -67,7 +68,7 @@ public class DexFileGeneratorImplTest {
                                 && f.getParentFile().equals(cacheDir);
                     }
                 }))).willReturn(dexFile);
-        assertSame(dexFile, target.generateDexFile(new ApplicationReader(ASM4, bytes), cacheDir, name));
+        assertSame(dexFile, target.generateDexFile(new ApplicationReader(ASM4, bytes), cacheDir, Collections.singleton(name)));
     }
 
     private static byte[] generateDexBytes(String name) {

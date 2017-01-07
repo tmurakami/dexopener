@@ -3,63 +3,47 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import dalvik.system.DexFile;
 
 final class DexElementImpl implements DexElement {
 
-    private static final int MAX_CLASSES_PER_DEX_FILE = 100;
-
     private final ApplicationReader ar;
     private final File cacheDir;
     private final DexFileGenerator fileGenerator;
-    private final List<String> unloadedClassNames;
-    private final List<DexFile> dexFiles = new ArrayList<>();
+    private final Set<Set<String>> classNamesSet;
+    private final ConcurrentMap<Set<String>, DexFile> dexFileMap;
 
     DexElementImpl(ApplicationReader ar,
-                   Set<String> classNames,
                    File cacheDir,
-                   DexFileGenerator fileGenerator) {
+                   DexFileGenerator fileGenerator,
+                   Set<Set<String>> classNamesSet,
+                   ConcurrentMap<Set<String>, DexFile> dexFileMap) {
         this.ar = ar;
         this.cacheDir = cacheDir;
         this.fileGenerator = fileGenerator;
-        List<String> names = new ArrayList<>(classNames);
-        Collections.sort(names);
-        this.unloadedClassNames = names;
+        this.classNamesSet = classNamesSet;
+        this.dexFileMap = dexFileMap;
     }
 
     @Override
     public Class loadClass(String name, ClassLoader classLoader) {
-        for (DexFile d : dexFiles) {
-            Class<?> c = d.loadClass(name, classLoader);
-            if (c != null) {
-                return c;
+        String className = 'L' + name.replace('.', '/') + ';';
+        for (Set<String> names : classNamesSet) {
+            if (names.contains(className)) {
+                DexFile dexFile = dexFileMap.get(names);
+                if (dexFile == null) {
+                    DexFile newDexFile = fileGenerator.generateDexFile(ar, cacheDir, names);
+                    if ((dexFile = dexFileMap.putIfAbsent(names, newDexFile)) == null) {
+                        dexFile = newDexFile;
+                    }
+                }
+                return dexFile.loadClass(name, classLoader);
             }
         }
-        String[] classesToVisit = findClassesToVisit(name, unloadedClassNames);
-        if (classesToVisit == null) {
-            return null;
-        }
-        DexFile dexFile = fileGenerator.generateDexFile(ar, cacheDir, classesToVisit);
-        dexFiles.add(dexFile);
-        return dexFile.loadClass(name, classLoader);
-    }
-
-    private static String[] findClassesToVisit(String name, List<String> unloadedClassNames) {
-        String className = 'L' + name.replace('.', '/') + ';';
-        int from = Collections.binarySearch(unloadedClassNames, className);
-        if (from < 0) {
-            return null;
-        }
-        int to = Math.min(from + MAX_CLASSES_PER_DEX_FILE, unloadedClassNames.size());
-        String[] names = unloadedClassNames.subList(from, to).toArray(new String[to - from]);
-        unloadedClassNames.removeAll(Arrays.asList(names));
-        return names;
+        return null;
     }
 
 }

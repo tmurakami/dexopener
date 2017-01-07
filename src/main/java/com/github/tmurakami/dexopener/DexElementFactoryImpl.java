@@ -4,8 +4,12 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReade
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.DexFileReader;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+
+import dalvik.system.DexFile;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
@@ -13,17 +17,23 @@ final class DexElementFactoryImpl implements DexElementFactory {
 
     private final ClassNameReader classNameReader;
     private final DexFileGenerator fileGenerator;
+    private final ExecutorService executorService;
 
-    DexElementFactoryImpl(ClassNameReader classNameReader, DexFileGenerator fileGenerator) {
+    DexElementFactoryImpl(ClassNameReader classNameReader,
+                          DexFileGenerator fileGenerator,
+                          ExecutorService executorService) {
         this.classNameReader = classNameReader;
         this.fileGenerator = fileGenerator;
+        this.executorService = executorService;
     }
 
     @Override
-    public DexElement newDexElement(byte[] bytes, File cacheDir) throws IOException {
+    public DexElement newDexElement(byte[] bytes, File cacheDir) {
         ApplicationReader ar = new ApplicationReader(ASM4, bytes);
-        Set<String> classNames = classNameReader.readClassNames((DexFileReader) ar.getDexFile());
-        return new DexElementImpl(ar, classNames, cacheDir, fileGenerator);
+        Set<Set<String>> classNamesSet = classNameReader.read((DexFileReader) ar.getDexFile());
+        ConcurrentMap<Set<String>, DexFile> dexFileMap = new ConcurrentHashMap<>();
+        executorService.submit(new DexFileGeneratorTask(ar, cacheDir, fileGenerator, classNamesSet, dexFileMap));
+        return new DexElementImpl(new ApplicationReader(ASM4, bytes), cacheDir, fileGenerator, classNamesSet, dexFileMap);
     }
 
 }
