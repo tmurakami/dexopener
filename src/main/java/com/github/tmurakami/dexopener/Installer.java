@@ -38,7 +38,7 @@ abstract class Installer {
         return Executors.newSingleThreadExecutor(new ThreadFactory() {
             @Override
             public Thread newThread(@NonNull Runnable r) {
-                return new Thread(r, "DexMockito");
+                return new Thread(r, "DexOpener");
             }
         });
     }

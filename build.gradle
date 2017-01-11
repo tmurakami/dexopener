@@ -33,7 +33,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-    lintOptions.disable 'InvalidPackage'
     dexOptions.preDexLibraries !(System.getenv('CIRCLECI') as boolean)
 }
 
@@ -54,7 +53,7 @@ dependencies {
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
-    baseTestCompile 'org.mockito:mockito-core:2.5.5'
+    baseTestCompile 'org.mockito:mockito-core:2.5.7'
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:rules:0.5'
     androidTestCompile 'com.github.tmurakami:dexmockito:0.7.0'
