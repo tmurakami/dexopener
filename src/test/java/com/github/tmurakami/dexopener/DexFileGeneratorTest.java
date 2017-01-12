@@ -1,6 +1,5 @@
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
 
 import org.junit.Rule;
@@ -8,7 +7,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -20,31 +18,30 @@ import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
 
-import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DexFileGeneratorImplTest {
+public class DexFileGeneratorTest {
 
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
 
     @Mock
-    DexFileLoader fileLoader;
+    Transformer transformer;
+    @Mock
+    DexFileHelper dexFileHelper;
     @Mock
     DexFile dexFile;
-
-    @InjectMocks
-    DexFileGeneratorImpl target;
 
     @Test
     public void testGenerateDexFile() throws IOException {
         String name = 'L' + getClass().getName().replace('.', '/') + ';';
         final byte[] bytes = generateDexBytes(name);
+        given(transformer.transform(new String[]{name})).willReturn(bytes);
         final File cacheDir = folder.newFolder();
-        given(fileLoader.load(
+        given(dexFileHelper.loadDexFile(
                 argThat(new ArgumentMatcher<String>() {
                     @Override
                     public boolean matches(String argument) {
@@ -68,7 +65,8 @@ public class DexFileGeneratorImplTest {
                                 && f.getParentFile().equals(cacheDir);
                     }
                 }))).willReturn(dexFile);
-        assertSame(dexFile, target.generateDexFile(new ApplicationReader(ASM4, bytes), cacheDir, Collections.singleton(name)));
+        DexFileGenerator target = new DexFileGenerator(transformer, cacheDir, dexFileHelper);
+        assertSame(dexFile, target.generate(Collections.singleton(name)));
     }
 
     private static byte[] generateDexBytes(String name) {
@@ -84,7 +82,7 @@ public class DexFileGeneratorImplTest {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(file);
-            return new ApplicationReader(ASM4, zipFile.getInputStream(zipFile.getEntry("classes.dex"))).byteCode;
+            return IOUtils.readBytes(zipFile.getInputStream(zipFile.getEntry("classes.dex")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

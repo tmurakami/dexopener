@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
+import java.util.zip.ZipFile;
 
 final class IOUtils {
 
@@ -13,15 +14,20 @@ final class IOUtils {
         throw new AssertionError("Do not instantiate");
     }
 
-    static void closeQuietly(Closeable... closeables) {
-        if (closeables != null) {
-            for (Closeable c : closeables) {
-                if (c != null) {
-                    try {
-                        c.close();
-                    } catch (IOException ignored) {
-                    }
-                }
+    static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    static void closeQuietly(ZipFile zipFile) {
+        if (zipFile != null) {
+            try {
+                zipFile.close();
+            } catch (IOException ignored) {
             }
         }
     }

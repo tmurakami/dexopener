@@ -1,5 +1,15 @@
 package com.github.tmurakami.dexopener;
 
-interface ClassLoaderFactory {
-    ClassLoader newClassLoader(ClassLoader classLoader, Iterable<DexElement> elements);
+final class ClassLoaderFactory {
+
+    private final ClassNameFilter classNameFilter;
+
+    ClassLoaderFactory(ClassNameFilter classNameFilter) {
+        this.classNameFilter = classNameFilter;
+    }
+
+    ClassLoader newClassLoader(ClassLoader classLoader, Iterable<DexElement> elements) {
+        return new StealthClassLoader(classLoader, classNameFilter, elements);
+    }
+
 }

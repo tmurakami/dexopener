@@ -49,14 +49,17 @@ configurations {
 }
 
 dependencies {
+    def mockito_version = '2.6.0'
     jarjar 'com.googlecode.jarjar:jarjar:1.3'
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
-    baseTestCompile 'org.mockito:mockito-core:2.5.7'
+    provided 'com.android.support:multidex:1.0.1'
+    baseTestCompile "org.mockito:mockito-core:$mockito_version"
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'com.github.tmurakami:dexmockito:0.7.0'
+    androidTestCompile 'net.bytebuddy:byte-buddy-android:1.6.2'
+    androidTestCompile "org.mockito:mockito-android:$mockito_version"
 }
 
 task jarjar(type: Jar) {
