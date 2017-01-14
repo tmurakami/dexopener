@@ -44,8 +44,6 @@ repositories {
 configurations {
     jarjar
     repackage
-    baseTestCompile
-    [testCompile, androidTestCompile]*.extendsFrom baseTestCompile
 }
 
 dependencies {
@@ -54,9 +52,8 @@ dependencies {
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
-    provided 'com.android.support:multidex:1.0.1'
-    testCompile "org.mockito:mockito-core:$mockito_version"
     testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-core:$mockito_version"
     androidTestCompile 'com.android.support.test:rules:0.5'
     androidTestCompile "org.mockito:mockito-android:$mockito_version"
 }

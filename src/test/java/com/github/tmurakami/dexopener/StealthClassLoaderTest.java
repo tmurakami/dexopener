@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -33,7 +32,7 @@ public class StealthClassLoaderTest {
     StealthClassLoader target;
 
     @Test
-    public void testFindClass_found() throws ClassNotFoundException, IOException {
+    public void testFindClass_found() throws ClassNotFoundException {
         given(classNameFilter.accept("a")).willReturn(true);
         given(elements.iterator()).willReturn(iterator);
         given(iterator.hasNext()).willReturn(true, false);

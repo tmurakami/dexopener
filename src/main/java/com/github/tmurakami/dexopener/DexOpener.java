@@ -7,8 +7,8 @@ import android.support.test.runner.AndroidJUnitRunner;
 
 public class DexOpener extends AndroidJUnitRunner {
 
-    private Installer installer = newInstaller();
-    private SuperCalls superCalls = new SuperCalls();
+    private Installer installer = Installer.create();
+    private SuperCalls superCalls = new SuperCallsImpl();
 
     private boolean initialized;
 
@@ -25,12 +25,6 @@ public class DexOpener extends AndroidJUnitRunner {
         return superCalls.newApplication(cl, className, context);
     }
 
-    private static Installer newInstaller() {
-        return Installer.builder()
-                .classNameFilter(new ClassNameFilterImpl())
-                .build(new TransformerImpl.FactoryImpl());
-    }
-
     private void init() {
         if (!initialized) {
             initialized = true;
@@ -38,17 +32,31 @@ public class DexOpener extends AndroidJUnitRunner {
         }
     }
 
-    class SuperCalls {
+    interface SuperCalls {
 
-        Context getTargetContext() {
+        Context getTargetContext();
+
+        void onCreate(Bundle arguments);
+
+        Application newApplication(ClassLoader cl, String className, Context context)
+                throws InstantiationException, IllegalAccessException, ClassNotFoundException;
+
+    }
+
+    private class SuperCallsImpl implements SuperCalls {
+
+        @Override
+        public Context getTargetContext() {
             return DexOpener.super.getTargetContext();
         }
 
-        void onCreate(Bundle arguments) {
+        @Override
+        public void onCreate(Bundle arguments) {
             DexOpener.super.onCreate(arguments);
         }
 
-        Application newApplication(ClassLoader cl, String className, Context context)
+        @Override
+        public Application newApplication(ClassLoader cl, String className, Context context)
                 throws InstantiationException, IllegalAccessException, ClassNotFoundException {
             return DexOpener.super.newApplication(cl, className, context);
         }

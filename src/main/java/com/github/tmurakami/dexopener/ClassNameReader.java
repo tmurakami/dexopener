@@ -1,11 +1,10 @@
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.DexFileReader;
+
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-
-import dalvik.system.DexFile;
 
 final class ClassNameReader {
 
@@ -17,13 +16,15 @@ final class ClassNameReader {
         this.classNameFilter = classNameFilter;
     }
 
-    Iterable<Set<String>> read(DexFile dexFile) {
+    Set<Set<String>> read(DexFileReader reader) {
         Set<Set<String>> classNamesSet = new HashSet<>();
         Set<String> names = new HashSet<>();
-        for (Enumeration<String> e = dexFile.entries(); e.hasMoreElements(); ) {
-            String name = e.nextElement();
-            if (classNameFilter.accept(name)) {
-                names.add('L' + name.replace('.', '/') + ';');
+        int classDefinitionsSize = reader.getClassDefinitionsSize();
+        for (int i = 0; i < classDefinitionsSize; ++i) {
+            reader.seek(reader.getClassDefinitionOffset(i));
+            String name = reader.getStringItemFromTypeIndex(reader.uint());
+            if (classNameFilter.accept(name.substring(1, name.length() - 1).replace('/', '.'))) {
+                names.add(name);
                 if (names.size() >= MAX_CLASSES_PER_DEX_FILE) {
                     classNamesSet.add(names);
                     names = new HashSet<>();

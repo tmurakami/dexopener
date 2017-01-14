@@ -1,19 +1,18 @@
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.DexFileReader;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.Iterator;
+import java.io.IOException;
 import java.util.Set;
 
-import dalvik.system.DexFile;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 
@@ -22,24 +21,30 @@ public class ClassNameReaderTest {
 
     @Mock
     ClassNameFilter classNameFilter;
-    @Mock
-    DexFile dexFile;
 
     @InjectMocks
     ClassNameReader target;
 
     @Test
-    public void testReadClassNames() {
+    public void testReadClassNames() throws IOException {
         String name = getClass().getName() + "$C";
-        given(dexFile.entries()).willReturn(Collections.enumeration(Collections.singleton(name)));
         given(classNameFilter.accept(name)).willReturn(true);
-        Iterable<Set<String>> result = target.read(dexFile);
-        Iterator<Set<String>> iterator = result.iterator();
-        assertTrue(iterator.hasNext());
-        Set<String> names = iterator.next();
+        DexFileReader reader = new DexFileReader();
+        String internalName = 'L' + name.replace('.', '/') + ';';
+        reader.parse(generateDexBytes(internalName));
+        Set<Set<String>> result = target.read(reader);
+        assertEquals(1, result.size());
+        Set<String> names = result.iterator().next();
         assertEquals(1, names.size());
-        assertTrue(names.contains('L' + name.replace('.', '/') + ';'));
-        assertFalse(iterator.hasNext());
+        assertTrue(names.contains(internalName));
+    }
+
+    private static byte[] generateDexBytes(String name) {
+        ApplicationWriter aw = new ApplicationWriter();
+        aw.visit();
+        aw.visitClass(0, name, null, "Ljava/lang/Object;", null);
+        aw.visitEnd();
+        return aw.toByteArray();
     }
 
 }

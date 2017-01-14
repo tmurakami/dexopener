@@ -1,7 +1,5 @@
 package com.github.tmurakami.dexopener;
 
-import java.io.IOException;
-
 final class StealthClassLoader extends ClassLoader {
 
     private final ClassLoader classLoader;
@@ -20,13 +18,8 @@ final class StealthClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         if (classNameFilter.accept(name)) {
-            for (DexElement d : elements) {
-                Class<?> c;
-                try {
-                    c = d.loadClass(name, classLoader);
-                } catch (IOException e) {
-                    throw new ClassNotFoundException(name, e);
-                }
+            for (DexElement e : elements) {
+                Class<?> c = e.loadClass(name, classLoader);
                 if (c != null) {
                     return c;
                 }

@@ -1,65 +1,38 @@
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.lowLevelUtils.DexFileReader;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
+
 final class DexElementFactory {
 
-    private final DexFileHelper dexFileHelper;
     private final ClassNameReader classNameReader;
-    private final Transformer.Factory transformerFactory;
+    private final DexFileGenerator fileGenerator;
     private final ExecutorService executorService;
 
-    DexElementFactory(DexFileHelper dexFileHelper,
-                      ClassNameReader classNameReader,
-                      Transformer.Factory transformerFactory,
+    DexElementFactory(ClassNameReader classNameReader,
+                      DexFileGenerator fileGenerator,
                       ExecutorService executorService) {
-        this.dexFileHelper = dexFileHelper;
         this.classNameReader = classNameReader;
-        this.transformerFactory = transformerFactory;
+        this.fileGenerator = fileGenerator;
         this.executorService = executorService;
     }
 
-    DexElement newDexElement(File file, File cacheDir) {
-        DexFile dexFile;
-        try {
-            dexFile = dexFileHelper.newDexFile(file);
-        } catch (IOException e) {
-            throw new Error(e);
-        }
-        byte[] dexBytes = readClassesDex(file);
-        Iterable<Set<String>> classNamesSet = classNameReader.read(dexFile);
+    DexElement newDexElement(byte[] bytes, File cacheDir) {
+        ApplicationReader ar = new ApplicationReader(ASM4, bytes);
+        Set<Set<String>> classNamesSet = classNameReader.read((DexFileReader) ar.getDexFile());
         ConcurrentMap<Set<String>, DexFile> dexFileMap = new ConcurrentHashMap<>();
-        executorService.submit(new DexFileGeneratorTask(newDexFileGenerator(dexBytes, cacheDir), classNamesSet, dexFileMap));
-        return new DexElement(newDexFileGenerator(dexBytes, cacheDir), classNamesSet, dexFileMap);
-    }
-
-    private DexFileGenerator newDexFileGenerator(byte[] dexBytes, File cacheDir) {
-        return new DexFileGenerator(transformerFactory.newTransformer(dexBytes), cacheDir, dexFileHelper);
-    }
-
-    private static byte[] readClassesDex(File file) {
-        ZipFile zipFile = null;
-        try {
-            zipFile = new ZipFile(file);
-            ZipEntry e = zipFile.getEntry("classes.dex");
-            if (e == null) {
-                throw new Error(file + " does not contain the classes.dex");
-            }
-            return IOUtils.readBytes(zipFile.getInputStream(e));
-        } catch (IOException e) {
-            throw new Error(e);
-        } finally {
-            IOUtils.closeQuietly(zipFile);
-        }
+        executorService.submit(new DexFileGeneratorTask(ar, cacheDir, fileGenerator, classNamesSet, dexFileMap));
+        return new DexElement(new ApplicationReader(ASM4, bytes), cacheDir, fileGenerator, classNamesSet, dexFileMap);
     }
 
 }
