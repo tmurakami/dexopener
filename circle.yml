@@ -8,7 +8,7 @@ dependencies:
     - echo $ANDROID_SDK_LICENSE > $ANDROID_HOME/licenses/android-sdk-license
 test:
   pre:
-    - emulator -avd circleci-android23 -no-audio -no-window:
+    - emulator -avd circleci-android22 -no-audio -no-window:
         background: true
         parallel: true
   override:
