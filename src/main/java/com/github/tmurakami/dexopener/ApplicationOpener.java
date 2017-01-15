@@ -14,8 +14,13 @@ final class ApplicationOpener extends ApplicationVisitor {
     }
 
     @Override
-    public ClassVisitor visitClass(int access, String name, String[] signature, String superName, String[] interfaces) {
-        return new ClassOpener(api, super.visitClass(access & ~ACC_FINAL, name, signature, superName, interfaces));
+    public ClassVisitor visitClass(int access,
+                                   String name,
+                                   String[] signature,
+                                   String superName,
+                                   String[] interfaces) {
+        int acc = access & ~ACC_FINAL;
+        return new ClassOpener(api, super.visitClass(acc, name, signature, superName, interfaces));
     }
 
     private static class ClassOpener extends ClassVisitor {
@@ -30,7 +35,11 @@ final class ApplicationOpener extends ApplicationVisitor {
         }
 
         @Override
-        public MethodVisitor visitMethod(int access, String name, String desc, String[] signature, String[] exceptions) {
+        public MethodVisitor visitMethod(int access,
+                                         String name,
+                                         String desc,
+                                         String[] signature,
+                                         String[] exceptions) {
             return super.visitMethod(access & ~ACC_FINAL, name, desc, signature, exceptions);
         }
 

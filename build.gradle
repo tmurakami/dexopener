@@ -30,8 +30,8 @@ android {
         testInstrumentationRunnerArguments.package = "test.$package_name" as String
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
     }
     dexOptions.preDexLibraries !(System.getenv('CIRCLECI') as boolean)
 }

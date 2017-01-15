@@ -2,65 +2,60 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.support.test.runner.AndroidJUnitRunner;
 
-public class DexOpener extends AndroidJUnitRunner {
+import com.github.tmurakami.classinjector.ClassDefiner;
+import com.github.tmurakami.classinjector.ClassInjector;
+import com.github.tmurakami.classinjector.ClassSource;
+import com.github.tmurakami.classinjector.android.DexClassDefiner;
 
-    private Installer installer = Installer.create();
-    private SuperCalls superCalls = new SuperCallsImpl();
+import java.io.File;
+import java.util.logging.Logger;
+
+public class DexOpener extends AndroidJUnitRunner {
 
     private boolean initialized;
 
     @Override
     public void onCreate(Bundle arguments) {
         init();
-        superCalls.onCreate(arguments);
+        super.onCreate(arguments);
     }
 
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         init();
-        return superCalls.newApplication(cl, className, context);
+        return super.newApplication(cl, className, context);
     }
 
     private void init() {
-        if (!initialized) {
-            initialized = true;
-            installer.install(superCalls.getTargetContext());
+        if (initialized) {
+            return;
         }
+        initialized = true;
+        Context context = getTargetContext();
+        ApplicationInfo ai = context.getApplicationInfo();
+        File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
+        if (cacheDir.isDirectory()) {
+            deleteFiles(cacheDir.listFiles());
+        }
+        ClassDefiner definer = new DexClassDefiner(cacheDir);
+        ClassSource source = new DexClassSource(ai.sourceDir, new ClassNameFilter());
+        ClassInjector.using(definer).from(source).into(context.getClassLoader());
     }
 
-    interface SuperCalls {
-
-        Context getTargetContext();
-
-        void onCreate(Bundle arguments);
-
-        Application newApplication(ClassLoader cl, String className, Context context)
-                throws InstantiationException, IllegalAccessException, ClassNotFoundException;
-
-    }
-
-    private class SuperCallsImpl implements SuperCalls {
-
-        @Override
-        public Context getTargetContext() {
-            return DexOpener.super.getTargetContext();
+    private static void deleteFiles(File[] files) {
+        for (File f : files) {
+            if (f.isDirectory()) {
+                deleteFiles(f.listFiles());
+            }
+            if (f.exists() && !f.delete()) {
+                Logger.getLogger("com.github.tmurakami.dexopener").warning("Cannot delete " + f);
+            }
         }
-
-        @Override
-        public void onCreate(Bundle arguments) {
-            DexOpener.super.onCreate(arguments);
-        }
-
-        @Override
-        public Application newApplication(ClassLoader cl, String className, Context context)
-                throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-            return DexOpener.super.newApplication(cl, className, context);
-        }
-
     }
 
 }
