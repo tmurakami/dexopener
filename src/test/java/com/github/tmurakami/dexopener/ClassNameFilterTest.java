@@ -13,11 +13,11 @@ public class ClassNameFilterTest {
 
     private final ClassNameFilter target = new ClassNameFilter();
 
-    private final String name;
+    private final String className;
     private final boolean expected;
 
-    public ClassNameFilterTest(String name, boolean expected) {
-        this.name = name;
+    public ClassNameFilterTest(String className, boolean expected) {
+        this.className = className;
         this.expected = expected;
     }
 
@@ -46,8 +46,8 @@ public class ClassNameFilterTest {
     }
 
     @Test
-    public void testAccept() {
-        assertSame(expected, target.accept(name));
+    public void accept() throws Exception {
+        assertSame(expected, target.accept(className));
     }
 
 }

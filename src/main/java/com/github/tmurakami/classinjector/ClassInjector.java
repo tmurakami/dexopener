@@ -1,36 +1,32 @@
 package com.github.tmurakami.classinjector;
 
+/**
+ * An object that injects classes into a class loader.
+ */
 public abstract class ClassInjector {
 
     ClassInjector() {
     }
 
+    /**
+     * Inject classes into the given class loader.
+     *
+     * @param target The {@link ClassLoader} to be injected with classes.
+     */
     public abstract void into(ClassLoader target);
 
-    public static Using using(ClassDefiner definer) {
-        if (definer == null) {
-            throw new IllegalArgumentException("'definer' is null");
+    /**
+     * Create an instance of {@link ClassInjector}.
+     *
+     * @param source The input source of data that make up a class
+     * @return The {@link ClassInjector} object for injecting classes constructed using the
+     * specified source into a class loader.
+     */
+    public static ClassInjector from(ClassSource source) {
+        if (source == null) {
+            throw new IllegalArgumentException("'source' is null");
         }
-        return new Using(definer, new StealthClassLoader.Factory());
-    }
-
-    public static final class Using {
-
-        private final ClassDefiner definer;
-        private final StealthClassLoader.Factory classLoaderFactory;
-
-        Using(ClassDefiner definer, StealthClassLoader.Factory classLoaderFactory) {
-            this.definer = definer;
-            this.classLoaderFactory = classLoaderFactory;
-        }
-
-        public ClassInjector from(ClassSource source) {
-            if (source == null) {
-                throw new IllegalArgumentException("'source' is null");
-            }
-            return new ClassInjectorImpl(definer, source, classLoaderFactory);
-        }
-
+        return new ClassInjectorImpl(source, StealthClassLoader.Factory.INSTANCE);
     }
 
 }

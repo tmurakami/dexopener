@@ -17,14 +17,10 @@ final class ClassInjectorImpl extends ClassInjector {
         }
     }
 
-    private final ClassDefiner definer;
     private final ClassSource source;
     private final StealthClassLoader.Factory classLoaderFactory;
 
-    ClassInjectorImpl(ClassDefiner definer,
-                      ClassSource source,
-                      StealthClassLoader.Factory classLoaderFactory) {
-        this.definer = definer;
+    ClassInjectorImpl(ClassSource source, StealthClassLoader.Factory classLoaderFactory) {
         this.source = source;
         this.classLoaderFactory = classLoaderFactory;
     }
@@ -42,7 +38,7 @@ final class ClassInjectorImpl extends ClassInjector {
         }
         PARENT.setAccessible(true);
         try {
-            PARENT.set(target, classLoaderFactory.create(definer, source, target));
+            PARENT.set(target, classLoaderFactory.create(source, target));
         } catch (IllegalAccessException e) {
             throw new IllegalAccessError("Cannot access field "
                     + PARENT.getDeclaringClass().getName() + '#' + PARENT.getName()

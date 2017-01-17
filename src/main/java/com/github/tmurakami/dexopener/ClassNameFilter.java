@@ -17,13 +17,13 @@ final class ClassNameFilter {
             "org.objenesis.",
     };
 
-    boolean accept(String name) {
+    boolean accept(String className) {
         for (String pkg : IGNORED_PACKAGES) {
-            if (name.startsWith(pkg)) {
+            if (className.startsWith(pkg)) {
                 return false;
             }
         }
-        return !name.endsWith(".R") && !name.contains(".R$");
+        return !className.endsWith(".R") && !className.contains(".R$");
     }
 
 }

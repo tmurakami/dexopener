@@ -13,9 +13,7 @@ import static org.mockito.BDDMockito.given;
 public class ClassInjectorImplTest {
 
     @Mock
-    ClassDefiner definer;
-    @Mock
-    ClassSource source;
+    ClassSource bytecode;
     @Mock
     StealthClassLoader.Factory classLoaderFactory;
     @Mock
@@ -25,21 +23,21 @@ public class ClassInjectorImplTest {
     ClassInjectorImpl testTarget;
 
     @Test
-    public void into() {
+    public void into() throws Exception {
         ClassLoader injectionTarget = new ClassLoader() {
         };
-        given(classLoaderFactory.create(definer, source, injectionTarget)).willReturn(stealthClassLoader);
+        given(classLoaderFactory.create(bytecode, injectionTarget)).willReturn(stealthClassLoader);
         testTarget.into(injectionTarget);
         assertSame(stealthClassLoader, injectionTarget.getParent());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void into_nullTarget() {
+    public void into_nullTarget() throws Exception {
         testTarget.into(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void into_alreadyInjected() {
+    public void into_alreadyInjected() throws Exception {
         testTarget.into(new ClassLoader(stealthClassLoader) {
         });
     }

@@ -6,14 +6,15 @@ import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.support.test.runner.AndroidJUnitRunner;
 
-import com.github.tmurakami.classinjector.ClassDefiner;
 import com.github.tmurakami.classinjector.ClassInjector;
 import com.github.tmurakami.classinjector.ClassSource;
-import com.github.tmurakami.classinjector.android.DexClassDefiner;
 
 import java.io.File;
 import java.util.logging.Logger;
 
+/**
+ * An object that provides the ability to mock final classes and methods.
+ */
 public class DexOpener extends AndroidJUnitRunner {
 
     private boolean initialized;
@@ -42,9 +43,9 @@ public class DexOpener extends AndroidJUnitRunner {
         if (cacheDir.isDirectory()) {
             deleteFiles(cacheDir.listFiles());
         }
-        ClassDefiner definer = new DexClassDefiner(cacheDir);
-        ClassSource source = new DexClassSource(ai.sourceDir, new ClassNameFilter());
-        ClassInjector.using(definer).from(source).into(context.getClassLoader());
+        DexClassSource.Factory dexClassSourceFactory = new DexClassSource.Factory(cacheDir);
+        ClassSource source = new ClassSourceImpl(ai.sourceDir, new ClassNameFilter(), dexClassSourceFactory);
+        ClassInjector.from(source).into(context.getClassLoader());
     }
 
     private static void deleteFiles(File[] files) {

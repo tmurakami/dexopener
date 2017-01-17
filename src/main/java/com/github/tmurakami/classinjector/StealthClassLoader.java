@@ -7,15 +7,12 @@ final class StealthClassLoader extends ClassLoader {
 
     private static final String MY_PACKAGE = "com.github.tmurakami.classinjector.";
 
-    private final ClassDefiner definer;
     private final ClassSource source;
     private final ClassLoader injectionTarget;
 
-    StealthClassLoader(ClassDefiner definer,
-                       ClassSource source,
-                       ClassLoader injectionTarget) {
+    @SuppressWarnings("WeakerAccess")
+    StealthClassLoader(ClassSource source, ClassLoader injectionTarget) {
         super(injectionTarget.getParent());
-        this.definer = definer;
         this.source = source;
         this.injectionTarget = injectionTarget;
     }
@@ -23,27 +20,38 @@ final class StealthClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         if (!name.startsWith(MY_PACKAGE)) {
-            byte[] bytecode;
             try {
-                bytecode = source.getBytecodeFor(name);
+                ClassFile f = source.getClassFile(name);
+                if (f != null) {
+                    Class<?> c;
+                    try {
+                        c = f.toClass(injectionTarget);
+                    } finally {
+                        f.close();
+                    }
+                    if (c == null) {
+                        throw new NoClassDefFoundError("No class created from the class file for " + name);
+                    }
+                    return c;
+                }
             } catch (IOException e) {
                 throw new IOError(e);
-            }
-            if (bytecode != null) {
-                Class<?> c = definer.defineClass(name, bytecode, injectionTarget);
-                if (c == null) {
-                    throw new NoClassDefFoundError(name);
-                }
-                return c;
             }
         }
         return super.findClass(name);
     }
 
     static final class Factory {
-        ClassLoader create(ClassDefiner definer, ClassSource source, ClassLoader injectionTarget) {
-            return new StealthClassLoader(definer, source, injectionTarget);
+
+        static final Factory INSTANCE = new Factory();
+
+        private Factory() {
         }
+
+        ClassLoader create(ClassSource source, ClassLoader injectionTarget) {
+            return new StealthClassLoader(source, injectionTarget);
+        }
+
     }
 
 }

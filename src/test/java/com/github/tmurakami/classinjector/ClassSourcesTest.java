@@ -5,7 +5,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.Assert.assertNull;
@@ -17,6 +16,8 @@ public class ClassSourcesTest {
 
     @Mock
     ClassSource source;
+    @Mock
+    ClassFile classFile;
 
     @Test(expected = IllegalArgumentException.class)
     public void _new_nullSources() {
@@ -24,20 +25,19 @@ public class ClassSourcesTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void _new_containsNullSource() {
-        new ClassSources(Collections.singleton((ClassSource) null));
+    public void _new_containNullSource() {
+        new ClassSources(Collections.<ClassSource>singleton(null));
     }
 
     @Test
-    public void getBytecodeFor() throws IOException {
-        byte[] bytecode = {};
-        given(source.getBytecodeFor("foo.Bar")).willReturn(bytecode);
-        assertSame(bytecode, new ClassSources(Collections.singleton(source)).getBytecodeFor("foo.Bar"));
+    public void getClassFile() throws Exception {
+        given(source.getClassFile("foo.Bar")).willReturn(classFile);
+        assertSame(classFile, new ClassSources(Collections.singleton(source)).getClassFile("foo.Bar"));
     }
 
     @Test
-    public void getBytecodeFor_bytecodeNotFound() throws IOException {
-        assertNull(new ClassSources(Collections.singleton(source)).getBytecodeFor("foo.Bar"));
+    public void getClassFile_classNotFound() throws Exception {
+        assertNull(new ClassSources(Collections.singleton(source)).getClassFile("foo.Bar"));
     }
 
 }
