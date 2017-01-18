@@ -83,4 +83,17 @@ public final class DexBytesClassFile implements ClassFile {
         return bytes;
     }
 
+    static class DexFileLoader {
+
+        static final DexFileLoader INSTANCE = new DexFileLoader();
+
+        private DexFileLoader() {
+        }
+
+        DexFile loadDex(String sourcePathName, String outputPathName, int flags) throws IOException {
+            return DexFile.loadDex(sourcePathName, outputPathName, flags);
+        }
+
+    }
+
 }

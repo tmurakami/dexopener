@@ -37,7 +37,7 @@ public class DexBytesClassFileTest {
     @Mock
     File cacheDir;
     @Mock
-    DexFileLoader dexFileLoader;
+    DexBytesClassFile.DexFileLoader dexFileLoader;
     @Mock
     DexFile dexFile;
     @Mock
@@ -93,7 +93,7 @@ public class DexBytesClassFileTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void toClass_cacheDirCannotCreate() throws Exception {
+    public void toClass_failedToCreateCacheDir() throws Exception {
         new DexBytesClassFile("foo.Bar", new byte[0], cacheDir).toClass(classLoader);
     }
 

@@ -1,19 +1,17 @@
 package com.github.tmurakami.classinjector;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 final class ClassInjectorImpl extends ClassInjector {
 
-    private static final Field PARENT;
+    private static final Field PARENT_FIELD;
 
     static {
         String name = "parent";
         try {
-            PARENT = ClassLoader.class.getDeclaredField(name);
+            PARENT_FIELD = ClassLoader.class.getDeclaredField(name);
         } catch (NoSuchFieldException e) {
-            throw new NoSuchFieldError("Field " + name
-                    + " is not found in class " + ClassLoader.class.getName());
+            throw new IllegalStateException("This version of java is not supported", e);
         }
     }
 
@@ -36,13 +34,19 @@ final class ClassInjectorImpl extends ClassInjector {
                         + " has already been injected into " + target);
             }
         }
-        PARENT.setAccessible(true);
+        ClassLoader classLoader = classLoaderFactory.create(source, target);
+        Field f = PARENT_FIELD;
         try {
-            PARENT.set(target, classLoaderFactory.create(source, target));
+            f.setAccessible(true);
+            f.set(target, classLoader);
         } catch (IllegalAccessException e) {
-            throw new IllegalAccessError("Cannot access field "
-                    + PARENT.getDeclaringClass().getName() + '#' + PARENT.getName()
-                    + " with modifiers '" + Modifier.toString(PARENT.getModifiers()) + "'");
+            throw new IllegalStateException("Cannot inject into " + target, e);
+        } catch (RuntimeException e) {
+            if (!e.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
+                throw e;
+            }
+            Unsafe unsafe = Unsafe.getUnsafe();
+            unsafe.putObject(target, unsafe.objectFieldOffset(f), classLoader);
         }
     }
 
