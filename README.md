@@ -7,21 +7,25 @@ A library that provides the ability to mock final classes and methods on Android
 
 ## Installation
 
+First, add the [JitPack](https://jitpack.io/) repository to your build.gradle.
 ```groovy
 repositories {
     maven { url 'https://jitpack.io' }
 }
+```
 
+And then, add this library as 'androidTestCompile' dependency.
+```
 dependencies {
     androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
 }
 ```
 
-And set DexOpener as the default test instrumentation runner.
-
+Finally, set DexOpener as the default test instrumentation runner.
 ```groovy
 android {
     defaultConfig {
+        minSdkVersion 9 // Require 9 or higher.
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpener'
     }
 }

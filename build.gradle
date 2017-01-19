@@ -52,6 +52,7 @@ dependencies {
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
+    compile 'com.github.tmurakami.classinjector:classinjector-android:0.1.0'
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:$mockito_version"
     androidTestCompile 'com.android.support.test:rules:0.5'
@@ -82,10 +83,22 @@ task jarjar(type: Jar) {
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-    from android.sourceSets.main.resources.srcDirs
+    from android.sourceSets.main.java.sourceFiles
+    from android.sourceSets.main.resources.sourceFiles
+}
+
+task javadoc(type: Javadoc) {
+    failOnError  false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += files(android.bootClasspath) + configurations.compile
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
 }
 
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }
