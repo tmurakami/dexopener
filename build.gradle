@@ -47,12 +47,12 @@ configurations {
 }
 
 dependencies {
-    def mockito_version = '2.6.3'
+    def mockito_version = '2.6.4'
     jarjar 'com.googlecode.jarjar:jarjar:1.3'
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
-    compile 'com.github.tmurakami.classinjector:classinjector-android:0.1.0'
+    compile 'com.github.tmurakami.classinjector:classinjector-android:0.1.1'
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:$mockito_version"
     androidTestCompile 'com.android.support.test:rules:0.5'

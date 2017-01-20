@@ -2,6 +2,8 @@ machine:
   environment:
     ADB_INSTALL_TIMEOUT: 100
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+  java:
+    version: openjdk8
 dependencies:
   pre:
     - mkdir $ANDROID_HOME/licenses
