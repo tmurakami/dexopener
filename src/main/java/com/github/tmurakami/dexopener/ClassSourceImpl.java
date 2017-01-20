@@ -36,7 +36,7 @@ final class ClassSourceImpl implements ClassSource {
         if (delegate != null) {
             return delegate;
         }
-        List<ClassSource> sources = new ArrayList<ClassSource>();
+        List<ClassSource> sources = new ArrayList<>();
         ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
         try {
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {

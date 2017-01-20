@@ -19,7 +19,7 @@ import static org.mockito.BDDMockito.willReturn;
 public class MyActivityTest implements ActivityLifecycleCallback {
 
     @Rule
-    public final ActivityTestRule<MyActivity> rule = new ActivityTestRule<MyActivity>(MyActivity.class, true, false);
+    public final ActivityTestRule<MyActivity> rule = new ActivityTestRule<>(MyActivity.class, true, false);
 
     @Mock
     MyService service;
