@@ -23,7 +23,7 @@ final class ClassNameFilter {
                 return false;
             }
         }
-        return !className.endsWith(".R") && !className.contains(".R$");
+        return !className.endsWith(".R") && !className.contains(".R$") && !className.endsWith(".BuildConfig");
     }
 
 }

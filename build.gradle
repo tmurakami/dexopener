@@ -47,7 +47,7 @@ configurations {
 }
 
 dependencies {
-    def mockito_version = '2.6.4'
+    def mockito_version = '2.6.5'
     jarjar 'com.googlecode.jarjar:jarjar:1.3'
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
@@ -87,6 +87,22 @@ task sourcesJar(type: Jar) {
     from android.sourceSets.main.resources.sourceFiles
 }
 
+task javadoc(type: Javadoc) {
+    failOnError false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += files(configurations.compile)
+    doFirst {
+        classpath += files(android.bootClasspath)
+    }
+    options.links 'https://developer.android.com/reference/'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }

@@ -45,6 +45,8 @@ The following final classes and methods cannot be mocked.
 - [Kotlin](https://kotlinlang.org/)
 - [Mockito](http://site.mockito.org/)
 - [Objenesis](http://objenesis.org/)
+- R.class and its member classes (e.g. R.string)
+- BuildConfig.class
 
 ## Notice
 

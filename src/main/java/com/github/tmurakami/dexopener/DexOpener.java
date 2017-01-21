@@ -13,7 +13,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 /**
- * An object that provides the ability to mock final classes and methods.
+ * The Dex opener is an object that provides the ability to mock final classes and methods.
  */
 public class DexOpener extends AndroidJUnitRunner {
 
@@ -28,6 +28,7 @@ public class DexOpener extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        // On Android 4.1 or later, this is called before onCreate.
         init();
         return super.newApplication(cl, className, context);
     }
