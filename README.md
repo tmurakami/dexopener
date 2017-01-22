@@ -46,9 +46,9 @@ The following final classes and methods cannot be mocked.
 - [Kotlin](https://kotlinlang.org/)
 - [Mockito](http://site.mockito.org/)
 - [Objenesis](http://objenesis.org/)
-- R.class and its member classes (e.g. R.string)
+- R.class and its member classes, e.g. R.string
 - BuildConfig.class
 
 ## Notice
 
-This library includes [ASMDEX](http://asm.ow2.org/asmdex-index.html) that has been repackaged using [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
+This library includes [ASMDEX](http://asm.ow2.org/asmdex-index.html)(Revision 1707) that has been repackaged using [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
