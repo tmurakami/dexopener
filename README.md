@@ -25,7 +25,7 @@ Finally, set DexOpenerRunner as the default test instrumentation runner.
 ```groovy
 android {
     defaultConfig {
-        minSdkVersion 9 // Require 9 or higher.
+        minSdkVersion 16 // Require 16 or higher.
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerRunner'
     }
 }
