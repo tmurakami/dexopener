@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/tmurakami/dexopener.svg?style=shield)](https://circleci.com/gh/tmurakami/dexopener)
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
+![minSdkVersion](https://img.shields.io/badge/minSdkVersion-16-blue.svg)
 
 A library that provides the ability to mock final classes and methods on Android.
 
@@ -51,4 +52,4 @@ The following final classes and methods cannot be mocked.
 
 ## Notice
 
-This library includes [ASMDEX](http://asm.ow2.org/asmdex-index.html)(Revision 1707) that has been repackaged using [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
+This library includes [ASMDEX](http://asm.ow2.org/asmdex-index.html) (Revision 1707) that has been repackaged using [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
