@@ -1,8 +1,8 @@
 # DexOpener
 
 [![CircleCI](https://circleci.com/gh/tmurakami/dexopener.svg?style=shield)](https://circleci.com/gh/tmurakami/dexopener)
-[![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
-![minSdkVersion](https://img.shields.io/badge/minSdkVersion-16-blue.svg)
+[![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)  
+![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
 A library that provides the ability to mock final classes and methods on Android.
 
@@ -26,7 +26,7 @@ Finally, set DexOpenerRunner as the default test instrumentation runner.
 ```groovy
 android {
     defaultConfig {
-        minSdkVersion 16 // Require 16 or higher.
+        minSdkVersion 16 // 16 or higher.
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerRunner'
     }
 }
