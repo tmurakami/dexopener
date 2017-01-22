@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 /**
  * The Dex opener is an object that provides the ability to mock final classes and methods.
  */
-public class DexOpener extends AndroidJUnitRunner {
+public class DexOpenerRunner extends AndroidJUnitRunner {
 
     private boolean initialized;
 

@@ -27,7 +27,7 @@ public class ClassNameFilterTest {
                 new Object[]{"android.C", false},
                 new Object[]{"com.android.C", false},
                 new Object[]{"com.github.tmurakami.dexmockito.C", false},
-                new Object[]{DexOpener.class.getName(), false},
+                new Object[]{DexOpenerRunner.class.getName(), false},
                 new Object[]{"junit.C", false},
                 new Object[]{"kotlin.C", false},
                 new Object[]{"kotlinx.C", false},
