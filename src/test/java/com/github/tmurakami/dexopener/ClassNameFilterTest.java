@@ -26,6 +26,7 @@ public class ClassNameFilterTest {
         return Arrays.asList(
                 new Object[]{"android.C", false},
                 new Object[]{"com.android.C", false},
+                new Object[]{"com.github.tmurakami.classinjector.C", false},
                 new Object[]{"com.github.tmurakami.dexmockito.C", false},
                 new Object[]{DexOpenerRunner.class.getName(), false},
                 new Object[]{"junit.C", false},

@@ -2,9 +2,10 @@ package com.github.tmurakami.dexopener;
 
 final class ClassNameFilter {
 
-    private static final String[] IGNORED_PACKAGES = {
+    private static final String[] DISALLOWED_PACKAGES = {
             "android.",
             "com.android.",
+            "com.github.tmurakami.classinjector.",
             "com.github.tmurakami.dexmockito.",
             "com.github.tmurakami.dexopener.",
             "junit.",
@@ -18,7 +19,7 @@ final class ClassNameFilter {
     };
 
     boolean accept(String className) {
-        for (String pkg : IGNORED_PACKAGES) {
+        for (String pkg : DISALLOWED_PACKAGES) {
             if (className.startsWith(pkg)) {
                 return false;
             }
