@@ -52,7 +52,7 @@ dependencies {
     repackage fileTree(dir: 'libs', includes: ['*.jar'])
     compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
     compile 'com.android.support.test:runner:0.5'
-    compile 'com.github.tmurakami.classinjector:classinjector-android:0.2.2'
+    compile 'com.github.tmurakami.classinjector:classinjector-android:0.2.3'
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:$mockito_version"
     androidTestCompile 'com.android.support.test:rules:0.5'
