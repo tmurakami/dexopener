@@ -33,27 +33,28 @@ final class ClassSourceImpl implements ClassSource {
     }
 
     private ClassSource getDelegate() throws IOException {
-        if (delegate != null) {
-            return delegate;
-        }
-        List<ClassSource> sources = new ArrayList<>();
-        ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
-        try {
-            for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
-                String name = e.getName();
-                if (name.startsWith("classes") && name.endsWith(".dex")) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[16384];
-                    for (int l; (l = in.read(buffer)) != -1; ) {
-                        out.write(buffer, 0, l);
+        ClassSource source = delegate;
+        if (source == null) {
+            List<ClassSource> sources = new ArrayList<>();
+            ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
+            try {
+                for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
+                    String name = e.getName();
+                    if (name.startsWith("classes") && name.endsWith(".dex")) {
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[16384];
+                        for (int l; (l = in.read(buffer)) != -1; ) {
+                            out.write(buffer, 0, l);
+                        }
+                        sources.add(dexClassSourceFactory.create(out.toByteArray()));
                     }
-                    sources.add(dexClassSourceFactory.create(out.toByteArray()));
                 }
+            } finally {
+                in.close();
             }
-        } finally {
-            in.close();
+            source = delegate = new ClassSources(sources);
         }
-        return delegate = new ClassSources(sources);
+        return source;
     }
 
 }

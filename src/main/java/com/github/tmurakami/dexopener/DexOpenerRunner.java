@@ -41,7 +41,7 @@ public class DexOpenerRunner extends AndroidJUnitRunner {
                 deleteFiles(f.listFiles());
             }
             if (f.exists() && !f.delete()) {
-                Logger.getLogger("com.github.tmurakami.dexopener").warning("Cannot delete " + f);
+                Logger.getLogger(BuildConfig.APPLICATION_ID).warning("Cannot delete " + f);
             }
         }
     }
