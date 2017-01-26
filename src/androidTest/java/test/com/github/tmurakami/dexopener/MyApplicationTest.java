@@ -8,7 +8,7 @@ import static org.junit.Assert.assertFalse;
 
 public class MyApplicationTest {
     @Test
-    public void testRemoveFinalModifier() throws NoSuchMethodException {
+    public void finalModifierIsRemoved() throws Exception {
         assertFalse(Modifier.isFinal(MyApplication.class.getModifiers()));
         assertFalse(Modifier.isFinal(MyApplication.class.getMethod("onCreate").getModifiers()));
     }

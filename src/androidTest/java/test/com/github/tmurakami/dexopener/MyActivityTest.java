@@ -25,18 +25,18 @@ public class MyActivityTest implements ActivityLifecycleCallback {
     MyService service;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(this);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(this);
     }
 
     @Test
-    public void testOnCreate() {
+    public void onCreate() throws Exception {
         Object o = new Object();
         willReturn(o).given(service).doIt();
         assertEquals(o, rule.launchActivity(null).result);
