@@ -3,6 +3,7 @@ package com.github.tmurakami.dexopener;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.support.annotation.NonNull;
 
 import com.github.tmurakami.classinjector.ClassInjector;
 
@@ -11,17 +12,24 @@ import java.util.logging.Logger;
 
 final class DexOpenerImpl extends DexOpener {
 
-    private final Instrumentation instrumentation;
     private final ClassNameFilter classNameFilter;
+    private final DexFileLoader dexFileLoader;
+    private final DexClassFileFactory dexClassFileFactory;
 
-    DexOpenerImpl(Instrumentation instrumentation, ClassNameFilter classNameFilter) {
-        this.instrumentation = instrumentation;
+    DexOpenerImpl(ClassNameFilter classNameFilter,
+                  DexFileLoader dexFileLoader,
+                  DexClassFileFactory dexClassFileFactory) {
         this.classNameFilter = classNameFilter;
+        this.dexFileLoader = dexFileLoader;
+        this.dexClassFileFactory = dexClassFileFactory;
     }
 
     @Override
-    public void install() {
+    public void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
+        if (context == null) {
+            throw new IllegalStateException("The instrumentation has not been initialized yet");
+        }
         if (context.getApplicationContext() != null) {
             throw new IllegalStateException("An Application instance has already been created");
         }
@@ -30,9 +38,11 @@ final class DexOpenerImpl extends DexOpener {
         if (cacheDir.isDirectory()) {
             deleteFiles(cacheDir.listFiles());
         }
-        DexClassSourceFactory dexClassSourceFactory = new DexClassSourceFactory(cacheDir);
         ClassInjector
-                .from(new ClassSourceImpl(ai.sourceDir, classNameFilter, dexClassSourceFactory))
+                .from(new ClassSourceImpl(
+                        ai.sourceDir,
+                        classNameFilter,
+                        new DexClassSourceFactory(cacheDir, classNameFilter, dexFileLoader, dexClassFileFactory)))
                 .into(context.getClassLoader());
     }
 

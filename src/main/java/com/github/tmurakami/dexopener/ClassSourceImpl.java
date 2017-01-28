@@ -32,6 +32,7 @@ final class ClassSourceImpl implements ClassSource {
         return classNameFilter.accept(className) ? getDelegate().getClassFile(className) : null;
     }
 
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private ClassSource getDelegate() throws IOException {
         ClassSource source = delegate;
         if (source == null) {

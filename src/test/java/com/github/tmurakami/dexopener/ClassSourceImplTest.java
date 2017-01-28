@@ -34,6 +34,7 @@ public class ClassSourceImplTest {
     @Mock
     ClassFile classFile;
 
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Test
     public void getClassFile() throws Exception {
         File apk = folder.newFile();

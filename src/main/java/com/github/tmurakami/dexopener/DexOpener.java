@@ -7,40 +7,46 @@ import android.support.annotation.NonNull;
 /**
  * This is an object that provides the ability to mock final classes and methods.
  */
+@SuppressWarnings("WeakerAccess")
 public abstract class DexOpener {
 
     DexOpener() {
     }
 
     /**
-     * Install the ability to mock final classes and methods.
+     * Install this to the given instrumentation.
      * <p>
      * Must call this before calling {@link Instrumentation#newApplication(ClassLoader, String, Context)}.
      * If an Application instance has already been created, {@link IllegalStateException} will be thrown.
+     *
+     * @param instrumentation the instrumentation
      */
-    public abstract void install();
+    public abstract void install(@NonNull Instrumentation instrumentation);
 
     /**
-     * Instantiate a Builder instance.
+     * Instantiate a new {@link Builder} instance.
      *
-     * @return the builder
+     * @return the {@link Builder}
      */
     @NonNull
     public static Builder builder() {
-        return new DexOpenerBuilderImpl().classNameFilters(BuiltinClassNameFilter.INSTANCE);
+        return newBuilder().classNameFilters(BuiltinClassNameFilter.INSTANCE);
     }
 
     /**
-     * Install the ability to mock final classes and methods.
+     * Instantiate a new {@link DexOpener} instance.
      * <p>
      * This is equivalent to the following code:
-     * <pre>{@code builder().build(instrumentation).install()}</pre>
+     * <pre>{@code builder().build()}</pre>
      *
-     * @param instrumentation the instrumentation
-     * @see #install()
+     * @return the {@link DexOpener}
      */
-    public static void install(@NonNull Instrumentation instrumentation) {
-        builder().build(instrumentation).install();
+    public static DexOpener create() {
+        return builder().build();
+    }
+
+    private static Builder newBuilder() {
+        return new DexOpenerBuilderImpl(DexFileLoader.INSTANCE, DexClassFileFactory.INSTANCE);
     }
 
     /**
@@ -58,13 +64,12 @@ public abstract class DexOpener {
         Builder classNameFilters(@NonNull ClassNameFilter... filters);
 
         /**
-         * Instantiate a {@link DexOpener} instance.
+         * Instantiate a new {@link DexOpener} instance.
          *
-         * @param instrumentation the instrumentation
          * @return the {@link DexOpener}
          */
         @NonNull
-        DexOpener build(@NonNull Instrumentation instrumentation);
+        DexOpener build();
 
     }
 

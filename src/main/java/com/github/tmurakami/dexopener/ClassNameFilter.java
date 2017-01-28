@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 /**
  * The class name filter.
  */
+@SuppressWarnings("WeakerAccess")
 public interface ClassNameFilter {
 
     /**

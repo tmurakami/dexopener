@@ -35,6 +35,7 @@ final class DexClassSource implements ClassSource {
         this.classFileFactory = classFileFactory;
     }
 
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Override
     public ClassFile getClassFile(String className) throws IOException {
         if (!classNames.contains(className)) {

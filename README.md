@@ -74,13 +74,13 @@ android {
 }
 ```
 
-If you want to use your own AndroidJUnitRunner, use DexOpener.
+If you use your own AndroidJUnitRunner, you can use DexOpener.
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.install(this);
+        DexOpener.create().install(this);
         return super.newApplication(cl, className, context);
     }
 }
