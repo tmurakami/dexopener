@@ -9,14 +9,14 @@ import java.util.Arrays;
 import static org.junit.Assert.assertSame;
 
 @RunWith(Parameterized.class)
-public class ClassNameFilterTest {
+public class BuiltinClassNameFilterTest {
 
-    private final ClassNameFilter target = new ClassNameFilter();
+    private final BuiltinClassNameFilter testTarget = BuiltinClassNameFilter.INSTANCE;
 
     private final String className;
     private final boolean expected;
 
-    public ClassNameFilterTest(String className, boolean expected) {
+    public BuiltinClassNameFilterTest(String className, boolean expected) {
         this.className = className;
         this.expected = expected;
     }
@@ -29,6 +29,8 @@ public class ClassNameFilterTest {
                 new Object[]{"com.github.tmurakami.classinjector.C", false},
                 new Object[]{"com.github.tmurakami.dexmockito.C", false},
                 new Object[]{DexOpenerRunner.class.getName(), false},
+                new Object[]{"java.C", false},
+                new Object[]{"javax.C", false},
                 new Object[]{"junit.C", false},
                 new Object[]{"kotlin.C", false},
                 new Object[]{"kotlinx.C", false},
@@ -49,7 +51,7 @@ public class ClassNameFilterTest {
 
     @Test
     public void accept() throws Exception {
-        assertSame(expected, target.accept(className));
+        assertSame(expected, testTarget.accept(className));
     }
 
 }

@@ -1,30 +1,18 @@
 package com.github.tmurakami.dexopener;
 
-final class ClassNameFilter {
+import android.support.annotation.NonNull;
 
-    private static final String[] DISALLOWED_PACKAGES = {
-            "android.",
-            "com.android.",
-            "com.github.tmurakami.classinjector.",
-            "com.github.tmurakami.dexmockito.",
-            "com.github.tmurakami.dexopener.",
-            "junit.",
-            "kotlin.",
-            "kotlinx.",
-            "net.bytebuddy.",
-            "org.hamcrest.",
-            "org.junit.",
-            "org.mockito.",
-            "org.objenesis.",
-    };
+/**
+ * The class name filter.
+ */
+public interface ClassNameFilter {
 
-    boolean accept(String className) {
-        for (String pkg : DISALLOWED_PACKAGES) {
-            if (className.startsWith(pkg)) {
-                return false;
-            }
-        }
-        return !className.endsWith(".R") && !className.contains(".R$") && !className.endsWith(".BuildConfig");
-    }
+    /**
+     * Test whether to process the specified class.
+     *
+     * @param className the class name
+     * @return {@code true} if the class should be processed; {@code false} otherwise
+     */
+    boolean accept(@NonNull String className);
 
 }

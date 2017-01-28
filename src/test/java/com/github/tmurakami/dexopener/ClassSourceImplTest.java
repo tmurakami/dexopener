@@ -28,7 +28,7 @@ public class ClassSourceImplTest {
     @Mock
     ClassNameFilter classNameFilter;
     @Mock
-    DexClassSource.Factory dexClassSourceFactory;
+    DexClassSourceFactory dexClassSourceFactory;
     @Mock
     ClassSource classSource;
     @Mock
@@ -46,7 +46,7 @@ public class ClassSourceImplTest {
             out.close();
         }
         given(classNameFilter.accept("foo.Bar")).willReturn(true);
-        given(dexClassSourceFactory.create(bytes)).willReturn(classSource);
+        given(dexClassSourceFactory.newClassSource(bytes)).willReturn(classSource);
         given(classSource.getClassFile("foo.Bar")).willReturn(classFile);
         String sourceDir = apk.getCanonicalPath();
         ClassSourceImpl testTarget = new ClassSourceImpl(sourceDir, classNameFilter, dexClassSourceFactory);

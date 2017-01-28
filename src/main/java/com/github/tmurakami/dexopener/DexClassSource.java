@@ -8,26 +8,28 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWrite
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import dalvik.system.DexFile;
 
-import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
-
 final class DexClassSource implements ClassSource {
 
     private final ApplicationReader applicationReader;
+    private final Set<String> classNames;
     private final File cacheDir;
     private final DexFileLoader dexFileLoader;
     private final DexClassFileFactory classFileFactory;
 
     DexClassSource(ApplicationReader applicationReader,
+                   Set<String> classNames,
                    File cacheDir,
                    DexFileLoader dexFileLoader,
                    DexClassFileFactory classFileFactory) {
         this.applicationReader = applicationReader;
+        this.classNames = classNames;
         this.cacheDir = cacheDir;
         this.dexFileLoader = dexFileLoader;
         this.classFileFactory = classFileFactory;
@@ -35,6 +37,9 @@ final class DexClassSource implements ClassSource {
 
     @Override
     public ClassFile getClassFile(String className) throws IOException {
+        if (!classNames.contains(className)) {
+            return null;
+        }
         ApplicationWriter aw = new ApplicationWriter();
         String[] classesToVisit = {'L' + className.replace('.', '/') + ';'};
         applicationReader.accept(new ApplicationOpener(aw), classesToVisit, 0);
@@ -63,20 +68,6 @@ final class DexClassSource implements ClassSource {
                 Logger.getLogger(BuildConfig.APPLICATION_ID).warning("Cannot delete " + zip);
             }
         }
-    }
-
-    static final class Factory {
-
-        private final File cacheDir;
-
-        Factory(File cacheDir) {
-            this.cacheDir = cacheDir;
-        }
-
-        ClassSource create(byte[] bytes) {
-            return new DexClassSource(new ApplicationReader(ASM4, bytes), cacheDir, DexFileLoader.INSTANCE, DexClassFileFactory.INSTANCE);
-        }
-
     }
 
 }

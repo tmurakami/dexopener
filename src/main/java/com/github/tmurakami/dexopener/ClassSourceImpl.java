@@ -16,12 +16,12 @@ final class ClassSourceImpl implements ClassSource {
 
     private final String sourceDir;
     private final ClassNameFilter classNameFilter;
-    private final DexClassSource.Factory dexClassSourceFactory;
+    private final DexClassSourceFactory dexClassSourceFactory;
     private ClassSource delegate;
 
     ClassSourceImpl(String sourceDir,
                     ClassNameFilter classNameFilter,
-                    DexClassSource.Factory dexClassSourceFactory) {
+                    DexClassSourceFactory dexClassSourceFactory) {
         this.sourceDir = sourceDir;
         this.classNameFilter = classNameFilter;
         this.dexClassSourceFactory = dexClassSourceFactory;
@@ -46,7 +46,7 @@ final class ClassSourceImpl implements ClassSource {
                         for (int l; (l = in.read(buffer)) != -1; ) {
                             out.write(buffer, 0, l);
                         }
-                        sources.add(dexClassSourceFactory.create(out.toByteArray()));
+                        sources.add(dexClassSourceFactory.newClassSource(out.toByteArray()));
                     }
                 }
             } finally {

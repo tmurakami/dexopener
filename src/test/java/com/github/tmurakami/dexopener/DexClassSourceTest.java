@@ -18,6 +18,7 @@ import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -27,9 +28,12 @@ import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.A
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DexClassSourceTest {
@@ -37,6 +41,10 @@ public class DexClassSourceTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
 
+    @Mock
+    ApplicationReader applicationReader;
+    @Mock
+    Set<String> classNames;
     @Mock
     File cacheDir;
     @Mock
@@ -47,8 +55,6 @@ public class DexClassSourceTest {
     DexFile dexFile;
     @Mock
     ClassFile classFile;
-    @Mock
-    ApplicationReader applicationReader;
 
     @Test
     public void getClassFile() throws Exception {
@@ -57,6 +63,7 @@ public class DexClassSourceTest {
         aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
         aw.visitEnd();
         final byte[] bytes = aw.toByteArray();
+        given(classNames.contains("foo.Bar")).willReturn(true);
         given(dexFileLoader.loadDex(argThat(new ArgumentMatcher<String>() {
             @Override
             public boolean matches(String argument) {
@@ -98,12 +105,20 @@ public class DexClassSourceTest {
         }), eq(0))).willReturn(dexFile);
         given(classFileFactory.create("foo.Bar", dexFile)).willReturn(classFile);
         ApplicationReader ar = new ApplicationReader(ASM4, bytes);
-        assertSame(classFile, new DexClassSource(ar, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        assertSame(classFile, new DexClassSource(ar, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+    }
+
+    @Test
+    public void getClassFile_classNotFound() throws Exception {
+        assertNull(new DexClassSource(applicationReader, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        then(applicationReader).should(never()).accept(any(ApplicationOpener.class), any(String[].class), eq(0));
     }
 
     @Test
     public void getClassFile_nullBytes() throws Exception {
-        assertNull(new DexClassSource(applicationReader, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        given(classNames.contains("foo.Bar")).willReturn(true);
+        assertNull(new DexClassSource(applicationReader, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        then(applicationReader).should().accept(any(ApplicationOpener.class), any(String[].class), eq(0));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -112,7 +127,8 @@ public class DexClassSourceTest {
         aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
         aw.visitEnd();
         byte[] bytes = aw.toByteArray();
-        new DexClassSource(new ApplicationReader(ASM4, bytes), cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar");
+        given(classNames.contains("foo.Bar")).willReturn(true);
+        new DexClassSource(new ApplicationReader(ASM4, bytes), classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar");
     }
 
 }
