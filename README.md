@@ -74,6 +74,18 @@ android {
 }
 ```
 
+If you want to use your own AndroidJUnitRunner, use DexOpener.
+```java
+public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
+    @Override
+    public Application newApplication(ClassLoader cl, String className, Context context)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        DexOpener.install(this);
+        return super.newApplication(cl, className, context);
+    }
+}
+```
+
 ## Notice
 
 This library includes [ASMDEX](http://asm.ow2.org/asmdex-index.html) (Revision 1707) that has been repackaged using [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
