@@ -1,5 +1,7 @@
 package com.github.tmurakami.dexopener;
 
+import android.support.annotation.NonNull;
+
 import com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.classinjector.ClassSource;
 import com.github.tmurakami.classinjector.ClassSources;
@@ -28,7 +30,7 @@ final class ClassSourceImpl implements ClassSource {
     }
 
     @Override
-    public ClassFile getClassFile(String className) throws IOException {
+    public ClassFile getClassFile(@NonNull String className) throws IOException {
         return classNameFilter.accept(className) ? getDelegate().getClassFile(className) : null;
     }
 

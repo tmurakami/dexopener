@@ -1,5 +1,7 @@
 package com.github.tmurakami.dexopener;
 
+import android.support.annotation.NonNull;
+
 import com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.classinjector.ClassSource;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
@@ -37,7 +39,7 @@ final class DexClassSource implements ClassSource {
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Override
-    public ClassFile getClassFile(String className) throws IOException {
+    public ClassFile getClassFile(@NonNull String className) throws IOException {
         if (!classNames.contains(className)) {
             return null;
         }
