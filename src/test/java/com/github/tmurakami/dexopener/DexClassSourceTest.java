@@ -103,7 +103,7 @@ public class DexClassSourceTest {
                 return cacheDir.equals(f.getParentFile()) && name.startsWith("classes") && name.endsWith(".zip.dex");
             }
         }), eq(0))).willReturn(dexFile);
-        given(classFileFactory.create("foo.Bar", dexFile)).willReturn(classFile);
+        given(classFileFactory.newClassFile("foo.Bar", dexFile)).willReturn(classFile);
         ApplicationReader ar = new ApplicationReader(ASM4, bytes);
         assertSame(classFile, new DexClassSource(ar, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
     }

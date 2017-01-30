@@ -63,9 +63,8 @@ final class DexClassSource implements ClassSource {
                 out.close();
             }
             String sourcePathName = zip.getCanonicalPath();
-            File dex = new File(sourcePathName + ".dex");
-            DexFile dexFile = dexFileLoader.loadDex(sourcePathName, dex.getCanonicalPath(), 0);
-            return classFileFactory.create(className, dexFile);
+            DexFile dexFile = dexFileLoader.loadDex(sourcePathName, sourcePathName + ".dex", 0);
+            return classFileFactory.newClassFile(className, dexFile);
         } finally {
             if (zip.exists() && !zip.delete()) {
                 Logger.getLogger(BuildConfig.APPLICATION_ID).warning("Cannot delete " + zip);

@@ -1,5 +1,6 @@
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationVisitor;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ClassVisitor;
 
@@ -7,6 +8,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader.SKIP_CODE;
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader.SKIP_DEBUG;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
 final class ClassNameReader extends ApplicationVisitor {
@@ -32,10 +35,10 @@ final class ClassNameReader extends ApplicationVisitor {
         return null;
     }
 
-    Set<String> getClassNames() {
-        Set<String> names = new HashSet<>(classNames);
+    Set<String> readClassNames(ApplicationReader applicationReader) {
         classNames.clear();
-        return Collections.unmodifiableSet(names);
+        applicationReader.accept(this, null, SKIP_CODE | SKIP_DEBUG);
+        return Collections.unmodifiableSet(new HashSet<>(classNames));
     }
 
 }

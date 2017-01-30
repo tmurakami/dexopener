@@ -2,7 +2,12 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.support.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is an object that provides the ability to mock final classes and methods.
@@ -14,45 +19,57 @@ public abstract class DexOpener {
     }
 
     /**
-     * Install this to the given instrumentation.
+     * Provide the ability to mock final classes and methods.
      * <p>
-     * Must call this before calling {@link Instrumentation#newApplication(ClassLoader, String, Context)}.
-     * If an Application instance has already been created, {@link IllegalStateException} will be thrown.
+     * This is equivalent to the following code:
+     * <pre>{@code
+     * Context context = instrumentation.getTargetContext();
+     * builder(context).build().install(context.getClassLoader());
+     * }</pre>
      *
      * @param instrumentation the instrumentation
+     * @see #install(ClassLoader)
      */
-    public abstract void install(@NonNull Instrumentation instrumentation);
+    public static void install(@NonNull Instrumentation instrumentation) {
+        Context context = instrumentation.getTargetContext();
+        if (context == null) {
+            throw new IllegalArgumentException("'instrumentation' has not been initialized yet");
+        }
+        builder(context).build().install(context.getClassLoader());
+    }
+
+    /**
+     * Provide the ability to mock final classes and methods.
+     * After calling this method, you can mock classes loaded by the given class loader.
+     * <p>
+     * Note that final classes loaded before calling this cannot be mocked.
+     *
+     * @param classLoader the class loader
+     */
+    public abstract void install(@NonNull ClassLoader classLoader);
 
     /**
      * Instantiate a new {@link Builder} instance.
      *
+     * @param context the context
      * @return the {@link Builder}
      */
     @NonNull
-    public static Builder builder() {
-        return newBuilder().classNameFilters(BuiltinClassNameFilter.INSTANCE);
-    }
-
-    /**
-     * Instantiate a new {@link DexOpener} instance.
-     * <p>
-     * This is equivalent to the following code:
-     * <pre>{@code builder().build()}</pre>
-     *
-     * @return the {@link DexOpener}
-     */
-    public static DexOpener create() {
-        return builder().build();
-    }
-
-    private static Builder newBuilder() {
-        return new DexOpenerBuilderImpl(DexFileLoader.INSTANCE, DexClassFileFactory.INSTANCE);
+    public static Builder builder(@NonNull Context context) {
+        return new Builder(context.getApplicationInfo()).classNameFilters(BuiltinClassNameFilter.INSTANCE);
     }
 
     /**
      * The builder for {@link DexOpener}.
      */
-    public interface Builder {
+    public static final class Builder {
+
+        private final List<ClassNameFilter> classNameFilters = new ArrayList<>();
+        private final ApplicationInfo applicationInfo;
+
+        Builder(ApplicationInfo applicationInfo) {
+            this.applicationInfo = applicationInfo;
+        }
 
         /**
          * Add class name filters.
@@ -61,7 +78,15 @@ public abstract class DexOpener {
          * @return this builder
          */
         @NonNull
-        Builder classNameFilters(@NonNull ClassNameFilter... filters);
+        public Builder classNameFilters(@NonNull ClassNameFilter... filters) {
+            for (ClassNameFilter f : filters) {
+                if (f == null) {
+                    throw new IllegalArgumentException("'filters' contains null");
+                }
+                classNameFilters.add(f);
+            }
+            return this;
+        }
 
         /**
          * Instantiate a new {@link DexOpener} instance.
@@ -69,7 +94,11 @@ public abstract class DexOpener {
          * @return the {@link DexOpener}
          */
         @NonNull
-        DexOpener build();
+        public DexOpener build() {
+            List<ClassNameFilter> filters = new ArrayList<>(classNameFilters);
+            ClassNameFilter filter = new ClassNameFilters(Collections.unmodifiableList(filters));
+            return new DexOpenerImpl(applicationInfo, filter, DexFileLoader.INSTANCE, DexClassFileFactory.INSTANCE);
+        }
 
     }
 

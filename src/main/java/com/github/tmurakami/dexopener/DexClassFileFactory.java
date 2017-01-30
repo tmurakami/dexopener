@@ -12,7 +12,7 @@ final class DexClassFileFactory {
     private DexClassFileFactory() {
     }
 
-    ClassFile create(String className, DexFile dexFile) {
+    ClassFile newClassFile(String className, DexFile dexFile) {
         return new DexClassFile(className, dexFile);
     }
 

@@ -7,7 +7,7 @@ machine:
 dependencies:
   pre:
     - mkdir $ANDROID_HOME/licenses
-    - echo $ANDROID_SDK_LICENSE > $ANDROID_HOME/licenses/android-sdk-license
+    - echo 8933bad161af4178b1185d1a37fbf41ea5269c55 > $ANDROID_HOME/licenses/android-sdk-license
 test:
   pre:
     - emulator -avd circleci-android22 -no-audio -no-window:

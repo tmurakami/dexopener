@@ -1,5 +1,8 @@
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -8,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Set;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -22,27 +26,24 @@ public class ClassNameReaderTest {
     ClassNameFilter filter;
 
     @Test
-    public void visitClass() throws Exception {
-        testTarget.visitClass(0, "Lfoo/Bar;", null, null, null);
-        Set<String> classNames = testTarget.getClassNames();
-        assertTrue(classNames.isEmpty());
+    public void readClassNames() throws Exception {
+        ApplicationWriter aw = new ApplicationWriter();
+        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
+        aw.visitEnd();
+        byte[] bytes = aw.toByteArray();
+        assertTrue(testTarget.readClassNames(new ApplicationReader(ASM4, bytes)).isEmpty());
     }
 
     @Test
-    public void visitClass_matched() throws Exception {
+    public void readClassNames_matched() throws Exception {
         given(filter.accept("foo.Bar")).willReturn(true);
-        testTarget.visitClass(0, "Lfoo/Bar;", null, null, null);
-        Set<String> classNames = testTarget.getClassNames();
+        ApplicationWriter aw = new ApplicationWriter();
+        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
+        aw.visitEnd();
+        byte[] bytes = aw.toByteArray();
+        Set<String> classNames = testTarget.readClassNames(new ApplicationReader(ASM4, bytes));
         assertEquals(1, classNames.size());
         assertEquals("foo.Bar", classNames.iterator().next());
-    }
-
-    @Test
-    public void getClassNames() throws Exception {
-        given(filter.accept("foo.Bar")).willReturn(true);
-        testTarget.visitClass(0, "Lfoo/Bar;", null, null, null);
-        testTarget.getClassNames();
-        assertTrue(testTarget.getClassNames().isEmpty());
     }
 
 }
