@@ -29,6 +29,7 @@ public class BuiltinClassNameFilterTest {
                 new Object[]{"com.github.tmurakami.classinjector.C", false},
                 new Object[]{"com.github.tmurakami.dexmockito.C", false},
                 new Object[]{DexOpener.class.getName(), false},
+                new Object[]{"com.github.tmurakami.mockito4k.C", false},
                 new Object[]{"java.C", false},
                 new Object[]{"javax.C", false},
                 new Object[]{"junit.C", false},

@@ -12,6 +12,7 @@ final class BuiltinClassNameFilter implements ClassNameFilter {
             "com.github.tmurakami.classinjector.",
             "com.github.tmurakami.dexmockito.",
             "com.github.tmurakami.dexopener.",
+            "com.github.tmurakami.mockito4k.",
             "java.",
             "javax.",
             "junit.",

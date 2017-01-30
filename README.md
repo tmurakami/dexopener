@@ -42,6 +42,7 @@ The final classes and methods in the following libraries cannot be mocked.
 - [Dexmaker](https://github.com/linkedin/dexmaker)
 - [DexMockito](https://github.com/tmurakami/dexmockito)
 - DexOpener
+- [Mockito4k](https://github.com/tmurakami/mockito4k)
 - [Hamcrest](https://github.com/hamcrest/JavaHamcrest)
 - [JUnit](http://junit.org/)
 - [Kotlin](https://kotlinlang.org/)
