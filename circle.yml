@@ -14,7 +14,7 @@ test:
         background: true
         parallel: true
   override:
-    - ./gradlew testDebug assembleDebugAndroidTest
+    - ./gradlew lintDebug testDebug assembleDebugAndroidTest
     - circle-android wait-for-boot
     - adb shell input keyevent 82
     - adb shell svc power stayon true
@@ -23,6 +23,8 @@ test:
     - adb shell settings put global animator_duration_scale 0
     - ./gradlew connectedDebugAndroidTest
   post:
+    - mkdir $CIRCLE_TEST_REPORTS/lint
+    - find . -type f -regex '.*/build/outputs/lint.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/lint \;
     - mkdir $CIRCLE_TEST_REPORTS/junit
-    - find . -type f -regex ".*/build/test-results/.*xml" -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;
-    - find . -type f -regex ".*/build/outputs/androidTest-results/.*xml" -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;
+    - find . -type f -regex '.*/build/test-results/.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;
+    - find . -type f -regex '.*/build/outputs/androidTest-results/.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;

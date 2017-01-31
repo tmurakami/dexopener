@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import com.github.tmurakami.classinjector.ClassInjector;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 final class DexOpenerImpl extends DexOpener {
 
@@ -30,7 +29,7 @@ final class DexOpenerImpl extends DexOpener {
         ApplicationInfo ai = applicationInfo;
         File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
         if (cacheDir.isDirectory()) {
-            deleteFiles(cacheDir.listFiles());
+            FileUtils.delete(cacheDir.listFiles());
         }
         ClassInjector
                 .from(new AndroidClassSource(
@@ -38,17 +37,6 @@ final class DexOpenerImpl extends DexOpener {
                         classNameFilter,
                         new DexClassSourceFactory(cacheDir, dexFileLoader, dexClassFileFactory)))
                 .into(classLoader);
-    }
-
-    private static void deleteFiles(File[] files) {
-        for (File f : files) {
-            if (f.isDirectory()) {
-                deleteFiles(f.listFiles());
-            }
-            if (f.exists() && !f.delete()) {
-                Logger.getLogger(BuildConfig.APPLICATION_ID).warning("Cannot delete " + f);
-            }
-        }
     }
 
 }

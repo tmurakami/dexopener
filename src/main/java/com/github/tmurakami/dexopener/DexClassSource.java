@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -66,9 +65,7 @@ final class DexClassSource implements ClassSource {
             DexFile dexFile = dexFileLoader.loadDex(sourcePathName, sourcePathName + ".dex", 0);
             return classFileFactory.newClassFile(className, dexFile);
         } finally {
-            if (zip.exists() && !zip.delete()) {
-                Logger.getLogger(BuildConfig.APPLICATION_ID).warning("Cannot delete " + zip);
-            }
+            FileUtils.delete(zip);
         }
     }
 
