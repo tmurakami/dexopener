@@ -65,12 +65,12 @@ dependencies {
 }
 ```
 
-Finally, set DexOpenerRunner as the default test instrumentation runner.
+Finally, set DexOpenerAndroidJUnitRunner as the default test instrumentation runner.
 ```groovy
 android {
     defaultConfig {
         minSdkVersion 16 // 16 or higher
-        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerRunner'
+        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
     }
 }
 ```
