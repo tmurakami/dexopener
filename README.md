@@ -29,9 +29,9 @@ public class MyServiceTest {
 }
 ```
 
-There are a few examples in the [androidTest](https://github.com/tmurakami/dexopener/tree/master/src/androidTest/java/test/com/github/tmurakami/dexopener) directory.
+There are a few examples in the [androidTest](src/androidTest/java/test/com/github/tmurakami/dexopener) directory.
 
-## Limitation
+## Limitations
 
 The final classes and methods in the following libraries cannot be mocked.
 
