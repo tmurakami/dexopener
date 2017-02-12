@@ -8,28 +8,7 @@ A library that provides the ability to mock final classes and methods on Android
 
 ## Example
 
-The test target which is a final class:
-```java
-final class MyService {
-    final Object doIt() {
-        throw new UnsupportedOperationException();
-    }
-}
-```
-
-The test which runs on Android devices with mockito-android:
-```java
-public class MyServiceTest {
-    @Test
-    public void doIt() throws Exception {
-        MyService service = mock(MyService.class);
-        willReturn("test").given(service).doIt();
-        assertEquals("test", service.doIt());
-    }
-}
-```
-
-There are a few examples in the [androidTest](src/androidTest/java/test/com/github/tmurakami/dexopener) directory.
+See [the example application](dexopener-demo).
 
 ## Limitations
 

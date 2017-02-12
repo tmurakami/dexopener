@@ -1,4 +1,4 @@
-package test.com.github.tmurakami.dexopener;
+package com.example.dexopener;
 
 import android.app.Activity;
 import android.support.test.rule.ActivityTestRule;
@@ -14,12 +14,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.BDDMockito.given;
 
-public class MyActivityTest implements ActivityLifecycleCallback {
+public class MainActivityTest implements ActivityLifecycleCallback {
 
     @Rule
-    public final ActivityTestRule<MyActivity> rule = new ActivityTestRule<>(MyActivity.class, true, false);
+    public final ActivityTestRule<MainActivity> rule = new ActivityTestRule<>(MainActivity.class, true, false);
 
     @Mock
     MyService service;
@@ -37,15 +38,15 @@ public class MyActivityTest implements ActivityLifecycleCallback {
 
     @Test
     public void onCreate() throws Exception {
-        Object o = new Object();
-        willReturn(o).given(service).doIt();
-        assertEquals(o, rule.launchActivity(null).result);
+        String s = "test";
+        given(service.getString(isA(MainActivity.class))).willReturn(s);
+        assertEquals(s, rule.launchActivity(null).getTitle());
     }
 
     @Override
     public void onActivityLifecycleChanged(Activity activity, Stage stage) {
-        if (activity instanceof MyActivity && stage == Stage.PRE_ON_CREATE) {
-            ((MyActivity) activity).service = service;
+        if (activity instanceof MainActivity && stage == Stage.PRE_ON_CREATE) {
+            ((MainActivity) activity).service = service;
         }
     }
 

@@ -1,0 +1,20 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+    defaultConfig {
+        applicationId 'com.example.dexopener'
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName '1.0'
+        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+    }
+}
+
+dependencies {
+    androidTestCompile deps.dexopener
+    androidTestCompile deps.rules
+    androidTestCompile deps.mockito_android
+}

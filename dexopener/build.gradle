@@ -1,0 +1,98 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+apply from: "$rootDir/gradle/version.gradle"
+
+group = 'com.github.tmurakami'
+version = version_name
+
+def package_name = "$group.$name"
+def repackaged_jar_name = 'repackaged.jar'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+        testInstrumentationRunnerArguments.package = "test.$package_name" as String
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    lintOptions.disable 'InvalidPackage'
+    dexOptions.preDexLibraries !(System.getenv('CIRCLECI') as boolean)
+}
+
+configurations {
+    jarjar
+    repackage
+}
+
+dependencies {
+    jarjar deps.jarjar
+    repackage fileTree(dir: 'libs', includes: ['*.jar'])
+    compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
+    compile deps.runner
+    compile deps.classinjector_android
+    testCompile deps.junit
+    testCompile deps.mockito
+}
+
+task jarjar(type: Jar) {
+    archiveName = repackaged_jar_name
+    doLast {
+        ant {
+            taskdef name: 'jarjar',
+                    classname: 'com.tonicsystems.jarjar.JarJarTask',
+                    classpath: configurations.jarjar.asPath
+            jarjar(jarfile: archivePath) {
+                configurations.repackage.each { zipfileset src: it }
+                zap pattern: '**.package-info'
+                keep pattern: 'org.ow2.asmdex.*'
+                keep pattern: 'org.ow2.asmdex.encodedValue.**'
+                keep pattern: 'org.ow2.asmdex.instruction.**'
+                keep pattern: 'org.ow2.asmdex.lowLevelUtils.**'
+                keep pattern: 'org.ow2.asmdex.specificAnnotation*.**'
+                keep pattern: 'org.ow2.asmdex.structure*.**'
+                rule pattern: 'org.ow2.asmdex.**', result: "${package_name}.repackaged.org.ow2.asmdex.@1"
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+    from android.sourceSets.main.resources.sourceFiles
+}
+
+task javadoc(type: Javadoc) {
+    failOnError false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += files(configurations.compile)
+    doFirst {
+        classpath += files(android.bootClasspath)
+    }
+    options.links 'https://developer.android.com/reference/'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
