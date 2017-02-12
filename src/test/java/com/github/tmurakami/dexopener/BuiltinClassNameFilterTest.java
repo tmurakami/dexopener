@@ -37,6 +37,7 @@ public class BuiltinClassNameFilterTest {
                 new Object[]{"kotlinx.C", false},
                 new Object[]{"net.bytebuddy.C", false},
                 new Object[]{"org.hamcrest.C", false},
+                new Object[]{"org.jacoco.C", false},
                 new Object[]{"org.junit.C", false},
                 new Object[]{"org.mockito.C", false},
                 new Object[]{"org.objenesis.C", false},

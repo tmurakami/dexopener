@@ -20,6 +20,7 @@ final class BuiltinClassNameFilter implements ClassNameFilter {
             "kotlinx.",
             "net.bytebuddy.",
             "org.hamcrest.",
+            "org.jacoco.",
             "org.junit.",
             "org.mockito.",
             "org.objenesis.",
