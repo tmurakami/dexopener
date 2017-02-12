@@ -20,7 +20,6 @@ allprojects {
 }
 
 subprojects {
-    group = 'com.github.tmurakami.dexopener'
     version = version_name
 }
 
