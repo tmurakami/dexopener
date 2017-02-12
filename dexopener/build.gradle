@@ -12,10 +12,6 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 apply from: "$rootDir/gradle/version.gradle"
 
-group = 'com.github.tmurakami'
-version = version_name
-
-def package_name = "$group.$name"
 def repackaged_jar_name = 'repackaged.jar'
 
 android {
@@ -24,7 +20,6 @@ android {
     defaultConfig {
         minSdkVersion 16
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
-        testInstrumentationRunnerArguments.package = "test.$package_name" as String
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -65,7 +60,7 @@ task jarjar(type: Jar) {
                 keep pattern: 'org.ow2.asmdex.lowLevelUtils.**'
                 keep pattern: 'org.ow2.asmdex.specificAnnotation*.**'
                 keep pattern: 'org.ow2.asmdex.structure*.**'
-                rule pattern: 'org.ow2.asmdex.**', result: "${package_name}.repackaged.org.ow2.asmdex.@1"
+                rule pattern: 'org.ow2.asmdex.**', result: "com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.@1"
             }
         }
     }

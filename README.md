@@ -41,7 +41,7 @@ repositories {
 And then, add this library as 'androidTestCompile' dependency.
 ```
 dependencies {
-    androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
+    androidTestCompile 'com.github.tmurakami.dexopener:dexopener:x.y.z'
 }
 ```
 

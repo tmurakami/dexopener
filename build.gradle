@@ -10,11 +10,18 @@ buildscript {
 
 apply plugin: 'com.github.ben-manes.versions'
 
+apply from: "$rootDir/gradle/version.gradle"
+
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
         jcenter()
     }
+}
+
+subprojects {
+    group = 'com.github.tmurakami.dexopener'
+    version = version_name
 }
 
 task clean(type: Delete) {
