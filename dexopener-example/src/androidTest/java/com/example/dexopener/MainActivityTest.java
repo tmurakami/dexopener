@@ -11,11 +11,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.MockitoSession;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mockitoSession;
 
 public class MainActivityTest implements ActivityLifecycleCallback {
 
@@ -23,17 +24,20 @@ public class MainActivityTest implements ActivityLifecycleCallback {
     public final ActivityTestRule<MainActivity> rule = new ActivityTestRule<>(MainActivity.class, true, false);
 
     @Mock
-    MyService service;
+    MainService service;
+
+    private MockitoSession session;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        session = mockitoSession().initMocks(this).startMocking();
         ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(this);
     }
 
     @After
     public void tearDown() throws Exception {
         ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(this);
+        session.finishMocking();
     }
 
     @Test

@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 public final class MainActivity extends Activity {
 
-    MyService service = new MyService();
+    MainService service = new MainService();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
