@@ -8,7 +8,7 @@ A library that provides the ability to mock final classes and methods on Android
 
 ## Example
 
-See [the example application](dexopener-demo).
+See [the example application](dexopener-example).
 
 ## Limitations
 
