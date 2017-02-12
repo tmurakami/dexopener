@@ -11,6 +11,7 @@ android {
         versionName version
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
     }
+    buildTypes.debug.testCoverageEnabled true
 }
 
 dependencies {
