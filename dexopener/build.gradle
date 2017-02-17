@@ -94,7 +94,7 @@ task javadoc(type: Javadoc) {
         links androidRef
         linksOffline androidRef, missingPackageListDir
         def allowScriptInComments = '-allow-script-in-comments'
-        if (javax.tools.ToolProvider.systemDocumentationTool.isSupportedOption(allowScriptInComments)) {
+        if (javax.tools.ToolProvider.systemDocumentationTool.isSupportedOption("-$allowScriptInComments")) {
             addBooleanOption allowScriptInComments, true
         }
         bottom "<script>var l=document.links;for(var i in l){var e=l[i];if(e.href.indexOf(\"$androidRef\")===0)e.target=\"_blank\"}</script>"
