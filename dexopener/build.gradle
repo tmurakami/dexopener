@@ -81,14 +81,11 @@ task sourcesJar(type: Jar) {
 
 javadoc {
     def missingPackageListDir = "$buildDir/tmp/javadoc/missing-package-list"
-    options {
-        links 'https://developer.android.com/reference/'
-        linksOffline 'https://developer.android.com/reference/', missingPackageListDir
-    }
     doFirst {
         file(missingPackageListDir).mkdirs()
         file("$missingPackageListDir/package-list").text = 'android.support.test.runner\n'
     }
+    options.linksOffline 'https://developer.android.com/reference/', missingPackageListDir
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

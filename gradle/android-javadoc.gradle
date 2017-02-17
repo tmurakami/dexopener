@@ -16,6 +16,7 @@ task javadoc(type: Javadoc) {
         owner.classpath += files(configurations["${name}Compile"], configurations["${name}Provided"])
     }
     excludes = ['**/BuildConfig.java', '**/R.java']
+    options.links 'https://developer.android.com/reference/'
     def version = System.properties['java.version'] =~ /\d+/
     if (version.size() == 4 && ((version[0] as int) > 1 || (version[1] as int) > 8 || (version[2] as int) > 0 || (version[3] as int) >= 121)) {
         options.addBooleanOption '-allow-script-in-comments', true
