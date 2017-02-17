@@ -13,6 +13,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.vanniktech.android.javadoc'
 
 apply from: "$rootDir/gradle/version.gradle"
+apply from: "$rootDir/gradle/android-javadoc.gradle"
 
 group = 'com.github.tmurakami'
 version = version_name
@@ -78,26 +79,15 @@ task sourcesJar(type: Jar) {
     from android.sourceSets.main.resources.sourceFiles
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.sourceFiles
-    android.libraryVariants.matching { it.name == 'release' }.all {
-        owner.dependsOn tasks["prepare${name.capitalize()}Dependencies"]
-        owner.classpath += files(android.bootClasspath, javaCompile.classpath)
+javadoc {
+    def missingPackageListDir = "$buildDir/tmp/javadoc/missing-package-list"
+    options {
+        links 'https://developer.android.com/reference/'
+        linksOffline 'https://developer.android.com/reference/', missingPackageListDir
     }
-    def missingPackageListDir = "$buildDir/tmp/javadoc/missing"
     doFirst {
         file(missingPackageListDir).mkdirs()
         file("$missingPackageListDir/package-list").text = 'android.support.test.runner\n'
-    }
-    options {
-        def androidApi = 'https://developer.android.com/reference/'
-        links androidApi
-        linksOffline androidApi, missingPackageListDir
-        def v = System.properties['java.version'] =~ /\d+/
-        if (v.size() == 4 && ((v[0] as int) > 1 || (v[1] as int) > 8 || (v[2] as int) > 0 || (v[3] as int) >= 121)) {
-            addBooleanOption '-allow-script-in-comments', true
-        }
-        bottom "<script>var l=document.links;for(var i in l){var e=l[i];if(e.href.indexOf(\"$androidApi\")===0)e.target=\"_blank\"}</script>"
     }
 }
 
