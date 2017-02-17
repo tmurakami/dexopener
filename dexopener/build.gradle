@@ -4,11 +4,13 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.vanniktech:gradle-android-javadoc-plugin:0.2.1'
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.vanniktech.android.javadoc'
 
 apply from: "$rootDir/gradle/version.gradle"
 
@@ -77,13 +79,26 @@ task sourcesJar(type: Jar) {
 }
 
 task javadoc(type: Javadoc) {
-    failOnError false
     source = android.sourceSets.main.java.sourceFiles
-    classpath += files(configurations.compile)
-    doFirst {
-        classpath += files(android.bootClasspath)
+    android.libraryVariants.matching { it.name == 'release' }.all {
+        owner.dependsOn tasks["prepare${name.capitalize()}Dependencies"]
+        owner.classpath += files(android.bootClasspath, javaCompile.classpath)
     }
-    options.links 'https://developer.android.com/reference/'
+    def missingPackageListDir = "$buildDir/tmp/javadoc/missing"
+    doFirst {
+        file(missingPackageListDir).mkdirs()
+        file("$missingPackageListDir/package-list").text = 'android.support.test.runner\n'
+    }
+    options {
+        def androidRef = 'https://developer.android.com/reference/'
+        links androidRef
+        linksOffline androidRef, missingPackageListDir
+        def allowScriptInComments = '-allow-script-in-comments'
+        if (javax.tools.ToolProvider.systemDocumentationTool.isSupportedOption(allowScriptInComments)) {
+            addBooleanOption allowScriptInComments, true
+        }
+        bottom "<script>var l=document.links;for(var i in l){var e=l[i];if(e.href.indexOf(\"$androidRef\")===0)e.target=\"_blank\"}</script>"
+    }
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
