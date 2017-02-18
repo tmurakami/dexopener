@@ -4,14 +4,16 @@ apply from: "$rootDir/gradle/android-common.gradle"
 
 def jacocoReportTask = task jacocoTestReport()
 androidVariants.all {
-    def testTaskName = "test${name.capitalize()}UnitTest"
+    def variantName = name
+    def testTaskName = "test${variantName.capitalize()}UnitTest"
     def jacocoTaskName = "jacoco${testTaskName.capitalize()}Report"
     def jacocoTask = tasks.create(jacocoTaskName, JacocoReport) {
         reports {
+            def reportDir = "$buildDir/reports/jacoco/$testTaskName/$variantName"
             html.enabled = true
-            html.destination "$buildDir/reports/jacoco/$testTaskName/$name/html"
+            html.destination "$reportDir/html"
             xml.enabled = true
-            xml.destination "$buildDir/jacoco/$testTaskName/$name/${jacocoTaskName}.xml"
+            xml.destination "$reportDir/${jacocoTaskName}.xml"
         }
         sourceDirectories = files(javaCompile.source)
         classDirectories = fileTree(
