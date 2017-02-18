@@ -2,12 +2,15 @@ apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/android-common.gradle"
 
-def jacocoReportTask = task jacocoTestReport()
+def jacocoReportTask = tasks.create('jacocoTestReport')
 androidVariants.all {
     def variantName = name
     def testTaskName = "test${variantName.capitalize()}UnitTest"
     def jacocoTaskName = "jacoco${testTaskName.capitalize()}Report"
-    def jacocoTask = tasks.create(jacocoTaskName, JacocoReport) {
+    jacocoReportTask.dependsOn tasks.create(
+            name: jacocoTaskName,
+            type: JacocoReport,
+            dependsOn: testTaskName) {
         reports {
             def reportDir = "$buildDir/reports/jacoco/$testTaskName/$variantName"
             html.enabled = true
@@ -21,7 +24,4 @@ androidVariants.all {
                 excludes: ['**/BuildConfig.class', '**/R.class', '**/R$*.class'])
         executionData = files("$buildDir/jacoco/${testTaskName}.exec")
     }
-    jacocoReportTask.dependsOn jacocoTask
-    jacocoTask.dependsOn testTaskName
-    tasks[testTaskName].finalizedBy jacocoTask
 }

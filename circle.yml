@@ -14,7 +14,8 @@ test:
         background: true
         parallel: true
   override:
-    - ./gradlew :dexopener:lintDebug :dexopener:testDebug assembleDebugAndroidTest
+    - ./gradlew -p dexopener lintDebug jacocoTestDebugUnitTestReport
+    - ./gradlew assembleDebugAndroidTest
     - circle-android wait-for-boot
     - adb shell input keyevent 82
     - adb shell svc power stayon true
