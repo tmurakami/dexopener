@@ -3,17 +3,16 @@ buildscript {
         jcenter()
     }
     dependencies {
+        classpath 'org.jacoco:org.jacoco.core:0.7.7.201606060606'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-        classpath 'com.vanniktech:gradle-android-javadoc-plugin:0.2.1'
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.vanniktech.android.javadoc'
 
+apply from: "$rootDir/gradle/android.gradle"
 apply from: "$rootDir/gradle/version.gradle"
-apply from: "$rootDir/gradle/android-javadoc.gradle"
 
 group = 'com.github.tmurakami'
 version = version_name

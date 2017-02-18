@@ -1,0 +1,2 @@
+apply from: "$rootDir/gradle/android-jacoco.gradle"
+apply from: "$rootDir/gradle/android-javadoc.gradle"

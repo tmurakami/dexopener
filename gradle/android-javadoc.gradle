@@ -1,11 +1,4 @@
-def androidVariants
-if (android.hasProperty('applicationVariants')) {
-    androidVariants = android.applicationVariants
-} else if (android.hasProperty('libraryVariants')) {
-    androidVariants = android.libraryVariants
-} else {
-    throw new GradleException('This is not an Android project')
-}
+apply from: "$rootDir/gradle/android-common.gradle"
 
 task javadoc(type: Javadoc) {
     classpath += files(configurations.compile, configurations.provided)

@@ -1,0 +1,25 @@
+apply plugin: 'jacoco'
+
+apply from: "$rootDir/gradle/android-common.gradle"
+
+def jacocoReportTask = task jacocoTestReport()
+androidVariants.all {
+    def testTaskName = "test${name.capitalize()}UnitTest"
+    def jacocoTaskName = "jacoco${testTaskName.capitalize()}Report"
+    def jacocoTask = tasks.create(jacocoTaskName, JacocoReport) {
+        reports {
+            html.enabled = true
+            html.destination "$buildDir/reports/jacoco/$testTaskName/$name/html"
+            xml.enabled = true
+            xml.destination "$buildDir/jacoco/$testTaskName/$name/${jacocoTaskName}.xml"
+        }
+        sourceDirectories = files(javaCompile.source)
+        classDirectories = fileTree(
+                dir: "$buildDir/intermediates/classes/debug",
+                excludes: ['**/BuildConfig.class', '**/R.class', '**/R$*.class'])
+        executionData = files("$buildDir/jacoco/${testTaskName}.exec")
+    }
+    jacocoReportTask.dependsOn jacocoTask
+    jacocoTask.dependsOn testTaskName
+    tasks[testTaskName].finalizedBy jacocoTask
+}
