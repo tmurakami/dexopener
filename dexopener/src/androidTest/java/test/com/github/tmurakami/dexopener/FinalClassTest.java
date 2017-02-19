@@ -9,7 +9,7 @@ import static org.junit.Assert.assertFalse;
 public class FinalClassTest {
 
     @Test
-    public void finalModifierIsRemoved() throws Exception {
+    public void DexOpener_should_remove_all_final_modifiers() throws Exception {
         assertFalse(Modifier.isFinal(FinalClass.class.getModifiers()));
         assertFalse(Modifier.isFinal(FinalClass.class.getDeclaredMethod("doIt").getModifiers()));
     }

@@ -57,7 +57,7 @@ public class DexClassSourceTest {
     ClassFile classFile;
 
     @Test
-    public void getClassFile() throws Exception {
+    public void the_getClassFile_method_should_return_the_ClassFile_with_the_given_name() throws Exception {
         final File cacheDir = folder.newFolder();
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
@@ -109,20 +109,20 @@ public class DexClassSourceTest {
     }
 
     @Test
-    public void getClassFile_classNotFound() throws Exception {
+    public void the_getClassFile_method_should_return_null_if_the_given_name_does_not_contains_class_names() throws Exception {
         assertNull(new DexClassSource(applicationReader, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
         then(applicationReader).should(never()).accept(any(ApplicationOpener.class), any(String[].class), eq(0));
     }
 
     @Test
-    public void getClassFile_nullBytes() throws Exception {
+    public void the_getClassFile_method_should_return_null_if_the_class_with_the_given_name_cannot_be_found() throws Exception {
         given(classNames.contains("foo.Bar")).willReturn(true);
         assertNull(new DexClassSource(applicationReader, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
         then(applicationReader).should().accept(any(ApplicationOpener.class), any(String[].class), eq(0));
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getClassFile_cannotCreateCacheDir() throws Exception {
+    public void the_getClassFile_method_should_throw_an_IllegalArgumentException_if_the_cache_dir_cannot_be_created() throws Exception {
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
         aw.visitEnd();

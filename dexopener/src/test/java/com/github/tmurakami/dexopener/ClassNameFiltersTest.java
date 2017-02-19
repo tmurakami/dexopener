@@ -18,12 +18,12 @@ public class ClassNameFiltersTest {
     ClassNameFilter filter;
 
     @Test
-    public void accept() throws Exception {
+    public void the_accept_method_should_return_false_if_the_class_name_does_not_pass_any_ClassNameFilters() throws Exception {
         assertFalse(new ClassNameFilters(Collections.singleton(filter)).accept("foo.Bar"));
     }
 
     @Test
-    public void accept_matched() throws Exception {
+    public void the_accept_method_should_return_true_if_the_class_name_passes_one_of_the_ClassNameFilters() throws Exception {
         given(filter.accept("foo.Bar")).willReturn(true);
         assertTrue(new ClassNameFilters(Collections.singleton(filter)).accept("foo.Bar"));
     }

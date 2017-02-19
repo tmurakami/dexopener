@@ -40,18 +40,18 @@ public class MainActivityTest implements ActivityLifecycleCallback {
         session.finishMocking();
     }
 
-    @Test
-    public void onCreate() throws Exception {
-        String s = "test";
-        given(service.getString(isA(MainActivity.class))).willReturn(s);
-        assertEquals(s, rule.launchActivity(null).getTitle());
-    }
-
     @Override
     public void onActivityLifecycleChanged(Activity activity, Stage stage) {
         if (activity instanceof MainActivity && stage == Stage.PRE_ON_CREATE) {
             ((MainActivity) activity).service = service;
         }
+    }
+
+    @Test
+    public void the_title_of_the_MainActivity_should_be_replaced_by_the_given_mock() throws Exception {
+        String s = "test";
+        given(service.getString(isA(MainActivity.class))).willReturn(s);
+        assertEquals(s, rule.launchActivity(null).getTitle());
     }
 
 }

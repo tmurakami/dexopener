@@ -48,7 +48,7 @@ public class AndroidClassSourceTest {
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Test
-    public void getClassFile() throws Exception {
+    public void the_getClassFile_method_should_return_the_ClassFile_with_the_given_name() throws Exception {
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
         aw.visitEnd();
@@ -73,7 +73,7 @@ public class AndroidClassSourceTest {
     }
 
     @Test
-    public void getClassFile_classNameNotAccepted() throws Exception {
+    public void the_getClassFile_method_should_return_null_if_the_class_name_does_not_pass_the_ClassNameFilter() throws Exception {
         assertNull(new AndroidClassSource("", classNameFilter, dexClassSourceFactory).getClassFile("foo.Bar"));
     }
 

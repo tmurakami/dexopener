@@ -52,7 +52,7 @@ public class BuiltinClassNameFilterTest {
     }
 
     @Test
-    public void accept() throws Exception {
+    public void the_accept_method_should_return_a_value_equal_to_the_expected_value() throws Exception {
         assertSame(expected, testTarget.accept(className));
     }
 

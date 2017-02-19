@@ -26,16 +26,7 @@ public class ClassNameReaderTest {
     ClassNameFilter filter;
 
     @Test
-    public void readClassNames() throws Exception {
-        ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
-        aw.visitEnd();
-        byte[] bytes = aw.toByteArray();
-        assertTrue(testTarget.readClassNames(new ApplicationReader(ASM4, bytes)).isEmpty());
-    }
-
-    @Test
-    public void readClassNames_matched() throws Exception {
+    public void the_readClassNames_method_should_read_class_names_that_pass_the_ClassNameFilter() throws Exception {
         given(filter.accept("foo.Bar")).willReturn(true);
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
@@ -44,6 +35,15 @@ public class ClassNameReaderTest {
         Set<String> classNames = testTarget.readClassNames(new ApplicationReader(ASM4, bytes));
         assertEquals(1, classNames.size());
         assertEquals("foo.Bar", classNames.iterator().next());
+    }
+
+    @Test
+    public void the_readClassNames_method_should_not_read_class_names_that_do_not_pass_the_ClassNameFilter() throws Exception {
+        ApplicationWriter aw = new ApplicationWriter();
+        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
+        aw.visitEnd();
+        byte[] bytes = aw.toByteArray();
+        assertTrue(testTarget.readClassNames(new ApplicationReader(ASM4, bytes)).isEmpty());
     }
 
 }
