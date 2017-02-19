@@ -1,0 +1,7 @@
+javadoc.options {
+    bottom '<script>var l=document.links;for(var i=0;i<l.length;i++){var e=l[i];if(e.href.indexOf("http")===0)e.target="_blank"}</script>'
+    def version = System.properties['java.version'] =~ /\d+/
+    if (version.size() == 4 && ((version[0] as int) > 1 || (version[1] as int) > 8 || (version[2] as int) > 0 || (version[3] as int) >= 121)) {
+        addBooleanOption '-allow-script-in-comments', true
+    }
+}

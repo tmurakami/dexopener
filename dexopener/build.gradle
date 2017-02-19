@@ -12,10 +12,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 apply from: "$rootDir/gradle/android.gradle"
-apply from: "$rootDir/gradle/version.gradle"
 
 group = 'com.github.tmurakami'
-version = version_name
 
 def package_name = "$group.$name"
 def repackaged_jar_name = 'repackaged.jar'
