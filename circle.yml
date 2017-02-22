@@ -1,7 +1,8 @@
 machine:
   environment:
-    ADB_INSTALL_TIMEOUT: 100
-    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+    ADB_INSTALL_TIMEOUT: 10
+    GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+    TERM: dumb
   java:
     version: openjdk8
 dependencies:

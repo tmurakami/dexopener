@@ -1,2 +1,18 @@
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    dexOptions.preDexLibraries !(System.getenv('CI') as boolean)
+}
+
+if (android.hasProperty('applicationVariants')) {
+    ext.androidVariants = android.applicationVariants
+} else if (android.hasProperty('libraryVariants')) {
+    ext.androidVariants = android.libraryVariants
+}
+
 apply from: "$rootDir/gradle/android-jacoco.gradle"
 apply from: "$rootDir/gradle/android-javadoc.gradle"

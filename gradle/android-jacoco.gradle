@@ -1,7 +1,5 @@
 apply plugin: 'jacoco'
 
-apply from: "$rootDir/gradle/android-common.gradle"
-
 def jacocoReportTask = tasks.create('jacocoTestReport')
 androidVariants.all {
     def variantName = name

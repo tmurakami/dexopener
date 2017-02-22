@@ -1,9 +1,10 @@
+import com.android.ddmlib.DdmPreferences
+
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
-        classpath 'org.jacoco:org.jacoco.core:0.7.7.201606060606'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
@@ -19,18 +20,12 @@ def package_name = "$group.$name"
 def repackaged_jar_name = 'repackaged.jar'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
     defaultConfig {
         minSdkVersion 16
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
     lintOptions.disable 'InvalidPackage'
-    dexOptions.preDexLibraries !(System.getenv('CIRCLECI') as boolean)
+    DdmPreferences.setTimeOut 60000
 }
 
 configurations {

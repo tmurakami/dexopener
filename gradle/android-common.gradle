@@ -1,7 +1,0 @@
-if (android.hasProperty('applicationVariants')) {
-    ext.androidVariants = android.applicationVariants
-} else if (android.hasProperty('libraryVariants')) {
-    ext.androidVariants = android.libraryVariants
-} else {
-    throw new GradleException('This is not an Android project')
-}

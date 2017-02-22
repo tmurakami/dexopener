@@ -1,5 +1,3 @@
-apply from: "$rootDir/gradle/android-common.gradle"
-
 task javadoc(type: Javadoc) {
     classpath += files(configurations.compile, configurations.provided)
     androidVariants.matching { it.name == 'release' }.all {
