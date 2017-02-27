@@ -38,7 +38,7 @@ repositories {
 }
 ```
 
-And then, add this library as 'androidTestCompile' dependency.
+And then, add this library as `androidTestCompile` dependency.
 ```
 dependencies {
     androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
@@ -55,7 +55,7 @@ android {
 }
 ```
 
-If you want to use your own AndroidJUnitRunner, use DexOpener#install(Instrumentation).
+If you want to use your own AndroidJUnitRunner, use `DexOpener#install(Instrumentation)`.
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
