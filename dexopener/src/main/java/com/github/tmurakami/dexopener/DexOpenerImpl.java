@@ -31,12 +31,12 @@ final class DexOpenerImpl extends DexOpener {
         if (cacheDir.isDirectory()) {
             FileUtils.delete(cacheDir.listFiles());
         }
-        ClassInjector
-                .from(new AndroidClassSource(
-                        ai.sourceDir,
-                        classNameFilter,
-                        new DexClassSourceFactory(cacheDir, dexFileLoader, dexClassFileFactory)))
-                .into(classLoader);
+        ClassInjector.from(new AndroidClassSource(ai.sourceDir,
+                                                  classNameFilter,
+                                                  new DexClassSourceFactory(cacheDir,
+                                                                            dexFileLoader,
+                                                                            dexClassFileFactory)))
+                     .into(classLoader);
     }
 
 }
