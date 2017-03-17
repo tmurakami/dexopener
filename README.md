@@ -56,7 +56,7 @@ android {
 }
 ```
 
-If you want to use your own AndroidJUnitRunner, use `DexOpener#install(Instrumentation)`.
+If you want to use your own AndroidJUnitRunner, call `DexOpener#install(Instrumentation)` before calling `super.newApplication()` like the code below.
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
