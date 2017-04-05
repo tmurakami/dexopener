@@ -19,7 +19,7 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provide the ability to mock final classes and methods.
+     * Provides the ability to mock final classes and methods.
      * <p>
      * This is equivalent to the following code:
      * <pre>{@code
@@ -39,7 +39,7 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provide the ability to mock final classes and methods.
+     * Provides the ability to mock final classes and methods.
      * After calling this method, you can mock classes loaded by the given class loader.
      * <p>
      * Note that final classes loaded before calling this cannot be mocked.
@@ -49,7 +49,7 @@ public abstract class DexOpener {
     public abstract void install(@NonNull ClassLoader classLoader);
 
     /**
-     * Instantiate a new {@link Builder} instance.
+     * Instantiates a new {@link Builder} instance.
      *
      * @param context the context
      * @return the {@link Builder}
@@ -72,7 +72,7 @@ public abstract class DexOpener {
         }
 
         /**
-         * Add class name filters.
+         * Appends class name filters.
          *
          * @param filters the class name filter
          * @return this builder
@@ -89,7 +89,7 @@ public abstract class DexOpener {
         }
 
         /**
-         * Instantiate a new {@link DexOpener} instance.
+         * Instantiates a new {@link DexOpener} instance.
          *
          * @return the {@link DexOpener}
          */

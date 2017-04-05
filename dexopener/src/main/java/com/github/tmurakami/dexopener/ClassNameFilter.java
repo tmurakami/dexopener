@@ -9,7 +9,7 @@ import android.support.annotation.NonNull;
 public interface ClassNameFilter {
 
     /**
-     * Test whether to process the specified class.
+     * Tests whether to process the specified class.
      *
      * @param className the class name
      * @return {@code true} if the class should be processed; {@code false} otherwise
