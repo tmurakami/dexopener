@@ -31,6 +31,12 @@ final class BuiltinClassNameFilter implements ClassNameFilter {
 
     @Override
     public boolean accept(@NonNull String className) {
+        // The Data Binding Library generates several classes packaged as 'android.databinding'.
+        // Since these classes are tightly coupled with user classes, 'android.databinding' must not
+        // be filtered out.
+        if (className.startsWith("android.databinding.")) {
+            return true;
+        }
         for (String pkg : disallowedPackages) {
             if (className.startsWith(pkg)) {
                 return false;

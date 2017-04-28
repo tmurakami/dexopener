@@ -43,6 +43,7 @@ public class BuiltinClassNameFilterTest {
                              new Object[]{"foo.R", false},
                              new Object[]{"foo.R$string", false},
                              new Object[]{"foo.BuildConfig", false},
+                             new Object[]{"android.databinding.C", true},
                              new Object[]{"R", true},
                              new Object[]{"R$string", true},
                              new Object[]{"foo.Bar$R", true},

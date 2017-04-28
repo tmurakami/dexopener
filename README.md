@@ -15,7 +15,8 @@ See [the example application](dexopener-example).
 
 The final classes and methods in the following libraries cannot be mocked.
 
-- [Android APIs](https://developer.android.com/reference/packages.html), including [Support Library](https://developer.android.com/topic/libraries/support-library/index.html) and [Data Binding Library](https://developer.android.com/topic/libraries/data-binding/index.html)
+- [Android APIs](https://developer.android.com/reference/packages.html)
+- [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
 - [Android Testing Support Library](https://developer.android.com/topic/libraries/testing-support-library/index.html)
 - [Byte Buddy](http://bytebuddy.net/)
 - [ClassInjector](https://github.com/tmurakami/classinjector)
