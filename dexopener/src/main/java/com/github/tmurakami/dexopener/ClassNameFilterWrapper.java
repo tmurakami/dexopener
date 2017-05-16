@@ -2,11 +2,9 @@ package com.github.tmurakami.dexopener;
 
 import android.support.annotation.NonNull;
 
-final class BuiltinClassNameFilter implements ClassNameFilter {
+final class ClassNameFilterWrapper implements ClassNameFilter {
 
-    static final BuiltinClassNameFilter INSTANCE = new BuiltinClassNameFilter();
-
-    private final String[] disallowedPackages = {
+    private static final String[] EXCLUDED_PACKAGES = {
             "android.",
             "com.android.",
             "com.github.tmurakami.classinjector.",
@@ -26,23 +24,30 @@ final class BuiltinClassNameFilter implements ClassNameFilter {
             "org.objenesis.",
     };
 
-    private BuiltinClassNameFilter() {
+    private final ClassNameFilter delegate;
+
+    ClassNameFilterWrapper(ClassNameFilter delegate) {
+        this.delegate = delegate;
     }
 
     @Override
     public boolean accept(@NonNull String className) {
+        return isAccepted(className) && delegate.accept(className);
+    }
+
+    private static boolean isAccepted(String name) {
         // The Data Binding Library generates several classes packaged as 'android.databinding'.
         // Since these classes are tightly coupled with user classes, 'android.databinding' must not
         // be filtered out.
-        if (className.startsWith("android.databinding.")) {
+        if (name.startsWith("android.databinding.")) {
             return true;
         }
-        for (String pkg : disallowedPackages) {
-            if (className.startsWith(pkg)) {
+        for (String pkg : EXCLUDED_PACKAGES) {
+            if (name.startsWith(pkg)) {
                 return false;
             }
         }
-        return !className.endsWith(".R") && !className.contains(".R$") && !className.endsWith(".BuildConfig");
+        return !name.endsWith(".R") && !name.contains(".R$") && !name.endsWith(".BuildConfig");
     }
 
 }

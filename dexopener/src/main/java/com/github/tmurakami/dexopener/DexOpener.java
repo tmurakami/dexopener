@@ -5,10 +5,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * This is an object that provides the ability to mock final classes and methods.
  */
@@ -64,27 +60,35 @@ public abstract class DexOpener {
      */
     public static final class Builder {
 
-        private final List<ClassNameFilter> classNameFilters = new ArrayList<>();
         private final ApplicationInfo applicationInfo;
+        private ClassNameFilter classNameFilter = AcceptAll.INSTANCE;
 
         Builder(ApplicationInfo applicationInfo) {
             this.applicationInfo = applicationInfo;
         }
 
         /**
-         * Appends class name filters.
+         * Throws an {@link UnsupportedOperationException}.
          *
-         * @param filters the class name filter
+         * @throws UnsupportedOperationException this method is deprecated
+         * @deprecated use {@link #classNameFilter(ClassNameFilter)} instead.
+         */
+        @Deprecated
+        @NonNull
+        public Builder classNameFilters(@SuppressWarnings("unused") @NonNull ClassNameFilter... filters)
+                throws UnsupportedOperationException {
+            throw new UnsupportedOperationException("Use classNameFilter(ClassNameFilter) instead");
+        }
+
+        /**
+         * Sets a {@link ClassNameFilter}.
+         *
+         * @param filter the {@link ClassNameFilter}
          * @return this builder
          */
         @NonNull
-        public Builder classNameFilters(@NonNull ClassNameFilter... filters) {
-            for (ClassNameFilter f : filters) {
-                if (f == null) {
-                    throw new IllegalArgumentException("'filters' contains null");
-                }
-                classNameFilters.add(f);
-            }
+        public Builder classNameFilter(@NonNull ClassNameFilter filter) {
+            classNameFilter = filter;
             return this;
         }
 
@@ -95,10 +99,10 @@ public abstract class DexOpener {
          */
         @NonNull
         public DexOpener build() {
-            List<ClassNameFilter> filters = new ArrayList<>(classNameFilters);
-            filters.add(BuiltinClassNameFilter.INSTANCE);
-            ClassNameFilter filter = new ClassNameFilters(Collections.unmodifiableList(filters));
-            return new DexOpenerImpl(applicationInfo, filter, DexFileLoader.INSTANCE, DexClassFileFactory.INSTANCE);
+            return new DexOpenerImpl(applicationInfo,
+                                     new ClassNameFilterWrapper(classNameFilter),
+                                     DexFileLoader.INSTANCE,
+                                     DexClassFileFactory.INSTANCE);
         }
 
     }

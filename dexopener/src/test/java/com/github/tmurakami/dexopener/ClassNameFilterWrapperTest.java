@@ -9,14 +9,15 @@ import java.util.Arrays;
 import static org.junit.Assert.assertSame;
 
 @RunWith(Parameterized.class)
-public class BuiltinClassNameFilterTest {
+public class ClassNameFilterWrapperTest {
 
-    private final BuiltinClassNameFilter testTarget = BuiltinClassNameFilter.INSTANCE;
+    private final ClassNameFilterWrapper testTarget =
+            new ClassNameFilterWrapper(AcceptAll.INSTANCE);
 
     private final String className;
     private final boolean expected;
 
-    public BuiltinClassNameFilterTest(String className, boolean expected) {
+    public ClassNameFilterWrapperTest(String className, boolean expected) {
         this.className = className;
         this.expected = expected;
     }
