@@ -56,7 +56,7 @@ public abstract class DexOpener {
      */
     @NonNull
     public static Builder builder(@NonNull Context context) {
-        return new Builder(context.getApplicationInfo()).classNameFilters(BuiltinClassNameFilter.INSTANCE);
+        return new Builder(context.getApplicationInfo());
     }
 
     /**
@@ -96,6 +96,7 @@ public abstract class DexOpener {
         @NonNull
         public DexOpener build() {
             List<ClassNameFilter> filters = new ArrayList<>(classNameFilters);
+            filters.add(BuiltinClassNameFilter.INSTANCE);
             ClassNameFilter filter = new ClassNameFilters(Collections.unmodifiableList(filters));
             return new DexOpenerImpl(applicationInfo, filter, DexFileLoader.INSTANCE, DexClassFileFactory.INSTANCE);
         }
