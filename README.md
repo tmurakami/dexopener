@@ -41,7 +41,7 @@ repositories {
 ```
 
 And then, add this library as `androidTestCompile` dependency.
-```
+```groovy
 dependencies {
     androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
 }
