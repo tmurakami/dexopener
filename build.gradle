@@ -28,7 +28,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    def mockito_version = 'latest.release'
+    def mockito_version = '2.8.9'
     deps = [
             dexopener            : project(':dexopener'),
             jarjar               : 'com.googlecode.jarjar:jarjar:1.3',
