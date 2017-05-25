@@ -43,8 +43,13 @@ final class DexClassSource implements ClassSource {
             return null;
         }
         ApplicationWriter aw = new ApplicationWriter();
+        ApplicationOpener opener = new ApplicationOpener(aw);
         String[] classesToVisit = {'L' + className.replace('.', '/') + ';'};
-        applicationReader.accept(new ApplicationOpener(aw), classesToVisit, 0);
+        try {
+            applicationReader.accept(opener, classesToVisit, 0);
+        } catch (Exception e) {
+            throw new IllegalStateException("Error while processing the class '" + className + "'", e);
+        }
         byte[] bytes = aw.toByteArray();
         if (bytes == null) {
             return null;
