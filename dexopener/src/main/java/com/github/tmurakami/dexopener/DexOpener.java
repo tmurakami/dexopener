@@ -85,13 +85,30 @@ public abstract class DexOpener {
          * Throws an {@link UnsupportedOperationException}.
          *
          * @throws UnsupportedOperationException this method is deprecated
-         * @deprecated use {@link #classNameFilter(ClassNameFilter)} instead.
+         * @deprecated use {@link #openIf(ClassNameFilter)} or {@link #classNameFilter(ClassNameFilter)} instead.
          */
         @Deprecated
         @NonNull
         public Builder classNameFilters(@SuppressWarnings("unused") @NonNull ClassNameFilter... filters)
                 throws UnsupportedOperationException {
-            throw new UnsupportedOperationException("Use classNameFilter(ClassNameFilter) instead");
+            throw new UnsupportedOperationException(
+                    "Use openIf(ClassNameFilter) or classNameFilter(ClassNameFilter) instead");
+        }
+
+        /**
+         * Sets a {@link ClassNameFilter}.
+         * This is an alias of {@link #classNameFilter(ClassNameFilter)}. Using this makes code more
+         * readable with lambda expressions, as in the following code:
+         * <pre>{@code
+         * openIf(name -> name.startsWith("package.you.want.to.mock."))
+         * }</pre>
+         *
+         * @param filter the {@link ClassNameFilter}
+         * @return this builder
+         */
+        @NonNull
+        public Builder openIf(@NonNull ClassNameFilter filter) {
+            return classNameFilter(filter);
         }
 
         /**
