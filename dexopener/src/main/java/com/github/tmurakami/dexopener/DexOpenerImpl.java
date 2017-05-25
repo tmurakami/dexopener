@@ -25,7 +25,7 @@ final class DexOpenerImpl extends DexOpener {
     }
 
     @Override
-    public void install(@NonNull ClassLoader classLoader) {
+    public void installTo(@NonNull ClassLoader classLoader) {
         ApplicationInfo ai = applicationInfo;
         File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
         if (cacheDir.isDirectory()) {

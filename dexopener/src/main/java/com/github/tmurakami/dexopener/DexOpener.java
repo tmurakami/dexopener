@@ -20,18 +20,32 @@ public abstract class DexOpener {
      * This is equivalent to the following code:
      * <pre>{@code
      * Context context = instrumentation.getTargetContext();
-     * builder(context).build().install(context.getClassLoader());
+     * builder(context).build().installTo(context.getClassLoader());
      * }</pre>
      *
      * @param instrumentation the instrumentation
-     * @see #install(ClassLoader)
+     * @see #installTo(ClassLoader)
      */
     public static void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
         if (context == null) {
             throw new IllegalArgumentException("'instrumentation' has not been initialized yet");
         }
-        builder(context).build().install(context.getClassLoader());
+        builder(context).build().installTo(context.getClassLoader());
+    }
+
+    /**
+     * Provides the ability to mock final classes and methods.
+     * After calling this method, you can mock classes loaded by the given class loader.
+     * <p>
+     * Note that final classes loaded before calling this cannot be mocked.
+     *
+     * @param classLoader the class loader
+     * @deprecated use {@link #installTo(ClassLoader)} instead
+     */
+    @Deprecated
+    public final void install(@NonNull ClassLoader classLoader) {
+        installTo(classLoader);
     }
 
     /**
@@ -42,7 +56,7 @@ public abstract class DexOpener {
      *
      * @param classLoader the class loader
      */
-    public abstract void install(@NonNull ClassLoader classLoader);
+    public abstract void installTo(@NonNull ClassLoader classLoader);
 
     /**
      * Instantiates a new {@link Builder} instance.
