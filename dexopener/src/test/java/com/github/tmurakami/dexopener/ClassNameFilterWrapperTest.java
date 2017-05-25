@@ -11,6 +11,9 @@ import static org.junit.Assert.assertSame;
 @RunWith(Parameterized.class)
 public class ClassNameFilterWrapperTest {
 
+    private static final boolean ALLOW = true;
+    private static final boolean DENY = false;
+
     private final ClassNameFilterWrapper testTarget =
             new ClassNameFilterWrapper(AcceptAll.INSTANCE);
 
@@ -24,32 +27,38 @@ public class ClassNameFilterWrapperTest {
 
     @Parameterized.Parameters(name = "name={0}")
     public static Iterable<Object[]> parameters() {
-        return Arrays.asList(new Object[]{"android.C", false},
-                             new Object[]{"com.android.C", false},
-                             new Object[]{"com.github.tmurakami.classinjector.C", false},
-                             new Object[]{"com.github.tmurakami.dexmockito.C", false},
-                             new Object[]{DexOpener.class.getName(), false},
-                             new Object[]{"com.github.tmurakami.mockito4k.C", false},
-                             new Object[]{"java.C", false},
-                             new Object[]{"javax.C", false},
-                             new Object[]{"junit.C", false},
-                             new Object[]{"kotlin.C", false},
-                             new Object[]{"kotlinx.C", false},
-                             new Object[]{"net.bytebuddy.C", false},
-                             new Object[]{"org.hamcrest.C", false},
-                             new Object[]{"org.jacoco.C", false},
-                             new Object[]{"org.junit.C", false},
-                             new Object[]{"org.mockito.C", false},
-                             new Object[]{"org.objenesis.C", false},
-                             new Object[]{"foo.R", false},
-                             new Object[]{"foo.R$string", false},
-                             new Object[]{"foo.BuildConfig", false},
-                             new Object[]{"android.databinding.C", true},
-                             new Object[]{"R", true},
-                             new Object[]{"R$string", true},
-                             new Object[]{"foo.Bar$R", true},
-                             new Object[]{"foo.Bar$R$string", true},
-                             new Object[]{"foo.Bar", true});
+        return Arrays.asList(new Object[]{"android.C", DENY},
+                             new Object[]{"android.databinding.adapters.C", DENY},
+                             new Object[]{"com.android.C", DENY},
+                             new Object[]{"com.github.tmurakami.classinjector.C", DENY},
+                             new Object[]{"com.github.tmurakami.dexmockito.C", DENY},
+                             new Object[]{DexOpener.class.getName(), DENY},
+                             new Object[]{"com.github.tmurakami.mockito4k.C", DENY},
+                             new Object[]{"java.C", DENY},
+                             new Object[]{"javax.C", DENY},
+                             new Object[]{"junit.C", DENY},
+                             new Object[]{"kotlin.C", DENY},
+                             new Object[]{"kotlinx.C", DENY},
+                             new Object[]{"net.bytebuddy.C", DENY},
+                             new Object[]{"org.hamcrest.C", DENY},
+                             new Object[]{"org.jacoco.C", DENY},
+                             new Object[]{"org.junit.C", DENY},
+                             new Object[]{"org.mockito.C", DENY},
+                             new Object[]{"org.objenesis.C", DENY},
+                             new Object[]{"foo.R", DENY},
+                             new Object[]{"foo.R$string", DENY},
+                             new Object[]{"foo.BuildConfig", DENY},
+                             new Object[]{"foo.BR", DENY},
+                             new Object[]{"android.databinding.C", ALLOW},
+                             new Object[]{"R", ALLOW},
+                             new Object[]{"R$string", ALLOW},
+                             new Object[]{"BuildConfig", ALLOW},
+                             new Object[]{"BR", ALLOW},
+                             new Object[]{"foo.Bar$R", ALLOW},
+                             new Object[]{"foo.Bar$R$string", ALLOW},
+                             new Object[]{"foo.Bar$BuildConfig", ALLOW},
+                             new Object[]{"foo.Bar$BR", ALLOW},
+                             new Object[]{"foo.Bar", ALLOW});
     }
 
     @Test
