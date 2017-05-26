@@ -3,7 +3,11 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.classinjector.ClassSource;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
+
+import dalvik.system.DexFile;
 
 final class DexClassSourceFactory {
 
@@ -20,7 +24,12 @@ final class DexClassSourceFactory {
     }
 
     ClassSource newClassSource(byte[] byteCode, Set<Set<String>> internalNamesSet) {
-        return new DexClassSource(byteCode, internalNamesSet, cacheDir, dexFileLoader, dexClassFileFactory);
+        return new DexClassSource(byteCode,
+                                  new HashSet<>(internalNamesSet),
+                                  new HashMap<String, DexFile>(),
+                                  cacheDir,
+                                  dexFileLoader,
+                                  dexClassFileFactory);
     }
 
 }

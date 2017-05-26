@@ -10,8 +10,7 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWrite
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -26,18 +25,20 @@ final class DexClassSource implements ClassSource {
 
     private byte[] byteCode;
     private final Set<Set<String>> internalNamesSet;
-    private final Map<String, DexFile> dexFileMap = new HashMap<>();
+    private final Map<String, DexFile> dexFileMap;
     private final File cacheDir;
     private final DexFileLoader dexFileLoader;
     private final DexClassFileFactory classFileFactory;
 
     DexClassSource(byte[] byteCode,
                    Set<Set<String>> internalNamesSet,
+                   Map<String, DexFile> dexFileMap,
                    File cacheDir,
                    DexFileLoader dexFileLoader,
                    DexClassFileFactory classFileFactory) {
         this.byteCode = byteCode;
-        this.internalNamesSet = new HashSet<>(internalNamesSet);
+        this.internalNamesSet = internalNamesSet;
+        this.dexFileMap = dexFileMap;
         this.cacheDir = cacheDir;
         this.dexFileLoader = dexFileLoader;
         this.classFileFactory = classFileFactory;
@@ -50,8 +51,7 @@ final class DexClassSource implements ClassSource {
     }
 
     private DexFile getDexFile(String className) throws IOException {
-        String internalName = DexUtils.toInternalName(className);
-        DexFile dexFile = dexFileMap.get(internalName);
+        DexFile dexFile = dexFileMap.get(className);
         if (dexFile != null) {
             return dexFile;
         }
@@ -59,7 +59,7 @@ final class DexClassSource implements ClassSource {
         if (byteCode == null) {
             return null;
         }
-        String[] classesToVisit = getClassesToVisit(internalName, internalNamesSet);
+        String[] classesToVisit = getClassesToVisit(className, internalNamesSet);
         if (classesToVisit == null) {
             return null;
         } else if (internalNamesSet.isEmpty()) {
@@ -75,14 +75,14 @@ final class DexClassSource implements ClassSource {
             throw new IllegalStateException("Cannot create " + cacheDir);
         }
         dexFile = loadDex(dexFileLoader, cacheDir, openedByteCode);
-        for (String n : classesToVisit) {
-            dexFileMap.put(n, dexFile);
+        for (Enumeration<String> e = dexFile.entries(); e.hasMoreElements(); ) {
+            dexFileMap.put(e.nextElement(), dexFile);
         }
         return dexFile;
     }
 
-    private static String[] getClassesToVisit(String internalName,
-                                              Set<Set<String>> internalNamesSet) {
+    private static String[] getClassesToVisit(String className, Set<Set<String>> internalNamesSet) {
+        String internalName = DexUtils.toInternalName(className);
         for (Iterator<Set<String>> it = internalNamesSet.iterator(); it.hasNext(); ) {
             Set<String> set = it.next();
             if (set.contains(internalName)) {

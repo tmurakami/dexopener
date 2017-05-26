@@ -16,6 +16,9 @@ import java.io.IOError;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -24,6 +27,7 @@ import dalvik.system.DexFile;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -46,7 +50,7 @@ public class DexClassSourceTest {
     private ClassFile classFile;
 
     @Test
-    public void should_get_a_ClassFile_with_the_given_name() throws Exception {
+    public void should_get_a_class_name_for_the_given_name() throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
@@ -78,26 +82,56 @@ public class DexClassSourceTest {
                         && name.endsWith(".zip.dex");
             }
         }), eq(0))).willReturn(dexFile);
+        given(dexFile.entries()).willReturn(Collections.enumeration(Collections.singleton(className)));
         given(classFileFactory.newClassFile(className, dexFile)).willReturn(classFile);
+        Set<Set<String>> internalNamesSet = new HashSet<>();
+        internalNamesSet.add(Collections.singleton(internalName));
+        Map<String, DexFile> dexFileMap = new HashMap<>();
         DexClassSource source = new DexClassSource(byteCode,
-                                                   Collections.singleton(Collections.singleton(internalName)),
+                                                   internalNamesSet,
+                                                   dexFileMap,
                                                    cacheDir,
                                                    dexFileLoader,
                                                    classFileFactory);
         assertSame(classFile, source.getClassFile(className));
+        assertTrue(internalNamesSet.isEmpty());
+        assertSame(dexFile, dexFileMap.get(className));
+    }
+
+    @Test
+    public void should_get_a_mapped_class_file_for_the_given_name()
+            throws Exception {
+        String className = "foo.Bar";
+        Map<String, DexFile> dexFileMap = new HashMap<>();
+        dexFileMap.put(className, dexFile);
+        given(classFileFactory.newClassFile(className, dexFile)).willReturn(classFile);
+        assertSame(classFile, new DexClassSource(null,
+                                                 null,
+                                                 dexFileMap,
+                                                 null,
+                                                 null,
+                                                 classFileFactory).getClassFile(className));
+    }
+
+    @Test
+    public void should_get_null_if_the_byte_code_is_null() throws Exception {
+        assertNull(new DexClassSource(null,
+                                      null,
+                                      Collections.<String, DexFile>emptyMap(),
+                                      null,
+                                      null,
+                                      classFileFactory).getClassFile("foo.Bar"));
     }
 
     @Test
     public void should_get_null_if_the_given_name_is_not_in_the_list_of_class_names()
             throws Exception {
-        ApplicationWriter aw = new ApplicationWriter();
-        aw.visitEnd();
-        DexClassSource classSource = new DexClassSource(aw.toByteArray(),
-                                                        Collections.<Set<String>>emptySet(),
-                                                        cacheDir,
-                                                        dexFileLoader,
-                                                        classFileFactory);
-        assertNull(classSource.getClassFile("foo.Bar"));
+        assertNull(new DexClassSource(new byte[0],
+                                      Collections.<Set<String>>emptySet(),
+                                      Collections.<String, DexFile>emptyMap(),
+                                      null,
+                                      null,
+                                      classFileFactory).getClassFile("foo.Bar"));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -107,11 +141,19 @@ public class DexClassSourceTest {
         String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitEnd();
-        new DexClassSource(aw.toByteArray(),
-                           Collections.singleton(Collections.singleton(internalName)),
-                           cacheDir,
-                           dexFileLoader,
-                           classFileFactory).getClassFile(className);
+        Set<Set<String>> internalNamesSet = new HashSet<>();
+        internalNamesSet.add(Collections.singleton(internalName));
+        DexClassSource classSource = new DexClassSource(aw.toByteArray(),
+                                                        internalNamesSet,
+                                                        Collections.<String, DexFile>emptyMap(),
+                                                        null,
+                                                        null,
+                                                        classFileFactory);
+        try {
+            classSource.getClassFile(className);
+        } finally {
+            assertTrue(internalNamesSet.isEmpty());
+        }
     }
 
     @Test(expected = IllegalStateException.class)
@@ -126,11 +168,19 @@ public class DexClassSourceTest {
                       DexUtils.toInternalName(Object.class.getName()),
                       null);
         aw.visitEnd();
-        new DexClassSource(aw.toByteArray(),
-                           Collections.singleton(Collections.singleton(internalName)),
-                           cacheDir,
-                           dexFileLoader,
-                           classFileFactory).getClassFile(className);
+        Set<Set<String>> internalNamesSet = new HashSet<>();
+        internalNamesSet.add(Collections.singleton(internalName));
+        DexClassSource classSource = new DexClassSource(aw.toByteArray(),
+                                                        internalNamesSet,
+                                                        Collections.<String, DexFile>emptyMap(),
+                                                        cacheDir,
+                                                        null,
+                                                        classFileFactory);
+        try {
+            classSource.getClassFile(className);
+        } finally {
+            assertTrue(internalNamesSet.isEmpty());
+        }
     }
 
     private static byte[] readByteCode(File zip) {
