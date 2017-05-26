@@ -32,48 +32,60 @@ public class AndroidClassSourceTest {
     public final TemporaryFolder folder = new TemporaryFolder();
 
     @Mock
-    ClassNameFilter classNameFilter;
+    private ClassNameFilter classNameFilter;
     @Mock
-    DexClassSourceFactory dexClassSourceFactory;
+    private DexClassSourceFactory dexClassSourceFactory;
     @Mock
-    ClassSource classSource;
+    private ClassSource classSource;
     @Mock
-    ClassFile classFile;
+    private ClassFile classFile;
 
     @Captor
-    ArgumentCaptor<byte[]> byteCodeCaptor;
+    private ArgumentCaptor<byte[]> byteCodeCaptor;
     @Captor
-    ArgumentCaptor<Set<String>> classNamesCaptor;
+    private ArgumentCaptor<Set<String>> classNamesCaptor;
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Test
-    public void the_getClassFile_method_should_return_the_ClassFile_with_the_given_name() throws Exception {
+    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
         ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
+        aw.visitClass(0,
+                      "Lfoo/Bar;",
+                      null,
+                      "Ljava/lang/Object;",
+                      null);
         aw.visitEnd();
-        byte[] bytes = aw.toByteArray();
+        byte[] byteCode = aw.toByteArray();
         File apk = folder.newFile();
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(apk));
         try {
             out.putNextEntry(new ZipEntry("classes.dex"));
-            out.write(bytes);
+            out.write(byteCode);
         } finally {
             out.close();
         }
         given(classNameFilter.accept("foo.Bar")).willReturn(true);
-        given(dexClassSourceFactory.newClassSource(byteCodeCaptor.capture(), classNamesCaptor.capture())).willReturn(classSource);
+        given(dexClassSourceFactory.newClassSource(byteCodeCaptor.capture(),
+                                                   classNamesCaptor.capture()))
+                .willReturn(classSource);
         given(classSource.getClassFile("foo.Bar")).willReturn(classFile);
-        AndroidClassSource testTarget = new AndroidClassSource(apk.getCanonicalPath(), classNameFilter, dexClassSourceFactory);
+        AndroidClassSource testTarget = new AndroidClassSource(apk.getCanonicalPath(),
+                                                               classNameFilter,
+                                                               dexClassSourceFactory);
         assertSame(classFile, testTarget.getClassFile("foo.Bar"));
-        assertArrayEquals(bytes, byteCodeCaptor.getValue());
+        assertArrayEquals(byteCode, byteCodeCaptor.getValue());
         Set<String> classNames = classNamesCaptor.getValue();
         assertEquals(1, classNames.size());
         assertEquals("foo.Bar", classNames.iterator().next());
     }
 
     @Test
-    public void the_getClassFile_method_should_return_null_if_the_class_name_does_not_pass_the_ClassNameFilter() throws Exception {
-        assertNull(new AndroidClassSource("", classNameFilter, dexClassSourceFactory).getClassFile("foo.Bar"));
+    public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter()
+            throws Exception {
+        AndroidClassSource classSource = new AndroidClassSource("",
+                                                                classNameFilter,
+                                                                dexClassSourceFactory);
+        assertNull(classSource.getClassFile("foo.Bar"));
     }
 
 }

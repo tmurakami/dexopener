@@ -21,10 +21,11 @@ import static org.mockito.Mockito.mockitoSession;
 public class MainActivityTest implements ActivityLifecycleCallback {
 
     @Rule
-    public final ActivityTestRule<MainActivity> rule = new ActivityTestRule<>(MainActivity.class, true, false);
+    public final ActivityTestRule<MainActivity> rule =
+            new ActivityTestRule<>(MainActivity.class, true, false);
 
     @Mock
-    MainService service;
+    private MainService service;
 
     private MockitoSession session;
 
@@ -48,7 +49,7 @@ public class MainActivityTest implements ActivityLifecycleCallback {
     }
 
     @Test
-    public void the_title_of_the_MainActivity_should_be_replaced_by_the_given_mock() throws Exception {
+    public void the_title_of_MainActivity_should_be_replaced_by_the_given_mock() throws Exception {
         String s = "test";
         given(service.getString(isA(MainActivity.class))).willReturn(s);
         assertEquals(s, rule.launchActivity(null).getTitle());

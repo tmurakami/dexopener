@@ -1,7 +1,6 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.classinjector.ClassFile;
-import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
 
 import org.junit.Rule;
@@ -12,11 +11,9 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -24,7 +21,6 @@ import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -38,96 +34,117 @@ public class DexClassSourceTest {
     public final TemporaryFolder folder = new TemporaryFolder();
 
     @Mock
-    ApplicationReader applicationReader;
+    private Set<String> classNames;
     @Mock
-    Set<String> classNames;
+    private File cacheDir;
     @Mock
-    File cacheDir;
+    private DexFileLoader dexFileLoader;
     @Mock
-    DexFileLoader dexFileLoader;
+    private DexClassFileFactory classFileFactory;
     @Mock
-    DexClassFileFactory classFileFactory;
+    private DexFile dexFile;
     @Mock
-    DexFile dexFile;
-    @Mock
-    ClassFile classFile;
+    private ClassFile classFile;
 
     @Test
-    public void the_getClassFile_method_should_return_the_ClassFile_with_the_given_name() throws Exception {
+    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
         final File cacheDir = folder.newFolder();
         ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
+        aw.visitClass(0,
+                      "Lfoo/Bar;",
+                      null,
+                      "Ljava/lang/Object;",
+                      null);
         aw.visitEnd();
-        final byte[] bytes = aw.toByteArray();
+        final byte[] byteCode = aw.toByteArray();
         given(classNames.contains("foo.Bar")).willReturn(true);
         given(dexFileLoader.loadDex(argThat(new ArgumentMatcher<String>() {
             @Override
             public boolean matches(String argument) {
                 File f = new File(argument);
                 String name = f.getName();
-                if (!cacheDir.equals(f.getParentFile()) || !name.startsWith("classes") || !name.endsWith(".zip")) {
-                    return false;
-                }
-                ZipFile zipFile = null;
-                try {
-                    zipFile = new ZipFile(f);
-                    ZipEntry e = zipFile.getEntry("classes.dex");
-                    assertNotNull(e);
-                    InputStream in = zipFile.getInputStream(e);
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[16384];
-                    for (int l; (l = in.read(buffer)) != -1; ) {
-                        out.write(buffer, 0, l);
-                    }
-                    return Arrays.equals(bytes, out.toByteArray());
-                } catch (IOException e) {
-                    throw new IOError(e);
-                } finally {
-                    if (zipFile != null) {
-                        try {
-                            zipFile.close();
-                        } catch (IOException ignored) {
-                        }
-                    }
-                }
+                return cacheDir.equals(f.getParentFile())
+                        && name.startsWith("classes")
+                        && name.endsWith(".zip")
+                        && Arrays.equals(byteCode, readByteCode(f));
             }
         }), argThat(new ArgumentMatcher<String>() {
             @Override
             public boolean matches(String argument) {
                 File f = new File(argument);
                 String name = f.getName();
-                return cacheDir.equals(f.getParentFile()) && name.startsWith("classes") && name.endsWith(".zip.dex");
+                return cacheDir.equals(f.getParentFile())
+                        && name.startsWith("classes")
+                        && name.endsWith(".zip.dex");
             }
         }), eq(0))).willReturn(dexFile);
         given(classFileFactory.newClassFile("foo.Bar", dexFile)).willReturn(classFile);
-        assertSame(classFile, new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        DexClassSource source = new DexClassSource(byteCode,
+                                                   classNames,
+                                                   cacheDir,
+                                                   dexFileLoader,
+                                                   classFileFactory);
+        assertSame(classFile, source.getClassFile("foo.Bar"));
     }
 
     @Test
-    public void the_getClassFile_method_should_return_null_if_the_given_name_does_not_contains_class_names() throws Exception {
+    public void getClassFile_should_return_null_if_the_given_name_is_not_in_the_list_of_class_names()
+            throws Exception {
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitEnd();
-        byte[] bytes = aw.toByteArray();
-        assertNull(new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        DexClassSource classSource = new DexClassSource(aw.toByteArray(),
+                                                        classNames,
+                                                        cacheDir,
+                                                        dexFileLoader,
+                                                        classFileFactory);
+        assertNull(classSource.getClassFile("foo.Bar"));
     }
 
     @Test(expected = IllegalStateException.class)
-    public void the_getClassFile_method_should_throw_an_IllegalStateException_if_the_class_with_the_given_name_cannot_be_found() throws Exception {
+    public void getClassFile_should_throw_IllegalStateException_if_the_class_for_the_given_name_cannot_be_found() throws Exception {
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitEnd();
-        byte[] bytes = aw.toByteArray();
         given(classNames.contains("foo.Bar")).willReturn(true);
-        assertNull(new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        new DexClassSource(aw.toByteArray(),
+                           classNames,
+                           cacheDir,
+                           dexFileLoader,
+                           classFileFactory).getClassFile("foo.Bar");
     }
 
     @Test(expected = IllegalStateException.class)
-    public void the_getClassFile_method_should_throw_an_IllegalArgumentException_if_the_cache_dir_cannot_be_created() throws Exception {
+    public void getClassFile_should_throw_IllegalStateException_if_the_cache_dir_cannot_be_created() throws Exception {
         ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
+        aw.visitClass(0,
+                      "Lfoo/Bar;",
+                      null,
+                      "Ljava/lang/Object;",
+                      null);
         aw.visitEnd();
-        byte[] bytes = aw.toByteArray();
         given(classNames.contains("foo.Bar")).willReturn(true);
-        new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar");
+        new DexClassSource(aw.toByteArray(),
+                           classNames,
+                           cacheDir,
+                           dexFileLoader,
+                           classFileFactory).getClassFile("foo.Bar");
+    }
+
+    private static byte[] readByteCode(File zip) {
+        ZipFile zipFile = null;
+        try {
+            zipFile = new ZipFile(zip);
+            ZipEntry e = zipFile.getEntry("classes.dex");
+            return IOUtils.readBytes(zipFile.getInputStream(e));
+        } catch (IOException e) {
+            throw new IOError(e);
+        } finally {
+            if (zipFile != null) {
+                try {
+                    zipFile.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
 }

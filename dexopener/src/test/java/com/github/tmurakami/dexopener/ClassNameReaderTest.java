@@ -13,37 +13,37 @@ import java.util.Set;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class ClassNameReaderTest {
 
     @InjectMocks
-    ClassNameReader testTarget;
+    private ClassNameReader testTarget;
 
     @Mock
-    ClassNameFilter filter;
+    private ClassNameFilter filter;
 
     @Test
-    public void the_readClassNames_method_should_read_class_names_that_pass_the_ClassNameFilter() throws Exception {
+    public void readClassNames_should_return_only_class_names_that_passed_through_the_filter()
+            throws Exception {
         given(filter.accept("foo.Bar")).willReturn(true);
         ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
+        aw.visitClass(0,
+                      "Lfoo/Bar;",
+                      null,
+                      "Ljava/lang/Object;",
+                      null);
+        aw.visitClass(0,
+                      "Lfoo/bar/Baz;",
+                      null,
+                      "Ljava/lang/Object;",
+                      null);
         aw.visitEnd();
-        byte[] bytes = aw.toByteArray();
-        Set<String> classNames = testTarget.readClassNames(new ApplicationReader(ASM4, bytes));
+        byte[] byteCode = aw.toByteArray();
+        Set<String> classNames = testTarget.readClassNames(new ApplicationReader(ASM4, byteCode));
         assertEquals(1, classNames.size());
         assertEquals("foo.Bar", classNames.iterator().next());
-    }
-
-    @Test
-    public void the_readClassNames_method_should_not_read_class_names_that_do_not_pass_the_ClassNameFilter() throws Exception {
-        ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0, "Lfoo/Bar;", null, "Ljava/lang/Object;", null);
-        aw.visitEnd();
-        byte[] bytes = aw.toByteArray();
-        assertTrue(testTarget.readClassNames(new ApplicationReader(ASM4, bytes)).isEmpty());
     }
 
 }
