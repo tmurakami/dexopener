@@ -62,7 +62,10 @@ final class AndroidClassSource implements ClassSource {
                     }
                     byte[] byteCode = out.toByteArray();
                     ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
-                    sources.add(dexClassSourceFactory.newClassSource(byteCode, r.readClassNames(ar)));
+                    Set<String> classNames = r.readClassNames(ar);
+                    if (!classNames.isEmpty()) {
+                        sources.add(dexClassSourceFactory.newClassSource(byteCode, classNames));
+                    }
                 }
             }
         } finally {
