@@ -44,16 +44,7 @@ final class DexClassSource implements ClassSource {
         if (!classNames.contains(className)) {
             return null;
         }
-        ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
-        ApplicationWriter aw = new ApplicationWriter();
-        ApplicationOpener opener = new ApplicationOpener(aw);
-        String[] classesToVisit = {'L' + className.replace('.', '/') + ';'};
-        try {
-            ar.accept(opener, classesToVisit, 0);
-        } catch (Exception e) {
-            throw new IllegalStateException("Error while processing the class '" + className + "'", e);
-        }
-        byte[] bytes = aw.toByteArray();
+        byte[] openedByteCode = openClass(className, byteCode);
         if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
             throw new IllegalStateException("Cannot create " + cacheDir);
         }
@@ -62,7 +53,7 @@ final class DexClassSource implements ClassSource {
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
             try {
                 out.putNextEntry(new ZipEntry("classes.dex"));
-                out.write(bytes);
+                out.write(openedByteCode);
             } finally {
                 out.close();
             }
@@ -72,6 +63,19 @@ final class DexClassSource implements ClassSource {
         } finally {
             FileUtils.delete(zip);
         }
+    }
+
+    private static byte[] openClass(String className, byte[] byteCode) {
+        ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
+        ApplicationWriter aw = new ApplicationWriter();
+        ApplicationOpener opener = new ApplicationOpener(aw);
+        String[] classesToVisit = {'L' + className.replace('.', '/') + ';'};
+        try {
+            ar.accept(opener, classesToVisit, 0);
+        } catch (Exception e) {
+            throw new IllegalStateException("Error while processing the class '" + className + "'", e);
+        }
+        return aw.toByteArray();
     }
 
 }

@@ -10,6 +10,7 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReade
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -55,12 +56,7 @@ final class AndroidClassSource implements ClassSource {
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
                 String name = e.getName();
                 if (name.startsWith("classes") && name.endsWith(".dex")) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[16384];
-                    for (int l; (l = in.read(buffer)) != -1; ) {
-                        out.write(buffer, 0, l);
-                    }
-                    byte[] byteCode = out.toByteArray();
+                    byte[] byteCode = readByteCode(in);
                     ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
                     Set<String> classNames = r.readClassNames(ar);
                     if (!classNames.isEmpty()) {
@@ -72,6 +68,15 @@ final class AndroidClassSource implements ClassSource {
             in.close();
         }
         return new ClassSources(sources);
+    }
+
+    private static byte[] readByteCode(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buffer = new byte[16384];
+        for (int l; (l = in.read(buffer)) != -1; ) {
+            out.write(buffer, 0, l);
+        }
+        return out.toByteArray();
     }
 
 }
