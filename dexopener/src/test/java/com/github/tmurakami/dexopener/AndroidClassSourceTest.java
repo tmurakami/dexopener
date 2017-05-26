@@ -2,7 +2,6 @@ package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.classinjector.ClassSource;
-import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
 
 import org.junit.Rule;
@@ -42,7 +41,7 @@ public class AndroidClassSourceTest {
     ClassFile classFile;
 
     @Captor
-    ArgumentCaptor<ApplicationReader> applicationReaderCaptor;
+    ArgumentCaptor<byte[]> byteCodeCaptor;
     @Captor
     ArgumentCaptor<Set<String>> classNamesCaptor;
 
@@ -62,11 +61,11 @@ public class AndroidClassSourceTest {
             out.close();
         }
         given(classNameFilter.accept("foo.Bar")).willReturn(true);
-        given(dexClassSourceFactory.newClassSource(applicationReaderCaptor.capture(), classNamesCaptor.capture())).willReturn(classSource);
+        given(dexClassSourceFactory.newClassSource(byteCodeCaptor.capture(), classNamesCaptor.capture())).willReturn(classSource);
         given(classSource.getClassFile("foo.Bar")).willReturn(classFile);
         AndroidClassSource testTarget = new AndroidClassSource(apk.getCanonicalPath(), classNameFilter, dexClassSourceFactory);
         assertSame(classFile, testTarget.getClassFile("foo.Bar"));
-        assertArrayEquals(bytes, applicationReaderCaptor.getValue().byteCode);
+        assertArrayEquals(bytes, byteCodeCaptor.getValue());
         Set<String> classNames = classNamesCaptor.getValue();
         assertEquals(1, classNames.size());
         assertEquals("foo.Bar", classNames.iterator().next());

@@ -24,16 +24,12 @@ import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
 
-import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class DexClassSourceTest {
@@ -104,21 +100,24 @@ public class DexClassSourceTest {
             }
         }), eq(0))).willReturn(dexFile);
         given(classFileFactory.newClassFile("foo.Bar", dexFile)).willReturn(classFile);
-        ApplicationReader ar = new ApplicationReader(ASM4, bytes);
-        assertSame(classFile, new DexClassSource(ar, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
+        assertSame(classFile, new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
     }
 
     @Test
     public void the_getClassFile_method_should_return_null_if_the_given_name_does_not_contains_class_names() throws Exception {
-        assertNull(new DexClassSource(applicationReader, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
-        then(applicationReader).should(never()).accept(any(ApplicationOpener.class), any(String[].class), eq(0));
+        ApplicationWriter aw = new ApplicationWriter();
+        aw.visitEnd();
+        byte[] bytes = aw.toByteArray();
+        assertNull(new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
     }
 
-    @Test
-    public void the_getClassFile_method_should_return_null_if_the_class_with_the_given_name_cannot_be_found() throws Exception {
+    @Test(expected = IllegalStateException.class)
+    public void the_getClassFile_method_should_throw_an_IllegalStateException_if_the_class_with_the_given_name_cannot_be_found() throws Exception {
+        ApplicationWriter aw = new ApplicationWriter();
+        aw.visitEnd();
+        byte[] bytes = aw.toByteArray();
         given(classNames.contains("foo.Bar")).willReturn(true);
-        assertNull(new DexClassSource(applicationReader, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
-        then(applicationReader).should().accept(any(ApplicationOpener.class), any(String[].class), eq(0));
+        assertNull(new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar"));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -128,7 +127,7 @@ public class DexClassSourceTest {
         aw.visitEnd();
         byte[] bytes = aw.toByteArray();
         given(classNames.contains("foo.Bar")).willReturn(true);
-        new DexClassSource(new ApplicationReader(ASM4, bytes), classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar");
+        new DexClassSource(bytes, classNames, cacheDir, dexFileLoader, classFileFactory).getClassFile("foo.Bar");
     }
 
 }

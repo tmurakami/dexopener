@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -59,8 +60,9 @@ final class AndroidClassSource implements ClassSource {
                     for (int l; (l = in.read(buffer)) != -1; ) {
                         out.write(buffer, 0, l);
                     }
-                    ApplicationReader ar = new ApplicationReader(ASM4, out.toByteArray());
-                    sources.add(dexClassSourceFactory.newClassSource(ar, r.readClassNames(ar)));
+                    byte[] byteCode = out.toByteArray();
+                    ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
+                    sources.add(dexClassSourceFactory.newClassSource(byteCode, r.readClassNames(ar)));
                 }
             }
         } finally {

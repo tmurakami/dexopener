@@ -1,7 +1,6 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.classinjector.ClassSource;
-import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 
 import java.io.File;
 import java.util.Set;
@@ -20,8 +19,8 @@ final class DexClassSourceFactory {
         this.dexClassFileFactory = dexClassFileFactory;
     }
 
-    ClassSource newClassSource(ApplicationReader applicationReader, Set<String> classNames) {
-        return new DexClassSource(applicationReader, classNames, cacheDir, dexFileLoader, dexClassFileFactory);
+    ClassSource newClassSource(byte[] byteCode, Set<String> classNames) {
+        return new DexClassSource(byteCode, classNames, cacheDir, dexFileLoader, dexClassFileFactory);
     }
 
 }

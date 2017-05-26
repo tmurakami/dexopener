@@ -16,20 +16,22 @@ import java.util.zip.ZipOutputStream;
 
 import dalvik.system.DexFile;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
+
 final class DexClassSource implements ClassSource {
 
-    private final ApplicationReader applicationReader;
+    private final byte[] byteCode;
     private final Set<String> classNames;
     private final File cacheDir;
     private final DexFileLoader dexFileLoader;
     private final DexClassFileFactory classFileFactory;
 
-    DexClassSource(ApplicationReader applicationReader,
+    DexClassSource(byte[] byteCode,
                    Set<String> classNames,
                    File cacheDir,
                    DexFileLoader dexFileLoader,
                    DexClassFileFactory classFileFactory) {
-        this.applicationReader = applicationReader;
+        this.byteCode = byteCode;
         this.classNames = classNames;
         this.cacheDir = cacheDir;
         this.dexFileLoader = dexFileLoader;
@@ -42,18 +44,16 @@ final class DexClassSource implements ClassSource {
         if (!classNames.contains(className)) {
             return null;
         }
+        ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
         ApplicationWriter aw = new ApplicationWriter();
         ApplicationOpener opener = new ApplicationOpener(aw);
         String[] classesToVisit = {'L' + className.replace('.', '/') + ';'};
         try {
-            applicationReader.accept(opener, classesToVisit, 0);
+            ar.accept(opener, classesToVisit, 0);
         } catch (Exception e) {
             throw new IllegalStateException("Error while processing the class '" + className + "'", e);
         }
         byte[] bytes = aw.toByteArray();
-        if (bytes == null) {
-            return null;
-        }
         if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
             throw new IllegalStateException("Cannot create " + cacheDir);
         }
