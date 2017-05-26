@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -34,8 +35,6 @@ public class DexClassSourceTest {
     public final TemporaryFolder folder = new TemporaryFolder();
 
     @Mock
-    private Set<String> classNames;
-    @Mock
     private File cacheDir;
     @Mock
     private DexFileLoader dexFileLoader;
@@ -48,16 +47,17 @@ public class DexClassSourceTest {
 
     @Test
     public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
-        final File cacheDir = folder.newFolder();
+        String className = "foo.Bar";
+        String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitClass(0,
-                      "Lfoo/Bar;",
+                      internalName,
                       null,
-                      "Ljava/lang/Object;",
+                      DexUtils.toInternalName(Object.class.getName()),
                       null);
         aw.visitEnd();
         final byte[] byteCode = aw.toByteArray();
-        given(classNames.contains("foo.Bar")).willReturn(true);
+        final File cacheDir = folder.newFolder();
         given(dexFileLoader.loadDex(argThat(new ArgumentMatcher<String>() {
             @Override
             public boolean matches(String argument) {
@@ -78,13 +78,13 @@ public class DexClassSourceTest {
                         && name.endsWith(".zip.dex");
             }
         }), eq(0))).willReturn(dexFile);
-        given(classFileFactory.newClassFile("foo.Bar", dexFile)).willReturn(classFile);
+        given(classFileFactory.newClassFile(className, dexFile)).willReturn(classFile);
         DexClassSource source = new DexClassSource(byteCode,
-                                                   classNames,
+                                                   Collections.singleton(Collections.singleton(internalName)),
                                                    cacheDir,
                                                    dexFileLoader,
                                                    classFileFactory);
-        assertSame(classFile, source.getClassFile("foo.Bar"));
+        assertSame(classFile, source.getClassFile(className));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class DexClassSourceTest {
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitEnd();
         DexClassSource classSource = new DexClassSource(aw.toByteArray(),
-                                                        classNames,
+                                                        Collections.<Set<String>>emptySet(),
                                                         cacheDir,
                                                         dexFileLoader,
                                                         classFileFactory);
@@ -101,32 +101,36 @@ public class DexClassSourceTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getClassFile_should_throw_IllegalStateException_if_the_class_for_the_given_name_cannot_be_found() throws Exception {
+    public void getClassFile_should_throw_IllegalStateException_if_the_class_for_the_given_name_cannot_be_found()
+            throws Exception {
+        String className = "foo.Bar";
+        String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitEnd();
-        given(classNames.contains("foo.Bar")).willReturn(true);
         new DexClassSource(aw.toByteArray(),
-                           classNames,
+                           Collections.singleton(Collections.singleton(internalName)),
                            cacheDir,
                            dexFileLoader,
-                           classFileFactory).getClassFile("foo.Bar");
+                           classFileFactory).getClassFile(className);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getClassFile_should_throw_IllegalStateException_if_the_cache_dir_cannot_be_created() throws Exception {
+    public void getClassFile_should_throw_IllegalStateException_if_the_cache_dir_cannot_be_created()
+            throws Exception {
+        String className = "foo.Bar";
+        String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitClass(0,
-                      "Lfoo/Bar;",
+                      internalName,
                       null,
-                      "Ljava/lang/Object;",
+                      DexUtils.toInternalName(Object.class.getName()),
                       null);
         aw.visitEnd();
-        given(classNames.contains("foo.Bar")).willReturn(true);
         new DexClassSource(aw.toByteArray(),
-                           classNames,
+                           Collections.singleton(Collections.singleton(internalName)),
                            cacheDir,
                            dexFileLoader,
-                           classFileFactory).getClassFile("foo.Bar");
+                           classFileFactory).getClassFile(className);
     }
 
     private static byte[] readByteCode(File zip) {

@@ -9,41 +9,38 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Set;
+import java.util.Collections;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class ClassNameReaderTest {
+public class InternalNamesSetReaderTest {
 
     @InjectMocks
-    private ClassNameReader testTarget;
+    private InternalNamesSetReader testTarget;
 
     @Mock
     private ClassNameFilter filter;
 
     @Test
-    public void readClassNames_should_return_only_class_names_that_passed_through_the_filter()
+    public void read_should_return_only_class_names_that_passed_through_the_filter()
             throws Exception {
-        given(filter.accept("foo.Bar")).willReturn(true);
+        String className = "foo.Bar";
+        String internalName = DexUtils.toInternalName(className);
+        given(filter.accept(className)).willReturn(true);
         ApplicationWriter aw = new ApplicationWriter();
+        String superInternalName = DexUtils.toInternalName(Object.class.getName());
+        aw.visitClass(0, internalName, null, superInternalName, null);
         aw.visitClass(0,
-                      "Lfoo/Bar;",
+                      DexUtils.toInternalName("foo.bar.Baz"),
                       null,
-                      "Ljava/lang/Object;",
-                      null);
-        aw.visitClass(0,
-                      "Lfoo/bar/Baz;",
-                      null,
-                      "Ljava/lang/Object;",
+                      superInternalName,
                       null);
         aw.visitEnd();
-        byte[] byteCode = aw.toByteArray();
-        Set<String> classNames = testTarget.readClassNames(new ApplicationReader(ASM4, byteCode));
-        assertEquals(1, classNames.size());
-        assertEquals("foo.Bar", classNames.iterator().next());
+        ApplicationReader ar = new ApplicationReader(ASM4, aw.toByteArray());
+        assertEquals(Collections.singleton(Collections.singleton(internalName)), testTarget.read(ar));
     }
 
 }

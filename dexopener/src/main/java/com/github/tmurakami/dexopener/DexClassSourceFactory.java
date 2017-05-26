@@ -19,8 +19,8 @@ final class DexClassSourceFactory {
         this.dexClassFileFactory = dexClassFileFactory;
     }
 
-    ClassSource newClassSource(byte[] byteCode, Set<String> classNames) {
-        return new DexClassSource(byteCode, classNames, cacheDir, dexFileLoader, dexClassFileFactory);
+    ClassSource newClassSource(byte[] byteCode, Set<Set<String>> internalNamesSet) {
+        return new DexClassSource(byteCode, internalNamesSet, cacheDir, dexFileLoader, dexClassFileFactory);
     }
 
 }

@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Collections;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -43,16 +44,18 @@ public class AndroidClassSourceTest {
     @Captor
     private ArgumentCaptor<byte[]> byteCodeCaptor;
     @Captor
-    private ArgumentCaptor<Set<String>> classNamesCaptor;
+    private ArgumentCaptor<Set<Set<String>>> internalNamesSetCaptor;
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Test
     public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
+        String className = "foo.Bar";
+        String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitClass(0,
-                      "Lfoo/Bar;",
+                      internalName,
                       null,
-                      "Ljava/lang/Object;",
+                      DexUtils.toInternalName(Object.class.getName()),
                       null);
         aw.visitEnd();
         byte[] byteCode = aw.toByteArray();
@@ -64,19 +67,18 @@ public class AndroidClassSourceTest {
         } finally {
             out.close();
         }
-        given(classNameFilter.accept("foo.Bar")).willReturn(true);
+        given(classNameFilter.accept(className)).willReturn(true);
         given(dexClassSourceFactory.newClassSource(byteCodeCaptor.capture(),
-                                                   classNamesCaptor.capture()))
+                                                   internalNamesSetCaptor.capture()))
                 .willReturn(classSource);
-        given(classSource.getClassFile("foo.Bar")).willReturn(classFile);
+        given(classSource.getClassFile(className)).willReturn(classFile);
         AndroidClassSource testTarget = new AndroidClassSource(apk.getCanonicalPath(),
                                                                classNameFilter,
                                                                dexClassSourceFactory);
-        assertSame(classFile, testTarget.getClassFile("foo.Bar"));
+        assertSame(classFile, testTarget.getClassFile(className));
         assertArrayEquals(byteCode, byteCodeCaptor.getValue());
-        Set<String> classNames = classNamesCaptor.getValue();
-        assertEquals(1, classNames.size());
-        assertEquals("foo.Bar", classNames.iterator().next());
+        Set<Set<String>> internalNamesSet = internalNamesSetCaptor.getValue();
+        assertEquals(Collections.singleton(Collections.singleton(internalName)), internalNamesSet);
     }
 
     @Test
