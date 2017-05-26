@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -22,7 +24,7 @@ import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.A
 
 final class DexClassSource implements ClassSource {
 
-    private final byte[] byteCode;
+    private byte[] byteCode;
     private final Set<Set<String>> internalNamesSet;
     private final Map<String, DexFile> dexFileMap = new HashMap<>();
     private final File cacheDir;
@@ -35,7 +37,7 @@ final class DexClassSource implements ClassSource {
                    DexFileLoader dexFileLoader,
                    DexClassFileFactory classFileFactory) {
         this.byteCode = byteCode;
-        this.internalNamesSet = internalNamesSet;
+        this.internalNamesSet = new HashSet<>(internalNamesSet);
         this.cacheDir = cacheDir;
         this.dexFileLoader = dexFileLoader;
         this.classFileFactory = classFileFactory;
@@ -47,56 +49,73 @@ final class DexClassSource implements ClassSource {
         return dexFile == null ? null : classFileFactory.newClassFile(className, dexFile);
     }
 
-    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private DexFile getDexFile(String className) throws IOException {
         String internalName = DexUtils.toInternalName(className);
         DexFile dexFile = dexFileMap.get(internalName);
         if (dexFile != null) {
             return dexFile;
         }
+        byte[] byteCode = this.byteCode;
+        if (byteCode == null) {
+            return null;
+        }
         String[] classesToVisit = getClassesToVisit(internalName, internalNamesSet);
         if (classesToVisit == null) {
             return null;
+        } else if (internalNamesSet.isEmpty()) {
+            this.byteCode = null;
         }
-        ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
-        ApplicationWriter aw = new ApplicationWriter();
-        ApplicationOpener opener = new ApplicationOpener(aw);
+        byte[] openedByteCode;
         try {
-            ar.accept(opener, classesToVisit, 0);
+            openedByteCode = openClasses(byteCode, classesToVisit);
         } catch (Exception e) {
             throw new IllegalStateException("Error while processing the class '" + className + "'", e);
         }
         if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
             throw new IllegalStateException("Cannot create " + cacheDir);
         }
+        dexFile = loadDex(dexFileLoader, cacheDir, openedByteCode);
+        for (String n : classesToVisit) {
+            dexFileMap.put(n, dexFile);
+        }
+        return dexFile;
+    }
+
+    private static String[] getClassesToVisit(String internalName,
+                                              Set<Set<String>> internalNamesSet) {
+        for (Iterator<Set<String>> it = internalNamesSet.iterator(); it.hasNext(); ) {
+            Set<String> set = it.next();
+            if (set.contains(internalName)) {
+                it.remove();
+                return set.toArray(new String[set.size()]);
+            }
+        }
+        return null;
+    }
+
+    private static byte[] openClasses(byte[] byteCode, String[] classesToVisit) {
+        ApplicationWriter aw = new ApplicationWriter();
+        new ApplicationReader(ASM4, byteCode).accept(new ApplicationOpener(aw), classesToVisit, 0);
+        return aw.toByteArray();
+    }
+
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
+    private static DexFile loadDex(DexFileLoader dexFileLoader, File cacheDir, byte[] byteCode)
+            throws IOException {
         File zip = File.createTempFile("classes", ".zip", cacheDir);
         try {
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
             try {
                 out.putNextEntry(new ZipEntry("classes.dex"));
-                out.write(aw.toByteArray());
+                out.write(byteCode);
             } finally {
                 out.close();
             }
             String sourcePathName = zip.getCanonicalPath();
-            dexFile = dexFileLoader.loadDex(sourcePathName, sourcePathName + ".dex", 0);
-            for (String n : classesToVisit) {
-                dexFileMap.put(n, dexFile);
-            }
-            return dexFile;
+            return dexFileLoader.loadDex(sourcePathName, sourcePathName + ".dex", 0);
         } finally {
             FileUtils.delete(zip);
         }
-    }
-
-    private static String[] getClassesToVisit(String internalName,
-                                              Set<Set<String>> internalNamesSet) {
-        for (Set<String> s : internalNamesSet) {
-            if (s.contains(internalName)) {
-                return s.toArray(new String[s.size()]);
-            }
-        }
-        return null;
     }
 
 }
