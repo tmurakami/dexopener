@@ -48,7 +48,7 @@ public class AndroidClassSourceTest {
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Test
-    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
+    public void should_get_a_ClassFile_with_the_given_name() throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
@@ -82,7 +82,7 @@ public class AndroidClassSourceTest {
     }
 
     @Test
-    public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter()
+    public void should_get_null_if_the_given_name_does_not_pass_through_the_filter()
             throws Exception {
         AndroidClassSource classSource = new AndroidClassSource("",
                                                                 classNameFilter,

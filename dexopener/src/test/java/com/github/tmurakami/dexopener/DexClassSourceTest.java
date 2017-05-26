@@ -46,7 +46,7 @@ public class DexClassSourceTest {
     private ClassFile classFile;
 
     @Test
-    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
+    public void should_get_a_ClassFile_with_the_given_name() throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
@@ -88,7 +88,7 @@ public class DexClassSourceTest {
     }
 
     @Test
-    public void getClassFile_should_return_null_if_the_given_name_is_not_in_the_list_of_class_names()
+    public void should_get_null_if_the_given_name_is_not_in_the_list_of_class_names()
             throws Exception {
         ApplicationWriter aw = new ApplicationWriter();
         aw.visitEnd();
@@ -101,7 +101,7 @@ public class DexClassSourceTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getClassFile_should_throw_IllegalStateException_if_the_class_for_the_given_name_cannot_be_found()
+    public void should_throw_IllegalStateException_if_the_class_for_the_given_name_cannot_be_found()
             throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
@@ -115,7 +115,7 @@ public class DexClassSourceTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getClassFile_should_throw_IllegalStateException_if_the_cache_dir_cannot_be_created()
+    public void should_throw_IllegalStateException_if_the_cache_dir_cannot_be_created()
             throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);

@@ -25,8 +25,7 @@ public class InternalNamesSetReaderTest {
     private ClassNameFilter filter;
 
     @Test
-    public void read_should_return_only_class_names_that_passed_through_the_filter()
-            throws Exception {
+    public void should_get_only_class_names_that_passed_through_the_filter() throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
         given(filter.accept(className)).willReturn(true);

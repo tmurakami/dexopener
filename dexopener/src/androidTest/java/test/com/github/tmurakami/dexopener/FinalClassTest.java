@@ -8,7 +8,7 @@ import static org.junit.Assert.assertFalse;
 public class FinalClassTest {
 
     @Test
-    public void DexOpener_should_remove_all_final_modifiers() throws Exception {
+    public void should_remove_all_final_modifiers() throws Exception {
         assertFalse(isFinal(FinalClass.class.getModifiers()));
         assertFalse(isFinal(FinalClass.class.getDeclaredMethod("doIt").getModifiers()));
     }

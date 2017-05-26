@@ -49,7 +49,8 @@ public class MainActivityTest implements ActivityLifecycleCallback {
     }
 
     @Test
-    public void the_title_of_MainActivity_should_be_replaced_by_the_given_mock() throws Exception {
+    public void the_title_of_MainActivity_should_be_the_value_obtained_by_the_given_mock()
+            throws Exception {
         String s = "test";
         given(service.getString(isA(MainActivity.class))).willReturn(s);
         assertEquals(s, rule.launchActivity(null).getTitle());
