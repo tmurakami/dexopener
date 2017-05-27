@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_FINAL;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -52,7 +53,7 @@ public class AndroidClassSourceTest {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0,
+        aw.visitClass(ACC_FINAL,
                       internalName,
                       null,
                       DexUtils.toInternalName(Object.class.getName()),

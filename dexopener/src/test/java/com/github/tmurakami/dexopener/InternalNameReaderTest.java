@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_FINAL;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -31,8 +32,8 @@ public class InternalNameReaderTest {
         given(filter.accept(className)).willReturn(true);
         ApplicationWriter aw = new ApplicationWriter();
         String superInternalName = DexUtils.toInternalName(Object.class.getName());
-        aw.visitClass(0, internalName, null, superInternalName, null);
-        aw.visitClass(0,
+        aw.visitClass(ACC_FINAL, internalName, null, superInternalName, null);
+        aw.visitClass(ACC_FINAL,
                       DexUtils.toInternalName("foo.bar.Baz"),
                       null,
                       superInternalName,

@@ -1,6 +1,7 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.classinjector.ClassFile;
+import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationWriter;
 
 import org.junit.Rule;
@@ -25,6 +26,8 @@ import java.util.zip.ZipFile;
 
 import dalvik.system.DexFile;
 
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ACC_FINAL;
+import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -53,33 +56,25 @@ public class DexClassSourceTest {
     public void should_get_a_class_file_for_the_given_name() throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
-        ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0,
-                      internalName,
-                      null,
-                      DexUtils.toInternalName(Object.class.getName()),
-                      null);
-        aw.visitEnd();
-        final byte[] byteCode = aw.toByteArray();
+        byte[] byteCode = generateByteCode(internalName);
+        final byte[] openedByteCode = openClasses(byteCode);
         final File cacheDir = folder.newFolder();
         given(dexFileLoader.loadDex(argThat(new ArgumentMatcher<String>() {
             @Override
             public boolean matches(String argument) {
                 File f = new File(argument);
-                String name = f.getName();
                 return cacheDir.equals(f.getParentFile())
-                        && name.startsWith("classes")
-                        && name.endsWith(".zip")
-                        && Arrays.equals(byteCode, readByteCode(f));
+                        && f.getName().startsWith("classes")
+                        && f.getName().endsWith(".zip")
+                        && Arrays.equals(openedByteCode, readByteCode(f));
             }
         }), argThat(new ArgumentMatcher<String>() {
             @Override
             public boolean matches(String argument) {
                 File f = new File(argument);
-                String name = f.getName();
                 return cacheDir.equals(f.getParentFile())
-                        && name.startsWith("classes")
-                        && name.endsWith(".zip.dex");
+                        && f.getName().startsWith("classes")
+                        && f.getName().endsWith(".zip.dex");
             }
         }), eq(0))).willReturn(dexFile);
         given(dexFile.entries()).willReturn(Collections.enumeration(Collections.singleton(className)));
@@ -161,16 +156,10 @@ public class DexClassSourceTest {
             throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
-        ApplicationWriter aw = new ApplicationWriter();
-        aw.visitClass(0,
-                      internalName,
-                      null,
-                      DexUtils.toInternalName(Object.class.getName()),
-                      null);
-        aw.visitEnd();
+        byte[] byteCode = generateByteCode(internalName);
         Set<Set<String>> internalNamesSet = new HashSet<>();
         internalNamesSet.add(Collections.singleton(internalName));
-        DexClassSource classSource = new DexClassSource(aw.toByteArray(),
+        DexClassSource classSource = new DexClassSource(byteCode,
                                                         internalNamesSet,
                                                         Collections.<String, DexFile>emptyMap(),
                                                         cacheDir,
@@ -181,6 +170,23 @@ public class DexClassSourceTest {
         } finally {
             assertTrue(internalNamesSet.isEmpty());
         }
+    }
+
+    private static byte[] generateByteCode(String internalName) {
+        ApplicationWriter aw = new ApplicationWriter();
+        aw.visitClass(ACC_FINAL,
+                      internalName,
+                      null,
+                      DexUtils.toInternalName(Object.class.getName()),
+                      null);
+        aw.visitEnd();
+        return aw.toByteArray();
+    }
+
+    private static byte[] openClasses(byte[] byteCode) {
+        ApplicationWriter aw = new ApplicationWriter();
+        new ApplicationReader(ASM4, byteCode).accept(new ApplicationOpener(aw), null, 0);
+        return aw.toByteArray();
     }
 
     private static byte[] readByteCode(File zip) {
