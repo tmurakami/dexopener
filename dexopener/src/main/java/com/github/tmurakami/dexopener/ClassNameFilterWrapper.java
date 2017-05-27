@@ -32,10 +32,6 @@ final class ClassNameFilterWrapper implements ClassNameFilter {
 
     @Override
     public boolean accept(@NonNull String className) {
-        return isAcceptable(className) && delegate.accept(className);
-    }
-
-    private static boolean isAcceptable(String className) {
         // The Data Binding Library generates several classes packaged as 'android.databinding'.
         // Since these classes are tightly coupled with user classes, 'android.databinding' must not
         // be filtered out.
@@ -51,7 +47,8 @@ final class ClassNameFilterWrapper implements ClassNameFilter {
         return !className.endsWith(".R")
                 && !className.contains(".R$")
                 && !className.endsWith(".BuildConfig")
-                && !className.endsWith(".BR");
+                && !className.endsWith(".BR")
+                && delegate.accept(className);
     }
 
 }
