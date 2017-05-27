@@ -4,24 +4,20 @@ import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReade
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationVisitor;
 import com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ClassVisitor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader.SKIP_CODE;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader.SKIP_DEBUG;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
-final class InternalNamesSetReader extends ApplicationVisitor {
-
-    private static final int MAX_SIZE_PER_LIST = 150;
+final class InternalNameReader extends ApplicationVisitor {
 
     private final Set<String> internalNames = new HashSet<>();
     private final ClassNameFilter classNameFilter;
 
-    InternalNamesSetReader(ClassNameFilter classNameFilter) {
+    InternalNameReader(ClassNameFilter classNameFilter) {
         super(ASM4);
         this.classNameFilter = classNameFilter;
     }
@@ -38,23 +34,10 @@ final class InternalNamesSetReader extends ApplicationVisitor {
         return null;
     }
 
-    Set<Set<String>> read(ApplicationReader applicationReader) {
+    Set<String> read(ApplicationReader applicationReader) {
         applicationReader.accept(this, null, SKIP_CODE | SKIP_DEBUG);
-        List<String> list = new ArrayList<>(internalNames);
+        Set<String> set = new HashSet<>(internalNames);
         internalNames.clear();
-        Collections.sort(list);
-        Set<Set<String>> set = new HashSet<>();
-        Set<String> names = new HashSet<>();
-        for (String n : list) {
-            names.add(n);
-            if (names.size() == MAX_SIZE_PER_LIST) {
-                set.add(Collections.unmodifiableSet(names));
-                names = new HashSet<>();
-            }
-        }
-        if (!names.isEmpty()) {
-            set.add(Collections.unmodifiableSet(names));
-        }
         return Collections.unmodifiableSet(set);
     }
 

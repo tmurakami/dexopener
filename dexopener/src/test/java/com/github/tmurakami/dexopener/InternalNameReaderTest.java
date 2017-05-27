@@ -16,10 +16,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class InternalNamesSetReaderTest {
+public class InternalNameReaderTest {
 
     @InjectMocks
-    private InternalNamesSetReader testTarget;
+    private InternalNameReader testTarget;
 
     @Mock
     private ClassNameFilter filter;
@@ -39,7 +39,7 @@ public class InternalNamesSetReaderTest {
                       null);
         aw.visitEnd();
         ApplicationReader ar = new ApplicationReader(ASM4, aw.toByteArray());
-        assertEquals(Collections.singleton(Collections.singleton(internalName)), testTarget.read(ar));
+        assertEquals(Collections.singleton(internalName), testTarget.read(ar));
     }
 
 }

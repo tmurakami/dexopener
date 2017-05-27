@@ -48,7 +48,7 @@ final class AndroidClassSource implements ClassSource {
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private ClassSource newDelegate() throws IOException {
         List<ClassSource> sources = new ArrayList<>();
-        InternalNamesSetReader r = new InternalNamesSetReader(classNameFilter);
+        InternalNameReader r = new InternalNameReader(classNameFilter);
         ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
         try {
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
@@ -56,9 +56,9 @@ final class AndroidClassSource implements ClassSource {
                 if (name.startsWith("classes") && name.endsWith(".dex")) {
                     byte[] byteCode = IOUtils.readBytes(in);
                     ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
-                    Set<Set<String>> set = r.read(ar);
-                    if (!set.isEmpty()) {
-                        sources.add(dexClassSourceFactory.newClassSource(byteCode, set));
+                    Set<String> internalNames = r.read(ar);
+                    if (!internalNames.isEmpty()) {
+                        sources.add(dexClassSourceFactory.newClassSource(byteCode, internalNames));
                     }
                 }
             }

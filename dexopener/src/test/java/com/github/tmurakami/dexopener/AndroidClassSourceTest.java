@@ -44,7 +44,7 @@ public class AndroidClassSourceTest {
     @Captor
     private ArgumentCaptor<byte[]> byteCodeCaptor;
     @Captor
-    private ArgumentCaptor<Set<Set<String>>> internalNamesSetCaptor;
+    private ArgumentCaptor<Set<String>> internalNamesCaptor;
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Test
@@ -69,7 +69,7 @@ public class AndroidClassSourceTest {
         }
         given(classNameFilter.accept(className)).willReturn(true);
         given(dexClassSourceFactory.newClassSource(byteCodeCaptor.capture(),
-                                                   internalNamesSetCaptor.capture()))
+                                                   internalNamesCaptor.capture()))
                 .willReturn(classSource);
         given(classSource.getClassFile(className)).willReturn(classFile);
         AndroidClassSource testTarget = new AndroidClassSource(apk.getCanonicalPath(),
@@ -77,8 +77,7 @@ public class AndroidClassSourceTest {
                                                                dexClassSourceFactory);
         assertSame(classFile, testTarget.getClassFile(className));
         assertArrayEquals(byteCode, byteCodeCaptor.getValue());
-        Set<Set<String>> internalNamesSet = internalNamesSetCaptor.getValue();
-        assertEquals(Collections.singleton(Collections.singleton(internalName)), internalNamesSet);
+        assertEquals(Collections.singleton(internalName), internalNamesCaptor.getValue());
     }
 
     @Test

@@ -50,7 +50,7 @@ public class DexClassSourceTest {
     private ClassFile classFile;
 
     @Test
-    public void should_get_a_class_name_for_the_given_name() throws Exception {
+    public void should_get_a_class_file_for_the_given_name() throws Exception {
         String className = "foo.Bar";
         String internalName = DexUtils.toInternalName(className);
         ApplicationWriter aw = new ApplicationWriter();
