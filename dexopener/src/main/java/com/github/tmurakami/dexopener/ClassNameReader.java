@@ -12,12 +12,12 @@ import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Applicati
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.ApplicationReader.SKIP_DEBUG;
 import static com.github.tmurakami.dexopener.repackaged.org.ow2.asmdex.Opcodes.ASM4;
 
-final class InternalNameReader extends ApplicationVisitor {
+final class ClassNameReader extends ApplicationVisitor {
 
-    private final Set<String> internalNames = new HashSet<>();
+    private final Set<String> classNames = new HashSet<>();
     private final ClassNameFilter classNameFilter;
 
-    InternalNameReader(ClassNameFilter classNameFilter) {
+    ClassNameReader(ClassNameFilter classNameFilter) {
         super(ASM4);
         this.classNameFilter = classNameFilter;
     }
@@ -28,16 +28,17 @@ final class InternalNameReader extends ApplicationVisitor {
                                    String[] signature,
                                    String superName,
                                    String[] interfaces) {
-        if (classNameFilter.accept(DexUtils.toClassName(name))) {
-            internalNames.add(name);
+        String className = TypeUtils.getClassName(name);
+        if (classNameFilter.accept(className)) {
+            classNames.add(className);
         }
         return null;
     }
 
     Set<String> read(ApplicationReader applicationReader) {
         applicationReader.accept(this, null, SKIP_CODE | SKIP_DEBUG);
-        Set<String> set = new HashSet<>(internalNames);
-        internalNames.clear();
+        Set<String> set = new HashSet<>(classNames);
+        classNames.clear();
         return Collections.unmodifiableSet(set);
     }
 

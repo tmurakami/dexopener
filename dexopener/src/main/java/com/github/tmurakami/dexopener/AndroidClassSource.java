@@ -21,14 +21,17 @@ final class AndroidClassSource implements ClassSource {
 
     private final String sourceDir;
     private final ClassNameFilter classNameFilter;
+    private final DexFilesFactory dexFilesFactory;
     private final DexClassSourceFactory dexClassSourceFactory;
     private ClassSource delegate;
 
     AndroidClassSource(String sourceDir,
                        ClassNameFilter classNameFilter,
+                       DexFilesFactory dexFilesFactory,
                        DexClassSourceFactory dexClassSourceFactory) {
         this.sourceDir = sourceDir;
         this.classNameFilter = classNameFilter;
+        this.dexFilesFactory = dexFilesFactory;
         this.dexClassSourceFactory = dexClassSourceFactory;
     }
 
@@ -48,17 +51,17 @@ final class AndroidClassSource implements ClassSource {
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private ClassSource newDelegate() throws IOException {
         List<ClassSource> sources = new ArrayList<>();
-        InternalNameReader r = new InternalNameReader(classNameFilter);
+        ClassNameReader r = new ClassNameReader(classNameFilter);
         ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
         try {
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
                 String name = e.getName();
                 if (name.startsWith("classes") && name.endsWith(".dex")) {
                     byte[] byteCode = IOUtils.readBytes(in);
-                    ApplicationReader ar = new ApplicationReader(ASM4, byteCode);
-                    Set<String> internalNames = r.read(ar);
-                    if (!internalNames.isEmpty()) {
-                        sources.add(dexClassSourceFactory.newClassSource(byteCode, internalNames));
+                    Set<String> classNames = r.read(new ApplicationReader(ASM4, byteCode));
+                    if (!classNames.isEmpty()) {
+                        DexFiles dexFiles = dexFilesFactory.newDexFiles(byteCode, classNames);
+                        sources.add(dexClassSourceFactory.newClassSource(dexFiles));
                     }
                 }
             }

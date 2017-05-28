@@ -33,9 +33,8 @@ final class DexOpenerImpl extends DexOpener {
         }
         ClassInjector.from(new AndroidClassSource(ai.sourceDir,
                                                   classNameFilter,
-                                                  new DexClassSourceFactory(cacheDir,
-                                                                            dexFileLoader,
-                                                                            dexClassFileFactory)))
+                                                  new DexFilesFactory(cacheDir, dexFileLoader),
+                                                  new DexClassSourceFactory(dexClassFileFactory)))
                      .into(classLoader);
     }
 
