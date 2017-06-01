@@ -27,7 +27,7 @@ dependencies {
 }
 ```
 
-Finally, set DexOpenerAndroidJUnitRunner as the default test instrumentation runner.
+Finally, set `DexOpenerAndroidJUnitRunner` as the default test instrumentation runner.
 ```groovy
 android {
     defaultConfig {
