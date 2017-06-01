@@ -1,5 +1,7 @@
 package com.github.tmurakami.dexopener;
 
+import android.support.annotation.NonNull;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -15,7 +17,12 @@ public class ClassNameFilterWrapperTest {
     private static final boolean DENY = false;
 
     private final ClassNameFilterWrapper testTarget =
-            new ClassNameFilterWrapper(AcceptAll.INSTANCE);
+            new ClassNameFilterWrapper(new ClassNameFilter() {
+                @Override
+                public boolean accept(@NonNull String className) {
+                    return true;
+                }
+            });
 
     private final String className;
     private final boolean expected;

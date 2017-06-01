@@ -25,7 +25,7 @@ final class ApplicationOpener extends ApplicationVisitor {
 
     private static class ClassOpener extends ClassVisitor {
 
-        ClassOpener(int api, ClassVisitor cv) {
+        private ClassOpener(int api, ClassVisitor cv) {
             super(api, cv);
         }
 

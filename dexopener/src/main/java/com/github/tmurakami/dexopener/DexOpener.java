@@ -60,13 +60,19 @@ public abstract class DexOpener {
 
     /**
      * Instantiates a new {@link Builder} instance.
+     * <p>
+     * By default, mockable classes and methods are restricted under the package obtained by
+     * {@link Context#getPackageName()}.
+     * To change this limitation, use {@link Builder#classNameFilter(ClassNameFilter)} or
+     * {@link Builder#openIf(ClassNameFilter)}.
      *
      * @param context the context
      * @return the {@link Builder}
      */
     @NonNull
     public static Builder builder(@NonNull Context context) {
-        return new Builder(context.getApplicationInfo());
+        return new Builder(context.getApplicationInfo())
+                .classNameFilter(new DefaultClassNameFilter(context.getPackageName() + '.'));
     }
 
     /**
@@ -75,9 +81,9 @@ public abstract class DexOpener {
     public static final class Builder {
 
         private final ApplicationInfo applicationInfo;
-        private ClassNameFilter classNameFilter = AcceptAll.INSTANCE;
+        private ClassNameFilter classNameFilter;
 
-        Builder(ApplicationInfo applicationInfo) {
+        private Builder(ApplicationInfo applicationInfo) {
             this.applicationInfo = applicationInfo;
         }
 
@@ -134,6 +140,21 @@ public abstract class DexOpener {
                                      new ClassNameFilterWrapper(classNameFilter),
                                      DexFileLoader.INSTANCE,
                                      DexClassFileFactory.INSTANCE);
+        }
+
+    }
+
+    private static class DefaultClassNameFilter implements ClassNameFilter {
+
+        private final String packagePrefix;
+
+        private DefaultClassNameFilter(String packagePrefix) {
+            this.packagePrefix = packagePrefix;
+        }
+
+        @Override
+        public boolean accept(@NonNull String className) {
+            return className.startsWith(packagePrefix);
         }
 
     }
