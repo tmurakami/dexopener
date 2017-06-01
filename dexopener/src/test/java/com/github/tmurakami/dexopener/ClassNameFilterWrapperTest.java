@@ -35,7 +35,7 @@ public class ClassNameFilterWrapperTest {
     @Parameterized.Parameters(name = "name={0}")
     public static Iterable<Object[]> parameters() {
         return Arrays.asList(new Object[]{"android.C", DENY},
-                             new Object[]{"android.databinding.adapters.C", DENY},
+                             new Object[]{"android.databinding.C", DENY},
                              new Object[]{"com.android.C", DENY},
                              new Object[]{"com.github.tmurakami.classinjector.C", DENY},
                              new Object[]{"com.github.tmurakami.dexmockito.C", DENY},
@@ -56,7 +56,10 @@ public class ClassNameFilterWrapperTest {
                              new Object[]{"foo.R$string", DENY},
                              new Object[]{"foo.BuildConfig", DENY},
                              new Object[]{"foo.BR", DENY},
-                             new Object[]{"android.databinding.C", ALLOW},
+                             new Object[]{"android.databinding.DataBinderMapper", ALLOW},
+                             new Object[]{"android.databinding.DataBindingComponent", ALLOW},
+                             new Object[]{"android.databinding.DataBindingUtil", ALLOW},
+                             new Object[]{"android.databinding.generated.C", ALLOW},
                              new Object[]{"R", ALLOW},
                              new Object[]{"R$string", ALLOW},
                              new Object[]{"BuildConfig", ALLOW},
