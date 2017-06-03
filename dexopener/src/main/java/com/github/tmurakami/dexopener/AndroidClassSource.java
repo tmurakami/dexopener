@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -56,14 +58,25 @@ final class AndroidClassSource implements ClassSource {
         try {
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
                 String name = e.getName();
-                if (name.startsWith("classes") && name.endsWith(".dex")) {
-                    byte[] byteCode = IOUtils.readBytes(in);
-                    Set<String> classNames = r.read(new ApplicationReader(ASM4, byteCode));
-                    if (!classNames.isEmpty()) {
-                        DexFiles dexFiles = dexFilesFactory.newDexFiles(byteCode, classNames);
-                        sources.add(dexClassSourceFactory.newClassSource(dexFiles));
+                if (!name.startsWith("classes") || !name.endsWith(".dex")) {
+                    continue;
+                }
+                Logger logger = Loggers.get();
+                if (logger.isLoggable(Level.FINEST)) {
+                    logger.finest("Reading the entry " + name + " from " + sourceDir);
+                }
+                byte[] bytecode = IOUtils.readBytes(in);
+                Set<String> classNames = r.read(new ApplicationReader(ASM4, bytecode));
+                if (classNames.isEmpty()) {
+                    continue;
+                }
+                if (logger.isLoggable(Level.FINEST)) {
+                    for (String n : classNames) {
+                        logger.finest("Class to be open: " + n);
                     }
                 }
+                DexFiles dexFiles = dexFilesFactory.newDexFiles(bytecode, classNames);
+                sources.add(dexClassSourceFactory.newClassSource(dexFiles));
             }
         } finally {
             in.close();

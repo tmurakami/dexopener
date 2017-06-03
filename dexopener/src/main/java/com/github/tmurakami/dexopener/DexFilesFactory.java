@@ -1,6 +1,5 @@
 package com.github.tmurakami.dexopener;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,20 +13,17 @@ final class DexFilesFactory {
 
     private static final int MAX_SIZE_PER_NAMES = 150;
 
-    private final File cacheDir;
-    private final DexFileLoader dexFileLoader;
+    private final DexFileGenerator dexFileGenerator;
 
-    DexFilesFactory(File cacheDir, DexFileLoader dexFileLoader) {
-        this.cacheDir = cacheDir;
-        this.dexFileLoader = dexFileLoader;
+    DexFilesFactory(DexFileGenerator dexFileGenerator) {
+        this.dexFileGenerator = dexFileGenerator;
     }
 
-    DexFiles newDexFiles(byte[] byteCode, Set<String> classNames) {
-        return new DexFiles(byteCode,
+    DexFiles newDexFiles(byte[] bytecode, Set<String> classNames) {
+        return new DexFiles(bytecode,
+                            new HashMap<String, DexFile>(),
                             toInternalNamesSet(classNames),
-                            cacheDir,
-                            dexFileLoader,
-                            new HashMap<String, DexFile>());
+                            dexFileGenerator);
     }
 
     private static Set<Set<String>> toInternalNamesSet(Set<String> classNames) {

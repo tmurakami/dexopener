@@ -1,6 +1,7 @@
 package com.github.tmurakami.dexopener;
 
 import java.io.File;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class FileUtils {
@@ -15,7 +16,10 @@ final class FileUtils {
                 delete(f.listFiles());
             }
             if (f.exists() && !f.delete()) {
-                Logger.getLogger(BuildConfig.APPLICATION_ID).warning("Cannot delete " + f);
+                Logger logger = Loggers.get();
+                if (logger.isLoggable(Level.WARNING)) {
+                    logger.warning("Cannot delete " + f);
+                }
             }
         }
     }

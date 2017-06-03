@@ -47,7 +47,7 @@ public class AndroidClassSourceTest {
     private ClassFile classFile;
 
     @Captor
-    private ArgumentCaptor<byte[]> byteCodeCaptor;
+    private ArgumentCaptor<byte[]> bytecodeCaptor;
     @Captor
     private ArgumentCaptor<Set<String>> classNamesCaptor;
 
@@ -62,26 +62,25 @@ public class AndroidClassSourceTest {
                       TypeUtils.getInternalName(Object.class.getName()),
                       null);
         aw.visitEnd();
-        byte[] byteCode = aw.toByteArray();
+        byte[] bytecode = aw.toByteArray();
         File apk = folder.newFile();
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(apk));
         try {
             out.putNextEntry(new ZipEntry("classes.dex"));
-            out.write(byteCode);
+            out.write(bytecode);
         } finally {
             out.close();
         }
         given(classNameFilter.accept(className)).willReturn(true);
-        given(dexFilesFactory.newDexFiles(byteCodeCaptor.capture(),
+        given(dexFilesFactory.newDexFiles(bytecodeCaptor.capture(),
                                           classNamesCaptor.capture())).willReturn(dexFiles);
         given(dexClassSourceFactory.newClassSource(dexFiles)).willReturn(classSource);
         given(classSource.getClassFile(className)).willReturn(classFile);
-        AndroidClassSource testTarget = new AndroidClassSource(apk.getCanonicalPath(),
-                                                               classNameFilter,
-                                                               dexFilesFactory,
-                                                               dexClassSourceFactory);
-        assertSame(classFile, testTarget.getClassFile(className));
-        assertArrayEquals(byteCode, byteCodeCaptor.getValue());
+        assertSame(classFile, new AndroidClassSource(apk.getCanonicalPath(),
+                                                     classNameFilter,
+                                                     dexFilesFactory,
+                                                     dexClassSourceFactory).getClassFile(className));
+        assertArrayEquals(bytecode, bytecodeCaptor.getValue());
         assertEquals(Collections.singleton(className), classNamesCaptor.getValue());
     }
 
