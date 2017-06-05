@@ -53,8 +53,10 @@ task repackage(type: ProGuardTask) {
     def tmp = file("$buildDir/tmp/repackage.tmp.jar")
     configurations.repackage.each { injars(filter: '!META-INF/**', it) }
     outjars tmp
-    libraryjars android.bootClasspath
     configuration 'proguard-rules.pro'
+    doFirst {
+        libraryjars android.bootClasspath
+    }
     doLast {
         ant {
             taskdef name: 'jarjar',
