@@ -31,10 +31,9 @@ final class DexOpenerImpl extends DexOpener {
         if (cacheDir.isDirectory()) {
             FileUtils.delete(cacheDir.listFiles());
         }
-        DexFileGenerator dexFileGenerator = new DexFileGenerator(cacheDir, dexFileLoader);
         ClassInjector.from(new AndroidClassSource(ai.sourceDir,
                                                   classNameFilter,
-                                                  new DexFilesFactory(dexFileGenerator),
+                                                  new DexFilesFactory(classNameFilter, cacheDir, dexFileLoader),
                                                   new DexClassSourceFactory(dexClassFileFactory)))
                      .into(classLoader);
     }

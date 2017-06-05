@@ -78,8 +78,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 }
 ```
 
-If there are too many target classes, testing will be so slow that it cannot run.
-Also, if there are too few classes you will get an error like `IllegalAccessError: Class ref in pre-verified class resolved to unexpected implementation`.
+Note that testing may be slow if there are too many classes to be opened.
 Normally it would be sufficient to specify your app's root package.
 
 ## Limitations
@@ -106,4 +105,9 @@ The final classes and methods in the following libraries cannot be mocked.
 
 ## Notice
 
-This library includes [ASMDEX](http://asm.ow2.org/asmdex-index.html) (Revision 1707) that has been repackaged using [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
+This library includes the following libraries:
+
+- [Guava](https://github.com/google/guava)
+- dexlib2 (a part of the [Smali](https://github.com/JesusFreke/smali))
+
+These libraries have been minified with [ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with [Jar Jar Links](https://code.google.com/archive/p/jarjar/).

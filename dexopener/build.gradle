@@ -1,10 +1,12 @@
 import com.android.ddmlib.DdmPreferences
+import proguard.gradle.ProGuardTask
 
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
+        classpath 'net.sf.proguard:proguard-gradle:5.3.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
@@ -17,7 +19,7 @@ apply from: "$rootDir/gradle/android.gradle"
 group = 'com.github.tmurakami'
 
 def package_name = "$group.$name"
-def repackaged_jar_name = 'repackaged.jar'
+def repackaged_jar = "$buildDir/libs/repackaged.jar"
 
 android {
     defaultConfig {
@@ -35,33 +37,36 @@ configurations {
 
 dependencies {
     jarjar deps.jarjar
-    repackage fileTree(dir: 'libs', includes: ['*.jar'])
-    compile files("$buildDir/libs/$repackaged_jar_name") { builtBy 'jarjar' }
+    repackage(deps.dexlib2) {
+        exclude group: 'com.beust', module: 'jcommander'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
     compile deps.runner
     compile deps.classinjector_android
+    compile files(repackaged_jar) { builtBy 'repackage' }
     testCompile deps.junit
     testCompile deps.mockito
 }
 
-task jarjar(type: Jar) {
-    archiveName = repackaged_jar_name
+task repackage(type: ProGuardTask) {
+    outputs.file repackaged_jar
+    def tmp = file("$buildDir/tmp/repackage.tmp.jar")
+    configurations.repackage.each { injars(filter: '!META-INF/**', it) }
+    outjars tmp
+    libraryjars android.bootClasspath
+    configuration 'proguard-rules.pro'
     doLast {
         ant {
             taskdef name: 'jarjar',
                     classname: 'com.tonicsystems.jarjar.JarJarTask',
                     classpath: configurations.jarjar.asPath
-            jarjar(jarfile: archivePath) {
-                configurations.repackage.each { zipfileset src: it }
-                zap pattern: '**.package-info'
-                keep pattern: 'org.ow2.asmdex.*'
-                keep pattern: 'org.ow2.asmdex.encodedValue.**'
-                keep pattern: 'org.ow2.asmdex.instruction.**'
-                keep pattern: 'org.ow2.asmdex.lowLevelUtils.**'
-                keep pattern: 'org.ow2.asmdex.specificAnnotation*.**'
-                keep pattern: 'org.ow2.asmdex.structure*.**'
-                rule pattern: 'org.ow2.asmdex.**', result: "${package_name}.repackaged.org.ow2.asmdex.@1"
+            jarjar(jarfile: repackaged_jar) {
+                zipfileset src: tmp
+                rule pattern: 'com.google.common.**', result: "${package_name}.repackaged.com.google.common.@1"
+                rule pattern: 'org.jf.**', result: "${package_name}.repackaged.org.jf.@1"
             }
         }
+        tmp.delete()
     }
 }
 

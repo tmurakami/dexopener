@@ -1,47 +1,63 @@
 package com.github.tmurakami.dexopener;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import dalvik.system.DexFile;
 
 final class DexFilesFactory {
 
-    private static final int MAX_SIZE_PER_NAMES = 150;
+    private static final int MAX_SIZE_PER_CLASSES = 150;
+    private static final DexFiles NULL_FILES = new DexFiles() {
+        @Override
+        public DexFile get(String className) throws IOException {
+            return null;
+        }
+    };
 
-    private final DexFileGenerator dexFileGenerator;
+    private final ClassNameFilter classNameFilter;
+    private final File cacheDir;
+    private final DexFileLoader dexFileLoader;
 
-    DexFilesFactory(DexFileGenerator dexFileGenerator) {
-        this.dexFileGenerator = dexFileGenerator;
+    DexFilesFactory(ClassNameFilter classNameFilter, File cacheDir, DexFileLoader dexFileLoader) {
+        this.classNameFilter = classNameFilter;
+        this.cacheDir = cacheDir;
+        this.dexFileLoader = dexFileLoader;
     }
 
-    DexFiles newDexFiles(byte[] bytecode, Set<String> classNames) {
-        return new DexFiles(bytecode,
-                            new HashMap<String, DexFile>(),
-                            toInternalNamesSet(classNames),
-                            dexFileGenerator);
+    DexFiles newDexFiles(byte[] bytecode) {
+        Set<ImmutableDexFile> files = open(bytecode);
+        return files.isEmpty() ? NULL_FILES : new DexFilesImpl(new HashMap<String, DexFile>(),
+                                                               files,
+                                                               cacheDir,
+                                                               dexFileLoader);
     }
 
-    private static Set<Set<String>> toInternalNamesSet(Set<String> classNames) {
-        List<String> list = new ArrayList<>(classNames);
-        Collections.sort(list);
-        Set<Set<String>> internalNamesSet = new HashSet<>();
-        Set<String> internalNames = new HashSet<>();
-        for (String name : list) {
-            internalNames.add(TypeUtils.getInternalName(name));
-            if (internalNames.size() == MAX_SIZE_PER_NAMES) {
-                internalNamesSet.add(Collections.unmodifiableSet(internalNames));
-                internalNames = new HashSet<>();
+    private Set<ImmutableDexFile> open(byte[] bytecode) {
+        DexBackedDexFile file = new DexBackedDexFile(Opcodes.getDefault(), bytecode);
+        Set<ImmutableDexFile> files = new HashSet<>();
+        Set<ClassDef> classes = new HashSet<>();
+        for (ClassDef def : file.getClasses()) {
+            if (classNameFilter.accept(TypeUtils.getClassName(def.getType()))) {
+                classes.add(def);
+                if (classes.size() == MAX_SIZE_PER_CLASSES) {
+                    files.add(new ImmutableDexFile(file.getOpcodes(), classes));
+                    classes = new HashSet<>();
+                }
             }
         }
-        if (!internalNames.isEmpty()) {
-            internalNamesSet.add(Collections.unmodifiableSet(internalNames));
+        if (!classes.isEmpty()) {
+            files.add(new ImmutableDexFile(file.getOpcodes(), classes));
         }
-        return internalNamesSet;
+        return files;
     }
 
 }

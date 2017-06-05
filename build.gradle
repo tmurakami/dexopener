@@ -33,6 +33,7 @@ ext {
             dexopener            : project(':dexopener'),
             jarjar               : 'com.googlecode.jarjar:jarjar:1.3',
             classinjector_android: 'com.github.tmurakami.classinjector:classinjector-android:0.2.6',
+            dexlib2              : 'org.smali:dexlib2:2.2.1',
             junit                : 'junit:junit:4.12',
             rules                : 'com.android.support.test:rules:0.5',
             runner               : 'com.android.support.test:runner:0.5',
