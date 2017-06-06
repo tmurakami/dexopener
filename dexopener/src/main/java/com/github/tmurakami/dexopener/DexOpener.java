@@ -43,20 +43,6 @@ public abstract class DexOpener {
      * Note that final classes loaded before calling this cannot be mocked.
      *
      * @param classLoader the class loader
-     * @deprecated use {@link #installTo(ClassLoader)} instead
-     */
-    @Deprecated
-    public final void install(@NonNull ClassLoader classLoader) {
-        installTo(classLoader);
-    }
-
-    /**
-     * Provides the ability to mock final classes and methods.
-     * After calling this method, you can mock classes loaded by the given class loader.
-     * <p>
-     * Note that final classes loaded before calling this cannot be mocked.
-     *
-     * @param classLoader the class loader
      */
     public abstract void installTo(@NonNull ClassLoader classLoader);
 
@@ -88,20 +74,6 @@ public abstract class DexOpener {
         private Builder(ApplicationInfo applicationInfo, ClassNameFilter classNameFilter) {
             this.applicationInfo = applicationInfo;
             this.classNameFilter = classNameFilter;
-        }
-
-        /**
-         * Throws an {@link UnsupportedOperationException}.
-         *
-         * @throws UnsupportedOperationException this method is deprecated
-         * @deprecated use {@link #openIf(ClassNameFilter)} or {@link #classNameFilter(ClassNameFilter)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public Builder classNameFilters(@SuppressWarnings("unused") @NonNull ClassNameFilter... filters)
-                throws UnsupportedOperationException {
-            throw new UnsupportedOperationException(
-                    "Use openIf(ClassNameFilter) or classNameFilter(ClassNameFilter) instead");
         }
 
         /**
