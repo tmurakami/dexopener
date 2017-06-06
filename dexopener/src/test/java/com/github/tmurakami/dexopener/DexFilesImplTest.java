@@ -3,7 +3,6 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,9 +59,8 @@ public class DexFilesImplTest {
                                              null,
                                              null,
                                              null);
-        Set<ImmutableDexFile> dexFiles = new HashSet<>();
-        dexFiles.add(new ImmutableDexFile(Opcodes.getDefault(),
-                                          Collections.singleton(def)));
+        Set<Set<ClassDef>> classesSet = new HashSet<>();
+        classesSet.add(Collections.singleton(def));
         Map<String, DexFile> dexFileMap = new HashMap<>();
         given(dexFileLoader.loadDex(sourcePathNameCaptor.capture(),
                                     outputPathNameCaptor.capture(),
@@ -70,8 +68,9 @@ public class DexFilesImplTest {
         given(dexFile.entries())
                 .willReturn(Collections.enumeration(Collections.singleton(className)));
         File cacheDir = folder.newFolder();
-        assertSame(dexFile, new DexFilesImpl(dexFileMap,
-                                             dexFiles,
+        assertSame(dexFile, new DexFilesImpl(Opcodes.getDefault(),
+                                             dexFileMap,
+                                             classesSet,
                                              cacheDir,
                                              dexFileLoader).get(className));
         assertSame(dexFile, dexFileMap.get(className));
@@ -88,7 +87,8 @@ public class DexFilesImplTest {
         String className = "foo.Bar";
         Map<String, DexFile> dexFileMap = new HashMap<>();
         dexFileMap.put(className, dexFile);
-        assertSame(dexFile, new DexFilesImpl(dexFileMap,
+        assertSame(dexFile, new DexFilesImpl(null,
+                                             dexFileMap,
                                              null,
                                              null,
                                              null).get(className));
@@ -97,8 +97,9 @@ public class DexFilesImplTest {
     @Test
     public void should_get_null_if_the_given_name_is_not_in_the_list_of_dex_files()
             throws Exception {
-        assertNull(new DexFilesImpl(Collections.<String, DexFile>emptyMap(),
-                                    Collections.<ImmutableDexFile>emptySet(),
+        assertNull(new DexFilesImpl(Opcodes.getDefault(),
+                                    Collections.<String, DexFile>emptyMap(),
+                                    Collections.<Set<ClassDef>>emptySet(),
                                     null,
                                     null).get("foo.Bar"));
     }
@@ -115,11 +116,11 @@ public class DexFilesImplTest {
                                              null,
                                              null,
                                              null);
-        Set<ImmutableDexFile> dexFiles = new HashSet<>();
-        dexFiles.add(new ImmutableDexFile(Opcodes.getDefault(),
-                                          Collections.singleton(def)));
-        new DexFilesImpl(Collections.<String, DexFile>emptyMap(),
-                         dexFiles,
+        Set<Set<ClassDef>> classesSet = new HashSet<>();
+        classesSet.add(Collections.singleton(def));
+        new DexFilesImpl(Opcodes.getDefault(),
+                         Collections.<String, DexFile>emptyMap(),
+                         classesSet,
                          folder.newFile(),
                          null).get("foo.Bar");
     }

@@ -3,10 +3,11 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,7 @@ import dalvik.system.DexFile;
 
 final class DexFilesFactory {
 
+    private static final Opcodes OPCODES = Opcodes.getDefault();
     private static final int MAX_SIZE_PER_CLASSES = 150;
     private static final DexFiles NULL_FILES = new DexFiles() {
         @Override
@@ -34,30 +36,31 @@ final class DexFilesFactory {
     }
 
     DexFiles newDexFiles(byte[] bytecode) {
-        Set<ImmutableDexFile> files = open(bytecode);
-        return files.isEmpty() ? NULL_FILES : new DexFilesImpl(new HashMap<String, DexFile>(),
-                                                               files,
-                                                               cacheDir,
-                                                               dexFileLoader);
+        DexBackedDexFile file = new DexBackedDexFile(OPCODES, bytecode);
+        Set<Set<ClassDef>> classesSet = getClassesSetToBeOpened(file);
+        return classesSet.isEmpty() ? NULL_FILES : new DexFilesImpl(OPCODES,
+                                                                    new HashMap<String, DexFile>(),
+                                                                    classesSet,
+                                                                    cacheDir,
+                                                                    dexFileLoader);
     }
 
-    private Set<ImmutableDexFile> open(byte[] bytecode) {
-        DexBackedDexFile file = new DexBackedDexFile(Opcodes.getDefault(), bytecode);
-        Set<ImmutableDexFile> files = new HashSet<>();
+    private Set<Set<ClassDef>> getClassesSetToBeOpened(DexBackedDexFile file) {
+        Set<Set<ClassDef>> classesSet = new HashSet<>();
         Set<ClassDef> classes = new HashSet<>();
         for (ClassDef def : file.getClasses()) {
             if (classNameFilter.accept(TypeUtils.getClassName(def.getType()))) {
-                classes.add(def);
+                classes.add(ImmutableClassDef.of(def));
                 if (classes.size() == MAX_SIZE_PER_CLASSES) {
-                    files.add(new ImmutableDexFile(file.getOpcodes(), classes));
+                    classesSet.add(Collections.unmodifiableSet(classes));
                     classes = new HashSet<>();
                 }
             }
         }
         if (!classes.isEmpty()) {
-            files.add(new ImmutableDexFile(file.getOpcodes(), classes));
+            classesSet.add(Collections.unmodifiableSet(classes));
         }
-        return files;
+        return classesSet;
     }
 
 }

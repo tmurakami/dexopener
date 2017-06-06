@@ -71,8 +71,8 @@ public abstract class DexOpener {
      */
     @NonNull
     public static Builder builder(@NonNull Context context) {
-        return new Builder(context.getApplicationInfo())
-                .classNameFilter(new DefaultClassNameFilter(context.getPackageName() + '.'));
+        return new Builder(context.getApplicationInfo(),
+                           new DefaultClassNameFilter(context.getPackageName() + '.'));
     }
 
     /**
@@ -83,8 +83,9 @@ public abstract class DexOpener {
         private final ApplicationInfo applicationInfo;
         private ClassNameFilter classNameFilter;
 
-        private Builder(ApplicationInfo applicationInfo) {
+        private Builder(ApplicationInfo applicationInfo, ClassNameFilter classNameFilter) {
             this.applicationInfo = applicationInfo;
+            this.classNameFilter = classNameFilter;
         }
 
         /**

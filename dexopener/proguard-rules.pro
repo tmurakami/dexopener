@@ -10,18 +10,14 @@
 }
 -keep class org.jf.dexlib2.dexbacked.DexBackedDexFile {
     public <init>(org.jf.dexlib2.Opcodes, byte[]);
+    public java.util.Set getClasses();
 }
 -keep class org.jf.dexlib2.iface.ClassDef {
     public *;
 }
--keep class org.jf.dexlib2.iface.DexFile {
-    public *;
-}
 -keep class org.jf.dexlib2.immutable.ImmutableClassDef {
     public <init>(java.lang.String, int, java.lang.String, java.util.Collection, java.lang.String, java.util.Collection, java.lang.Iterable, java.lang.Iterable);
-}
--keep class org.jf.dexlib2.immutable.ImmutableDexFile {
-    public <init>(org.jf.dexlib2.Opcodes, java.util.Collection);
+    public ImmutableClassDef of(org.jf.dexlib2.immutable.ImmutableClassDef);
 }
 -keep class org.jf.dexlib2.writer.io.FileDataStore {
     public <init>(java.io.File);

@@ -50,25 +50,22 @@ dependencies {
 
 task repackage(type: ProGuardTask) {
     outputs.file repackaged_jar
-    def tmp = file("$buildDir/tmp/repackage.tmp.jar")
-    configurations.repackage.each { injars(filter: '!META-INF/**', it) }
-    outjars tmp
+    injars filter: '!META-INF/**', configurations.repackage
+    outjars file("$buildDir/tmp/repackage.tmp.jar")
     configuration 'proguard-rules.pro'
-    doFirst {
-        libraryjars android.bootClasspath
-    }
+    doFirst { libraryjars android.bootClasspath }
     doLast {
         ant {
             taskdef name: 'jarjar',
                     classname: 'com.tonicsystems.jarjar.JarJarTask',
                     classpath: configurations.jarjar.asPath
             jarjar(jarfile: repackaged_jar) {
-                zipfileset src: tmp
+                outJarFiles.each { zipfileset src: it }
                 rule pattern: 'com.google.common.**', result: "${package_name}.repackaged.com.google.common.@1"
                 rule pattern: 'org.jf.**', result: "${package_name}.repackaged.org.jf.@1"
             }
         }
-        tmp.delete()
+        outJarFiles*.delete()
     }
 }
 
