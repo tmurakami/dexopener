@@ -24,7 +24,9 @@ public abstract class DexOpener {
      * }</pre>
      *
      * @param instrumentation the instrumentation
+     * @see #builder(Context)
      * @see #installTo(ClassLoader)
+     * @see Builder#build()
      */
     public static void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
@@ -61,9 +63,9 @@ public abstract class DexOpener {
     /**
      * Instantiates a new {@link Builder} instance.
      * <p>
-     * By default, mockable classes and methods are restricted under the package obtained by
+     * By default, mockable final classes and methods are restricted under the package obtained by
      * {@link Context#getPackageName()}.
-     * To change this limitation, use {@link Builder#classNameFilter(ClassNameFilter)} or
+     * To change this restriction, use {@link Builder#classNameFilter(ClassNameFilter)} or
      * {@link Builder#openIf(ClassNameFilter)}.
      *
      * @param context the context
