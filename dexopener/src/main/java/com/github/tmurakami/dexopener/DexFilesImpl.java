@@ -49,19 +49,13 @@ final class DexFilesImpl implements DexFiles {
     }
 
     @Override
-    public dalvik.system.DexFile get(String className) throws IOException {
-        DexFile cached = getFromCache(className);
-        if (cached != null) {
-            return cached;
+    public DexFile get(String className) throws IOException {
+        DexFile dexFile = getFromCache(className);
+        if (dexFile != null) {
+            return dexFile;
         }
         Set<ClassDef> classes = getClassesToBeOpened(className);
-        if (classes.isEmpty()) {
-            return null;
-        } else if (cacheDir.isDirectory() || cacheDir.mkdirs()) {
-            return putToCache(generateDex(openClasses(classes)));
-        } else {
-            throw new IllegalStateException("Cannot create " + cacheDir);
-        }
+        return classes.isEmpty() ? null : putToCache(generateDex(openClasses(classes)));
     }
 
     private DexFile getFromCache(String className) {
@@ -89,7 +83,22 @@ final class DexFilesImpl implements DexFiles {
         return Collections.emptySet();
     }
 
+    private DexPool openClasses(Set<ClassDef> classes) {
+        DexPool pool = new DexPool(opcodes);
+        for (ClassDef def : classes) {
+            pool.internClass(openClass(def));
+            Logger logger = Loggers.get();
+            if (logger.isLoggable(Level.FINEST)) {
+                logger.finest("Class to be opened: " + TypeUtils.getClassName(def.getType()));
+            }
+        }
+        return pool;
+    }
+
     private DexFile generateDex(DexPool pool) throws IOException {
+        if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
+            throw new IllegalStateException("Cannot create " + cacheDir);
+        }
         File dex = File.createTempFile("classes", ".dex", cacheDir);
         try {
             pool.writeTo(new FileDataStore(dex));
@@ -113,65 +122,58 @@ final class DexFilesImpl implements DexFiles {
         return dexFile;
     }
 
-    private DexPool openClasses(Set<ClassDef> classes) {
-        DexPool pool = new DexPool(opcodes);
-        for (ClassDef def : classes) {
-            pool.internClass(openClass(def));
-            Logger logger = Loggers.get();
-            if (logger.isLoggable(Level.FINEST)) {
-                logger.finest("Class to be opened: " + TypeUtils.getClassName(def.getType()));
-            }
-        }
-        return pool;
-    }
-
-    private ClassDef openClass(ClassDef def) {
-        Set<Annotation> annotations = new HashSet<>();
-        for (Annotation a : def.getAnnotations()) {
-            annotations.add(openInnerClassAnnotation(a));
-        }
-        Set<Method> methods = new HashSet<>();
-        for (Method m : def.getMethods()) {
-            methods.add(new ImmutableMethod(m.getDefiningClass(),
-                                            m.getName(),
-                                            m.getParameters(),
-                                            m.getReturnType(),
-                                            removeFinalModifier(m.getAccessFlags()),
-                                            m.getAnnotations(),
-                                            m.getImplementation()));
-        }
+    private static ClassDef openClass(ClassDef def) {
         return new ImmutableClassDef(def.getType(),
                                      removeFinalModifier(def.getAccessFlags()),
                                      def.getSuperclass(),
                                      def.getInterfaces(),
                                      def.getSourceFile(),
-                                     annotations,
+                                     openInnerClassAnnotation(def.getAnnotations()),
                                      def.getFields(),
-                                     methods);
+                                     openMethods(def.getMethods()));
     }
 
     private static int removeFinalModifier(int accessFlags) {
         return accessFlags & ~Modifier.FINAL;
     }
 
-    private static Annotation openInnerClassAnnotation(Annotation annotation) {
-        String type = annotation.getType();
-        if (!type.equals("Ldalvik/annotation/InnerClass;")) {
-            return annotation;
-        }
-        Set<AnnotationElement> elements = new HashSet<>();
-        for (AnnotationElement e : annotation.getElements()) {
-            String name = e.getName();
-            if (name.equals("accessFlags")) {
-                IntEncodedValue value = (IntEncodedValue) e.getValue();
-                int accessFlags = removeFinalModifier(value.getValue());
-                ImmutableIntEncodedValue newValue = new ImmutableIntEncodedValue(accessFlags);
-                elements.add(new ImmutableAnnotationElement(name, newValue));
+    private static Set<Annotation> openInnerClassAnnotation(Set<? extends Annotation> annotations) {
+        Set<Annotation> openedAnnotations = new HashSet<>();
+        for (Annotation a : annotations) {
+            String type = a.getType();
+            if (type.equals("Ldalvik/annotation/InnerClass;")) {
+                Set<AnnotationElement> elementSet = new HashSet<>();
+                for (AnnotationElement e : a.getElements()) {
+                    String name = e.getName();
+                    if (name.equals("accessFlags")) {
+                        IntEncodedValue value = (IntEncodedValue) e.getValue();
+                        int accessFlags = removeFinalModifier(value.getValue());
+                        IntEncodedValue newValue = new ImmutableIntEncodedValue(accessFlags);
+                        elementSet.add(new ImmutableAnnotationElement(name, newValue));
+                    } else {
+                        elementSet.add(e);
+                    }
+                }
+                openedAnnotations.add(new ImmutableAnnotation(a.getVisibility(), type, elementSet));
             } else {
-                elements.add(e);
+                openedAnnotations.add(a);
             }
         }
-        return new ImmutableAnnotation(annotation.getVisibility(), type, elements);
+        return openedAnnotations;
+    }
+
+    private static Set<Method> openMethods(Iterable<? extends Method> methods) {
+        Set<Method> openedMethods = new HashSet<>();
+        for (Method m : methods) {
+            openedMethods.add(new ImmutableMethod(m.getDefiningClass(),
+                                                  m.getName(),
+                                                  m.getParameters(),
+                                                  m.getReturnType(),
+                                                  removeFinalModifier(m.getAccessFlags()),
+                                                  m.getAnnotations(),
+                                                  m.getImplementation()));
+        }
+        return openedMethods;
     }
 
 }
