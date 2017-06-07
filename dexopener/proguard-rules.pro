@@ -1,5 +1,6 @@
 -dontoptimize
 
+-dontwarn android.support.annotation.**
 -dontwarn com.beust.jcommander.**
 -dontwarn javax.annotation.**
 -dontwarn sun.misc.Unsafe
@@ -10,6 +11,16 @@
     *;
 }
 
+-keep class com.github.tmurakami.classinjector.ClassInjector {
+    com.github.tmurakami.classinjector.ClassInjector from(com.github.tmurakami.classinjector.ClassSource);
+    void into(java.lang.ClassLoader);
+}
+-keep class com.github.tmurakami.classinjector.ClassSources {
+    <init>(java.lang.Iterable);
+}
+-keep class com.github.tmurakami.classinjector.android.DexClassFile {
+    <init>(java.lang.String, dalvik.system.DexFile);
+}
 -keep class org.jf.dexlib2.Opcodes {
     org.jf.dexlib2.Opcodes getDefault();
 }

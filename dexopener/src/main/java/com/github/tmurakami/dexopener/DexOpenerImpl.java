@@ -3,7 +3,7 @@ package com.github.tmurakami.dexopener;
 import android.content.pm.ApplicationInfo;
 import android.support.annotation.NonNull;
 
-import com.github.tmurakami.classinjector.ClassInjector;
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
 
 import java.io.File;
 

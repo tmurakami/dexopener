@@ -1,6 +1,6 @@
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.classinjector.ClassFile;
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

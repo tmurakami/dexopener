@@ -1,6 +1,6 @@
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.classinjector.ClassSource;
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 
 final class DexClassSourceFactory {
 

@@ -37,12 +37,12 @@ configurations {
 
 dependencies {
     jarjar deps.jarjar
+    repackage deps.classinjector_android
     repackage(deps.dexlib2) {
         exclude group: 'com.beust', module: 'jcommander'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
     }
     compile deps.runner
-    compile deps.classinjector_android
     compile files(repackaged_jar) { builtBy 'repackage' }
     testCompile deps.junit
     testCompile deps.mockito
@@ -61,8 +61,8 @@ task repackage(type: ProGuardTask) {
                     classpath: configurations.jarjar.asPath
             jarjar(jarfile: repackaged_jar) {
                 outJarFiles.each { zipfileset src: it }
-                rule pattern: 'com.google.common.**', result: "${package_name}.repackaged.com.google.common.@1"
-                rule pattern: 'org.jf.**', result: "${package_name}.repackaged.org.jf.@1"
+                rule pattern: 'com.**', result: "${package_name}.repackaged.com.@1"
+                rule pattern: 'org.**', result: "${package_name}.repackaged.org.@1"
             }
         }
         outJarFiles*.delete()

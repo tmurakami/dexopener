@@ -107,6 +107,7 @@ The final classes and methods in the following libraries cannot be mocked.
 
 This library contains the classes of the following libraries:
 
+- [ClassInjector](https://github.com/tmurakami/classinjector)
 - [Guava](https://github.com/google/guava)
 - [Smali](https://github.com/JesusFreke/smali)
 
