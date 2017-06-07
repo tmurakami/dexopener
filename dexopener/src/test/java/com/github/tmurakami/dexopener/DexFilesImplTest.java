@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
@@ -104,8 +105,8 @@ public class DexFilesImplTest {
                                     null).get("foo.Bar"));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void should_throw_IllegalStateException_if_the_cache_dir_cannot_be_created()
+    @Test(expected = IOException.class)
+    public void should_throw_IOException_if_the_cache_dir_cannot_be_created()
             throws Exception {
         String className = "foo.Bar";
         ClassDef def = new ImmutableClassDef(TypeUtils.getInternalName(className),

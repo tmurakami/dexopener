@@ -97,7 +97,7 @@ final class DexFilesImpl implements DexFiles {
 
     private DexFile generateDex(DexPool pool) throws IOException {
         if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
-            throw new IllegalStateException("Cannot create " + cacheDir);
+            throw new IOException("Cannot create " + cacheDir);
         }
         File dex = File.createTempFile("classes", ".dex", cacheDir);
         try {
