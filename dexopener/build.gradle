@@ -50,8 +50,8 @@ dependencies {
 
 task repackage(type: ProGuardTask) {
     outputs.file repackaged_jar
-    injars filter: '!META-INF/**', configurations.repackage
-    outjars file("$buildDir/tmp/repackage.tmp.jar")
+    injars filter: '!AndroidManifest.xml,!META-INF/**', configurations.repackage
+    outjars "$buildDir/tmp/repackage.tmp.jar"
     configuration 'proguard-rules.pro'
     doFirst { libraryjars android.bootClasspath }
     doLast {
@@ -61,11 +61,12 @@ task repackage(type: ProGuardTask) {
                     classpath: configurations.jarjar.asPath
             jarjar(jarfile: repackaged_jar) {
                 outJarFiles.each { zipfileset src: it }
-                rule pattern: 'com.**', result: "${package_name}.repackaged.com.@1"
-                rule pattern: 'org.**', result: "${package_name}.repackaged.org.@1"
+                rule pattern: 'com.github.tmurakami.classinjector.**', result: "${package_name}.repackaged.@0"
+                rule pattern: 'com.google.common.**', result: "${package_name}.repackaged.@0"
+                rule pattern: 'org.jf.**', result: "${package_name}.repackaged.@0"
             }
         }
-        outJarFiles*.delete()
+        files(outJarFiles)*.delete()
     }
 }
 
