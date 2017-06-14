@@ -1,5 +1,9 @@
 -dontoptimize
 
+-dontnote com.google.common.**
+-dontnote org.jf.util.jcommander.**
+-dontnote sun.misc.Unsafe
+
 -dontwarn android.support.annotation.**
 -dontwarn com.beust.jcommander.**
 -dontwarn javax.annotation.**
@@ -12,34 +16,36 @@
 }
 
 -keep class com.github.tmurakami.classinjector.ClassInjector {
-    com.github.tmurakami.classinjector.ClassInjector from(com.github.tmurakami.classinjector.ClassSource);
-    void into(java.lang.ClassLoader);
+    public static com.github.tmurakami.classinjector.ClassInjector from(com.github.tmurakami.classinjector.ClassSource);
+    public void into(java.lang.ClassLoader);
 }
 -keep class com.github.tmurakami.classinjector.ClassSources {
-    <init>(java.lang.Iterable);
+    public <init>(java.lang.Iterable);
 }
 -keep class com.github.tmurakami.classinjector.android.DexClassFile {
-    <init>(java.lang.String, dalvik.system.DexFile);
+    public <init>(java.lang.String, dalvik.system.DexFile);
 }
 -keep class org.jf.dexlib2.Opcodes {
-    org.jf.dexlib2.Opcodes getDefault();
+    public static org.jf.dexlib2.Opcodes getDefault();
 }
 -keep class org.jf.dexlib2.dexbacked.DexBackedDexFile {
-    <init>(org.jf.dexlib2.Opcodes, byte[]);
-    java.util.Set getClasses();
+    public <init>(org.jf.dexlib2.Opcodes, byte[]);
+    public java.util.Set getClasses();
 }
 -keep class org.jf.dexlib2.iface.ClassDef {
-    *;
+    public *;
 }
 -keep class org.jf.dexlib2.immutable.ImmutableClassDef {
-    <init>(java.lang.String, int, java.lang.String, java.util.Collection, java.lang.String, java.util.Collection, java.lang.Iterable, java.lang.Iterable);
-    org.jf.dexlib2.immutable.ImmutableClassDef of(org.jf.dexlib2.immutable.ImmutableClassDef);
+    public <init>(java.lang.String, int, java.lang.String, java.util.Collection, java.lang.String, java.util.Collection, java.lang.Iterable, java.lang.Iterable);
+    public static org.jf.dexlib2.immutable.ImmutableClassDef of(org.jf.dexlib2.iface.ClassDef);
+}
+-keep class org.jf.dexlib2.writer.DexWriter {
+    public void writeTo(org.jf.dexlib2.writer.io.DexDataStore);
 }
 -keep class org.jf.dexlib2.writer.io.FileDataStore {
-    <init>(java.io.File);
+    public <init>(java.io.File);
 }
 -keep class org.jf.dexlib2.writer.pool.DexPool {
-    <init>(org.jf.dexlib2.Opcodes);
-    void internClass(org.jf.dexlib2.iface.ClassDef);
-    void writeTo(org.jf.dexlib2.writer.io.DexDataStore);
+    public <init>(org.jf.dexlib2.Opcodes);
+    public void internClass(org.jf.dexlib2.iface.ClassDef);
 }
