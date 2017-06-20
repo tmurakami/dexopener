@@ -5,12 +5,12 @@ import android.os.Bundle;
 
 public final class MainActivity extends Activity {
 
-    MainService service = new MainService();
+    MainActivityDelegate delegate = new MainActivityDelegate(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(service.getString(this));
+        delegate.onCreate(savedInstanceState);
     }
 
 }
