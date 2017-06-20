@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId 'com.example.dexopener'
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName version
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
