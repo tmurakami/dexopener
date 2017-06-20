@@ -1,7 +1,6 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.io.FileDataStore;
@@ -11,6 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -39,12 +39,10 @@ public class AndroidClassSourceTest {
     private ClassNameFilter classNameFilter;
     @Mock
     private DexFilesFactory dexFilesFactory;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DexClassSourceFactory dexClassSourceFactory;
     @Mock
     private DexFiles dexFiles;
-    @Mock
-    private ClassSource classSource;
     @Mock
     private ClassFile classFile;
 
@@ -53,7 +51,7 @@ public class AndroidClassSourceTest {
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     @Test
-    public void should_get_the_class_file_for_the_given_name() throws Exception {
+    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
         String className = "foo.Bar";
         DexPool pool = new DexPool(Opcodes.getDefault());
         pool.internClass(new ImmutableClassDef(TypeUtils.getInternalName(className),
@@ -83,8 +81,7 @@ public class AndroidClassSourceTest {
         }
         given(classNameFilter.accept(className)).willReturn(true);
         given(dexFilesFactory.newDexFiles(bytecodeCaptor.capture())).willReturn(dexFiles);
-        given(dexClassSourceFactory.newClassSource(dexFiles)).willReturn(classSource);
-        given(classSource.getClassFile(className)).willReturn(classFile);
+        given(dexClassSourceFactory.newClassSource(dexFiles).getClassFile(className)).willReturn(classFile);
         assertSame(classFile, new AndroidClassSource(apk.getCanonicalPath(),
                                                      classNameFilter,
                                                      dexFilesFactory,
@@ -93,8 +90,7 @@ public class AndroidClassSourceTest {
     }
 
     @Test
-    public void should_get_null_if_the_given_name_does_not_pass_through_the_filter()
-            throws Exception {
+    public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter() throws Exception {
         AndroidClassSource classSource = new AndroidClassSource("",
                                                                 classNameFilter,
                                                                 dexFilesFactory,

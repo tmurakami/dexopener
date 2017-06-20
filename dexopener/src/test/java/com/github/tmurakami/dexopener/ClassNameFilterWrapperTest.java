@@ -72,7 +72,7 @@ public class ClassNameFilterWrapperTest {
     }
 
     @Test
-    public void should_get_a_value_equal_to_the_expected_value() throws Exception {
+    public void accept_should_return_a_value_equal_to_the_expected_value() throws Exception {
         assertSame(expected, testTarget.accept(className));
     }
 

@@ -34,7 +34,7 @@ public class DexClassSourceTest {
     private ClassFile classFile;
 
     @Test
-    public void should_get_the_class_file_for_the_given_name() throws Exception {
+    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
         String className = "foo.Bar";
         given(dexFiles.get(className)).willReturn(dexFile);
         given(classFileFactory.newClassFile(className, dexFile)).willReturn(classFile);
@@ -42,7 +42,7 @@ public class DexClassSourceTest {
     }
 
     @Test
-    public void should_get_null_if_the_dex_file_is_not_found() throws Exception {
+    public void getClassFile_should_return_null_if_no_DexFile_with_the_given_name_can_be_found() throws Exception {
         assertNull(testTarget.getClassFile("foo.Bar"));
         then(classFileFactory).should(never()).newClassFile(anyString(), any(DexFile.class));
     }

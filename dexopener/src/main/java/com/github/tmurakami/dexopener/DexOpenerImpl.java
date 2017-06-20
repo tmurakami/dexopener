@@ -4,6 +4,7 @@ import android.content.pm.ApplicationInfo;
 import android.support.annotation.NonNull;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 
 import java.io.File;
 
@@ -26,16 +27,26 @@ final class DexOpenerImpl extends DexOpener {
 
     @Override
     public void installTo(@NonNull ClassLoader classLoader) {
-        ApplicationInfo ai = applicationInfo;
+        ClassInjector.from(newClassSource(applicationInfo)).into(classLoader);
+    }
+
+    private ClassSource newClassSource(ApplicationInfo ai) {
+        return new AndroidClassSource(ai.sourceDir,
+                                      classNameFilter,
+                                      newDexFilesFactory(ai),
+                                      new DexClassSourceFactory(dexClassFileFactory));
+    }
+
+    private DexFilesFactory newDexFilesFactory(ApplicationInfo ai) {
+        return new DexFilesFactory(classNameFilter, getCacheDir(ai), dexFileLoader);
+    }
+
+    private static File getCacheDir(ApplicationInfo ai) {
         File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
         if (cacheDir.isDirectory()) {
             FileUtils.delete(cacheDir.listFiles());
         }
-        ClassInjector.from(new AndroidClassSource(ai.sourceDir,
-                                                  classNameFilter,
-                                                  new DexFilesFactory(classNameFilter, cacheDir, dexFileLoader),
-                                                  new DexClassSourceFactory(dexClassFileFactory)))
-                     .into(classLoader);
+        return cacheDir;
     }
 
 }

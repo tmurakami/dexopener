@@ -39,18 +39,16 @@ public class DexFilesImplTest {
 
     @Mock
     private DexFileLoader dexFileLoader;
-
     @Mock
     private DexFile dexFile;
 
     @Captor
     private ArgumentCaptor<String> sourcePathNameCaptor;
-
     @Captor
     private ArgumentCaptor<String> outputPathNameCaptor;
 
     @Test
-    public void should_generate_the_dex_file_for_the_given_name() throws Exception {
+    public void get_should_generate_the_DexFile_with_the_given_name_if_cache_is_not_hit() throws Exception {
         String className = "foo.Bar";
         ClassDef def = new ImmutableClassDef(TypeUtils.getInternalName(className),
                                              Modifier.FINAL,
@@ -66,8 +64,7 @@ public class DexFilesImplTest {
         given(dexFileLoader.loadDex(sourcePathNameCaptor.capture(),
                                     outputPathNameCaptor.capture(),
                                     eq(0))).willReturn(dexFile);
-        given(dexFile.entries())
-                .willReturn(Collections.enumeration(Collections.singleton(className)));
+        given(dexFile.entries()).willReturn(Collections.enumeration(Collections.singleton(className)));
         File cacheDir = folder.newFolder();
         assertSame(dexFile, new DexFilesImpl(Opcodes.getDefault(),
                                              dexFileMap,
@@ -84,7 +81,7 @@ public class DexFilesImplTest {
     }
 
     @Test
-    public void should_get_the_mapped_dex_file() throws Exception {
+    public void get_should_return_the_cached_DexFile_with_the_given_name() throws Exception {
         String className = "foo.Bar";
         Map<String, DexFile> dexFileMap = new HashMap<>();
         dexFileMap.put(className, dexFile);
@@ -96,8 +93,7 @@ public class DexFilesImplTest {
     }
 
     @Test
-    public void should_get_null_if_the_given_name_is_not_in_the_list_of_dex_files()
-            throws Exception {
+    public void get_should_return_null_if_the_given_name_is_not_in_the_list_of_classes_to_be_opened() throws Exception {
         assertNull(new DexFilesImpl(Opcodes.getDefault(),
                                     Collections.<String, DexFile>emptyMap(),
                                     Collections.<Set<ClassDef>>emptySet(),
@@ -106,8 +102,7 @@ public class DexFilesImplTest {
     }
 
     @Test(expected = IOException.class)
-    public void should_throw_IOException_if_the_cache_dir_cannot_be_created()
-            throws Exception {
+    public void get_should_throw_IOException_if_the_cache_directory_cannot_be_created() throws Exception {
         String className = "foo.Bar";
         ClassDef def = new ImmutableClassDef(TypeUtils.getInternalName(className),
                                              Modifier.FINAL,

@@ -9,6 +9,8 @@ final class ClassNameFilterWrapper implements ClassNameFilter {
     };
 
     private static final String[] INCLUDED_CLASSES = {
+            // Since the Data Binding Library generates several classes that are tightly coupled
+            // with user classes, do not exclude the following classes.
             "android.databinding.DataBinderMapper",
             "android.databinding.DataBindingComponent",
             "android.databinding.DataBindingUtil",
