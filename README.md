@@ -31,7 +31,7 @@ Finally, set `DexOpenerAndroidJUnitRunner` as the default test instrumentation r
 ```groovy
 android {
     defaultConfig {
-        minSdkVersion 16 // 16 or higher
+        minSdkVersion 16 // 16 to 25
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
     }
 }
@@ -103,12 +103,14 @@ The final classes and methods in the following libraries cannot be mocked.
 - [Mockito](http://site.mockito.org/)
 - [Objenesis](http://objenesis.org/)
 
+Currently, `minSdkVersion` cannot be set to `26` because [dexlib2](https://github.com/JesusFreke/smali) does not support version `038` of the Dex format.
+
 ## Notice
 
 This library contains the classes of the following libraries:
 
 - [ClassInjector](https://github.com/tmurakami/classinjector)
+- [dexlib2 (part of smali/baksmali)](https://github.com/JesusFreke/smali)
 - [Guava](https://github.com/google/guava)
-- [Smali](https://github.com/JesusFreke/smali)
 
 These classes have been minified with [ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with [Jar Jar Links](https://code.google.com/archive/p/jarjar/).

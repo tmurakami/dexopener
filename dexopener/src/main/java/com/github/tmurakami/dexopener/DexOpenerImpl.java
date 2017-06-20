@@ -1,6 +1,7 @@
 package com.github.tmurakami.dexopener;
 
 import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
@@ -27,7 +28,9 @@ final class DexOpenerImpl extends DexOpener {
 
     @Override
     public void installTo(@NonNull ClassLoader classLoader) {
-        ClassInjector.from(newClassSource(applicationInfo)).into(classLoader);
+        ApplicationInfo ai = applicationInfo;
+        assertMinSdkVersionIsLowerThan26(ai);
+        ClassInjector.from(newClassSource(ai)).into(classLoader);
     }
 
     private ClassSource newClassSource(ApplicationInfo ai) {
@@ -47,6 +50,13 @@ final class DexOpenerImpl extends DexOpener {
             FileUtils.delete(cacheDir.listFiles());
         }
         return cacheDir;
+    }
+
+    // Currently, dexlib2 does not support version `038` of the Dex format.
+    private static void assertMinSdkVersionIsLowerThan26(ApplicationInfo ai) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && ai.minSdkVersion >= 26) {
+            throw new UnsupportedOperationException("minSdkVersion must be lower than 26");
+        }
     }
 
 }
