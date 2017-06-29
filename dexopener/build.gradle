@@ -24,7 +24,7 @@ def repackaged_jar = "$buildDir/libs/repackaged.jar"
 android {
     defaultConfig {
         minSdkVersion 16
-        testInstrumentationRunner 'test.com.github.tmurakami.dexopener.MyAndroidJUnitRunner'
+        testInstrumentationRunner 'test.com.github.tmurakami.dexopener.JUnitRunner'
     }
     lintOptions.disable 'InvalidPackage'
     DdmPreferences.setTimeOut 60000
@@ -93,4 +93,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
+}
+
+tasks.withType(JavaCompile).all {
+    it.options.compilerArgs += '-Xlint:deprecation'
 }

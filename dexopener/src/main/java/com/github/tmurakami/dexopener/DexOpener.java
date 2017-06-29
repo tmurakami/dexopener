@@ -60,7 +60,19 @@ public abstract class DexOpener {
     @NonNull
     public static Builder builder(@NonNull Context context) {
         return new Builder(context.getApplicationInfo(),
-                           new DefaultClassNameFilter(context.getPackageName() + '.'));
+                           new DexFileLoader(),
+                           new DexClassFileFactory(),
+                           openClassesBelongingTo(context.getPackageName()));
+    }
+
+    private static ClassNameFilter openClassesBelongingTo(String packageName) {
+        final String packagePrefix = packageName + '.';
+        return new ClassNameFilter() {
+            @Override
+            public boolean accept(@NonNull String className) {
+                return className.startsWith(packagePrefix);
+            }
+        };
     }
 
     /**
@@ -69,10 +81,17 @@ public abstract class DexOpener {
     public static final class Builder {
 
         private final ApplicationInfo applicationInfo;
+        private final DexFileLoader dexFileLoader;
+        private final DexClassFileFactory dexClassFileFactory;
         private ClassNameFilter classNameFilter;
 
-        private Builder(ApplicationInfo applicationInfo, ClassNameFilter classNameFilter) {
+        private Builder(ApplicationInfo applicationInfo,
+                        DexFileLoader dexFileLoader,
+                        DexClassFileFactory dexClassFileFactory,
+                        ClassNameFilter classNameFilter) {
             this.applicationInfo = applicationInfo;
+            this.dexFileLoader = dexFileLoader;
+            this.dexClassFileFactory = dexClassFileFactory;
             this.classNameFilter = classNameFilter;
         }
 
@@ -113,23 +132,8 @@ public abstract class DexOpener {
         public DexOpener build() {
             return new DexOpenerImpl(applicationInfo,
                                      new ClassNameFilterWrapper(classNameFilter),
-                                     DexFileLoader.INSTANCE,
-                                     DexClassFileFactory.INSTANCE);
-        }
-
-    }
-
-    private static class DefaultClassNameFilter implements ClassNameFilter {
-
-        private final String packagePrefix;
-
-        private DefaultClassNameFilter(String packagePrefix) {
-            this.packagePrefix = packagePrefix;
-        }
-
-        @Override
-        public boolean accept(@NonNull String className) {
-            return className.startsWith(packagePrefix);
+                                     dexFileLoader,
+                                     dexClassFileFactory);
         }
 
     }

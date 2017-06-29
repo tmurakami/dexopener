@@ -36,12 +36,14 @@ final class DexOpenerImpl extends DexOpener {
     private ClassSource newClassSource(ApplicationInfo ai) {
         return new AndroidClassSource(ai.sourceDir,
                                       classNameFilter,
-                                      newDexFilesFactory(ai),
-                                      new DexClassSourceFactory(dexClassFileFactory));
+                                      newDexClassSourceFactory(ai));
     }
 
-    private DexFilesFactory newDexFilesFactory(ApplicationInfo ai) {
-        return new DexFilesFactory(classNameFilter, getCacheDir(ai), dexFileLoader);
+    private DexClassSourceFactory newDexClassSourceFactory(ApplicationInfo ai) {
+        return new DexClassSourceFactory(classNameFilter,
+                                         getCacheDir(ai),
+                                         dexFileLoader,
+                                         dexClassFileFactory);
     }
 
     private static File getCacheDir(ApplicationInfo ai) {

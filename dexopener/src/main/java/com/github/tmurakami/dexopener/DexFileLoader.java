@@ -1,19 +1,11 @@
 package com.github.tmurakami.dexopener;
 
-
 import java.io.IOException;
 
-import dalvik.system.DexFile;
-
 final class DexFileLoader {
-
-    static final DexFileLoader INSTANCE = new DexFileLoader();
-
-    private DexFileLoader() {
+    @SuppressWarnings("deprecation")
+    dalvik.system.DexFile loadDex(String sourcePathName, String outputPathName, int flags)
+            throws IOException {
+        return dalvik.system.DexFile.loadDex(sourcePathName, outputPathName, flags);
     }
-
-    DexFile loadDex(String sourcePathName, String outputPathName, int flags) throws IOException {
-        return DexFile.loadDex(sourcePathName, outputPathName, flags);
-    }
-
 }

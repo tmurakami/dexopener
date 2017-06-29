@@ -19,17 +19,14 @@ final class AndroidClassSource implements ClassSource {
 
     private final String sourceDir;
     private final ClassNameFilter classNameFilter;
-    private final DexFilesFactory dexFilesFactory;
     private final DexClassSourceFactory dexClassSourceFactory;
     private ClassSource delegate;
 
     AndroidClassSource(String sourceDir,
                        ClassNameFilter classNameFilter,
-                       DexFilesFactory dexFilesFactory,
                        DexClassSourceFactory dexClassSourceFactory) {
         this.sourceDir = sourceDir;
         this.classNameFilter = classNameFilter;
-        this.dexFilesFactory = dexFilesFactory;
         this.dexClassSourceFactory = dexClassSourceFactory;
     }
 
@@ -60,9 +57,7 @@ final class AndroidClassSource implements ClassSource {
                 if (logger.isLoggable(Level.FINEST)) {
                     logger.finest("Reading the entry " + name + " from " + sourceDir);
                 }
-                byte[] bytecode = IOUtils.readBytes(in);
-                DexFiles dexFiles = dexFilesFactory.newDexFiles(bytecode);
-                sources.add(dexClassSourceFactory.newClassSource(dexFiles));
+                sources.add(dexClassSourceFactory.newClassSource(IOUtils.readBytes(in)));
             }
         } finally {
             in.close();

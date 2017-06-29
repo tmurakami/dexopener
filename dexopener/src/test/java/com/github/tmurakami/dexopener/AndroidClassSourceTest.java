@@ -37,12 +37,8 @@ public class AndroidClassSourceTest {
 
     @Mock
     private ClassNameFilter classNameFilter;
-    @Mock
-    private DexFilesFactory dexFilesFactory;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DexClassSourceFactory dexClassSourceFactory;
-    @Mock
-    private DexFiles dexFiles;
     @Mock
     private ClassFile classFile;
 
@@ -80,11 +76,11 @@ public class AndroidClassSourceTest {
             out.close();
         }
         given(classNameFilter.accept(className)).willReturn(true);
-        given(dexFilesFactory.newDexFiles(bytecodeCaptor.capture())).willReturn(dexFiles);
-        given(dexClassSourceFactory.newClassSource(dexFiles).getClassFile(className)).willReturn(classFile);
+        given(dexClassSourceFactory
+                      .newClassSource(bytecodeCaptor.capture())
+                      .getClassFile(className)).willReturn(classFile);
         assertSame(classFile, new AndroidClassSource(apk.getCanonicalPath(),
                                                      classNameFilter,
-                                                     dexFilesFactory,
                                                      dexClassSourceFactory).getClassFile(className));
         assertArrayEquals(bytecode, bytecodeCaptor.getValue());
     }
@@ -93,7 +89,6 @@ public class AndroidClassSourceTest {
     public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter() throws Exception {
         AndroidClassSource classSource = new AndroidClassSource("",
                                                                 classNameFilter,
-                                                                dexFilesFactory,
                                                                 dexClassSourceFactory);
         assertNull(classSource.getClassFile("foo.Bar"));
     }
