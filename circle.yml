@@ -25,9 +25,10 @@ test:
     - adb shell settings put global animator_duration_scale 0
     - ./gradlew connectedDebugAndroidTest
   post:
-    - find . -type f -regex '.*/build/test-results/.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS \;
-    - find . -type f -regex '.*/build/outputs/androidTest-results/.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS \;
-    - mkdir $CIRCLE_ARTIFACTS/jacoco
-    - find . -type f -regex '.*/build/reports/jacoco/.*\.xml' -exec cp -p {} $CIRCLE_ARTIFACTS/jacoco \;
     - mkdir $CIRCLE_ARTIFACTS/lint
     - find . -type f -regex '.*/build/reports/lint-results.*\.xml' -exec cp -p {} $CIRCLE_ARTIFACTS/lint \;
+    - mkdir $CIRCLE_ARTIFACTS/jacoco
+    - find . -type f -regex '.*/build/reports/jacoco/.*\.xml' -exec cp -p {} $CIRCLE_ARTIFACTS/jacoco \;
+    - mkdir $CIRCLE_TEST_REPORTS/junit
+    - find . -type f -regex '.*/build/test-results/.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;
+    - find . -type f -regex '.*/build/outputs/androidTest-results/.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/junit \;
