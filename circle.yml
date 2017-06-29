@@ -26,7 +26,7 @@ test:
     - ./gradlew connectedDebugAndroidTest
   post:
     - mkdir $CIRCLE_TEST_REPORTS/lint
-    - find . -type f -regex '.*/build/outputs/lint.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/lint \;
+    - find . -type f -regex '.*/build/reports/lint-results.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/lint \;
     - mkdir $CIRCLE_TEST_REPORTS/jacoco
     - find . -type f -regex '.*/build/reports/jacoco/.*\.xml' -exec cp -p {} $CIRCLE_TEST_REPORTS/jacoco \;
     - mkdir $CIRCLE_TEST_REPORTS/junit
