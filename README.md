@@ -45,7 +45,7 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        return super.newApplication(cl, YourTestApplication.class.getName(), context);
+        return super.newApplication(cl, "your.app.TestApplication", context);
     }
 }
 ```
@@ -57,7 +57,7 @@ public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         DexOpener.install(this);
-        return super.newApplication(cl, YourTestApplication.class.getName(), context);
+        return super.newApplication(cl, "your.app.TestApplication", context);
     }
 }
 ```
@@ -73,7 +73,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
                 .openIf(name -> name.startsWith("package.you.want.to.mock."))
                 .build()
                 .installTo(cl);
-        return super.newApplication(cl, YourTestApplication.class.getName(), context);
+        return super.newApplication(cl, "your.app.TestApplication", context);
     }
 }
 ```
