@@ -48,7 +48,7 @@ public class MainActivityTest implements ActivityLifecycleCallback {
     }
 
     @Test
-    public void onCreate_should_be_called() throws Exception {
+    public void onCreate_should_simply_call_MainActivityDelegate_onCreate() throws Exception {
         verify(delegate).onCreate(null);
     }
 

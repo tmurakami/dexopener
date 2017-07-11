@@ -66,7 +66,27 @@ final class DexClassSource implements ClassSource {
             return dexFile;
         }
         Set<ClassDef> classes = getClassesToBeOpened(className);
-        return classes.isEmpty() ? null : putToCache(generateDex(openClasses(classes)));
+        if (classes.isEmpty()) {
+            return null;
+        }
+        DexPool pool = openClasses(classes);
+        if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
+            throw new IOException("Cannot create " + cacheDir);
+        }
+        File dex = File.createTempFile("classes", ".dex", cacheDir);
+        try {
+            pool.writeTo(new FileDataStore(dex));
+            String sourcePathName = dex.getCanonicalPath();
+            String outputPathName = sourcePathName + ".opt";
+            dexFile = dexFileLoader.loadDex(sourcePathName, outputPathName, 0);
+            Logger logger = Loggers.get();
+            if (logger.isLoggable(Level.FINEST)) {
+                logger.finest("The DEX file for " + className + " was generated: " + outputPathName);
+            }
+        } finally {
+            FileUtils.delete(dex);
+        }
+        return putToCache(dexFile);
     }
 
     private dalvik.system.DexFile getFromCache(String className) {
@@ -104,27 +124,6 @@ final class DexClassSource implements ClassSource {
             }
         }
         return pool;
-    }
-
-    private dalvik.system.DexFile generateDex(DexPool pool) throws IOException {
-        if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
-            throw new IOException("Cannot create " + cacheDir);
-        }
-        File dex = File.createTempFile("classes", ".dex", cacheDir);
-        try {
-            pool.writeTo(new FileDataStore(dex));
-            String sourcePathName = dex.getCanonicalPath();
-            String outputPathName = sourcePathName + ".opt";
-            dalvik.system.DexFile dexFile = 
-                    dexFileLoader.loadDex(sourcePathName, outputPathName, 0);
-            Logger logger = Loggers.get();
-            if (logger.isLoggable(Level.FINEST)) {
-                logger.finest("An optimized DEX file generated: " + outputPathName);
-            }
-            return dexFile;
-        } finally {
-            FileUtils.delete(dex);
-        }
     }
 
     private dalvik.system.DexFile putToCache(dalvik.system.DexFile dexFile) {
