@@ -38,7 +38,7 @@ configurations {
 dependencies {
     jarjar deps.jarjar
     repackage deps.classinjector_android
-    repackage(deps.dexlib2) {
+    repackage deps.dexlib2, {
         exclude group: 'com.beust', module: 'jcommander'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
     }
