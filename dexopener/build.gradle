@@ -43,12 +43,12 @@ dependencies {
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
     }
     compile deps.runner
-    compile files(repackaged_jar) { builtBy 'repackage' }
+    compile files(repackaged_jar) { builtBy 'repackageDependencies' }
     testCompile deps.junit
     testCompile deps.mockito
 }
 
-task repackage(type: ProGuardTask) {
+task repackageDependencies(type: ProGuardTask) {
     outputs.file repackaged_jar
     injars filter: '!AndroidManifest.xml,!META-INF/**', configurations.repackage
     outjars "$buildDir/tmp/repackage.tmp.jar"
@@ -93,8 +93,4 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
-}
-
-tasks.withType(JavaCompile).all {
-    it.options.compilerArgs += '-Xlint:deprecation'
 }
