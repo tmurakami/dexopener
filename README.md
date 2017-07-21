@@ -14,6 +14,7 @@ See the [example application](dexopener-example).
 ## Installation
 
 First, add the [JitPack](https://jitpack.io/) repository to your build.gradle.
+
 ```groovy
 repositories {
     maven { url 'https://jitpack.io' }
@@ -21,6 +22,7 @@ repositories {
 ```
 
 And then, add this library as `androidTestCompile` dependency.
+
 ```groovy
 dependencies {
     androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
@@ -28,6 +30,7 @@ dependencies {
 ```
 
 Finally, set `DexOpenerAndroidJUnitRunner` as the default test instrumentation runner.
+
 ```groovy
 android {
     defaultConfig {
@@ -39,7 +42,8 @@ android {
 
 ## Extending
 
-To replace the `Application` instance while testing, simply extend from `DexOpenerAndroidJUnitRunner`.
+To replace your `Application` instance while testing, all you need to do is extend `DexOpenerAndroidJUnitRunner` class instead of `AndroidJUnitRunner` and override the `newApplication(ClassLoader, String, Context)` method, as shown here:
+
 ```java
 public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
     @Override
@@ -50,7 +54,8 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
 }
 ```
 
-If it is not possible to change the base class, call `DexOpener#install(Instrumentation)` before calling `super.newApplication()`.
+If it is not possible to change the base class, you should call `DexOpener#install(Instrumentation)` before calling `super.newApplication()`.
+
 ```java
 public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
     @Override
@@ -63,7 +68,9 @@ public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
 ```
 
 By default, mockable final classes and methods are restricted under the package obtained by `Context#getPackageName()`.
-To change this restriction, use `DexOpener.Builder#classNameFilter(ClassNameFilter)` or `DexOpener.Builder#openIf(ClassNameFilter)` which makes it easier to read with lambda expressions.
+Therefore, your tests will fail if using `applicationIdSuffix` in your `build.gradle`.
+To change this restriction, you can use `DexOpener.Builder#classNameFilter(ClassNameFilter)` or `DexOpener.Builder#openIf(ClassNameFilter)`.
+
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
