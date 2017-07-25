@@ -29,17 +29,21 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+dependencyUpdates.resolutionStrategy {
+    componentSelection.all {
+        if (candidate.version =~ /(?i)-(?:alpha|beta|rc)[-\d]?/) reject('Release candidate')
+    }
+}
+
 ext {
     def mockito_version = '2.8.47'
-    deps = [
-            dexopener            : project(':dexopener'),
-            jarjar               : 'com.googlecode.jarjar:jarjar:1.3',
-            classinjector_android: 'com.github.tmurakami.classinjector:classinjector-android:0.3.0',
-            dexlib2              : 'org.smali:dexlib2:2.2.1',
-            junit                : 'junit:junit:4.12',
-            rules                : 'com.android.support.test:rules:0.5',
-            runner               : 'com.android.support.test:runner:0.5',
-            mockito              : "org.mockito:mockito-inline:$mockito_version",
-            mockito_android      : "org.mockito:mockito-android:$mockito_version"
-    ]
+    deps = [dexopener      : project(':dexopener'),
+            jarjar         : 'com.googlecode.jarjar:jarjar:1.3',
+            classinjector  : 'com.github.tmurakami.classinjector:classinjector-android:0.3.0',
+            dexlib2        : 'org.smali:dexlib2:2.2.1',
+            junit          : 'junit:junit:4.12',
+            runner         : 'com.android.support.test:runner:0.5',
+            rules          : 'com.android.support.test:rules:1.0.0',
+            mockito        : "org.mockito:mockito-inline:$mockito_version",
+            mockito_android: "org.mockito:mockito-android:$mockito_version",]
 }
