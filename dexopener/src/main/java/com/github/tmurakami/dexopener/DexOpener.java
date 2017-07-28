@@ -2,7 +2,6 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.support.annotation.NonNull;
 
 /**
@@ -31,7 +30,7 @@ public abstract class DexOpener {
     public static void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
         if (context == null) {
-            throw new IllegalArgumentException("'instrumentation' has not been initialized yet");
+            throw new IllegalArgumentException("'instrumentation' has not yet been initialized");
         }
         builder(context).build().installTo(context.getClassLoader());
     }
@@ -59,7 +58,7 @@ public abstract class DexOpener {
      */
     @NonNull
     public static Builder builder(@NonNull Context context) {
-        return new Builder(context.getApplicationInfo(),
+        return new Builder(context,
                            new DexFileLoader(),
                            new DexClassFileFactory(),
                            openClassesBelongingTo(context.getPackageName()));
@@ -80,16 +79,16 @@ public abstract class DexOpener {
      */
     public static final class Builder {
 
-        private final ApplicationInfo applicationInfo;
+        private final Context context;
         private final DexFileLoader dexFileLoader;
         private final DexClassFileFactory dexClassFileFactory;
         private ClassNameFilter classNameFilter;
 
-        private Builder(ApplicationInfo applicationInfo,
+        private Builder(Context context,
                         DexFileLoader dexFileLoader,
                         DexClassFileFactory dexClassFileFactory,
                         ClassNameFilter classNameFilter) {
-            this.applicationInfo = applicationInfo;
+            this.context = context;
             this.dexFileLoader = dexFileLoader;
             this.dexClassFileFactory = dexClassFileFactory;
             this.classNameFilter = classNameFilter;
@@ -130,7 +129,7 @@ public abstract class DexOpener {
          */
         @NonNull
         public DexOpener build() {
-            return new DexOpenerImpl(applicationInfo,
+            return new DexOpenerImpl(context,
                                      new ClassNameFilterWrapper(classNameFilter),
                                      dexFileLoader,
                                      dexClassFileFactory);

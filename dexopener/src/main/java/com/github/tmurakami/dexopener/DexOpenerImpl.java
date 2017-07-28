@@ -1,5 +1,6 @@
 package com.github.tmurakami.dexopener;
 
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -11,16 +12,16 @@ import java.io.File;
 
 final class DexOpenerImpl extends DexOpener {
 
-    private final ApplicationInfo applicationInfo;
+    private final Context context;
     private final ClassNameFilter classNameFilter;
     private final DexFileLoader dexFileLoader;
     private final DexClassFileFactory dexClassFileFactory;
 
-    DexOpenerImpl(ApplicationInfo applicationInfo,
+    DexOpenerImpl(Context context,
                   ClassNameFilter classNameFilter,
                   DexFileLoader dexFileLoader,
                   DexClassFileFactory dexClassFileFactory) {
-        this.applicationInfo = applicationInfo;
+        this.context = context;
         this.classNameFilter = classNameFilter;
         this.dexFileLoader = dexFileLoader;
         this.dexClassFileFactory = dexClassFileFactory;
@@ -28,8 +29,10 @@ final class DexOpenerImpl extends DexOpener {
 
     @Override
     public void installTo(@NonNull ClassLoader classLoader) {
-        ApplicationInfo ai = applicationInfo;
+        Context context = this.context;
+        ApplicationInfo ai = context.getApplicationInfo();
         assertMinSdkVersionIsLowerThan26(ai);
+        assertApplicationIsNotCreated(context);
         ClassInjector.from(newClassSource(ai)).into(classLoader);
     }
 
@@ -58,6 +61,12 @@ final class DexOpenerImpl extends DexOpener {
     private static void assertMinSdkVersionIsLowerThan26(ApplicationInfo ai) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && ai.minSdkVersion >= 26) {
             throw new UnsupportedOperationException("minSdkVersion must be lower than 26");
+        }
+    }
+
+    private static void assertApplicationIsNotCreated(Context context) {
+        if (context.getApplicationContext() != null) {
+            throw new IllegalStateException("The Application instance has already been created.");
         }
     }
 
