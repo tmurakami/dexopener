@@ -10,6 +10,7 @@ import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjec
 
 import java.io.File;
 
+@SuppressWarnings("deprecation")
 final class DexOpenerImpl extends DexOpener {
 
     private final Context context;

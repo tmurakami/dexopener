@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@SuppressWarnings("deprecation")
 final class AndroidClassSource implements ClassSource {
 
     private final String sourceDir;

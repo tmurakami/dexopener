@@ -24,7 +24,7 @@ def repackaged_jar = "$buildDir/libs/repackaged.jar"
 android {
     defaultConfig {
         minSdkVersion 16
-        testInstrumentationRunner 'test.com.github.tmurakami.dexopener.JUnitRunner'
+        testInstrumentationRunner 'com.github.tmurakami.dexopener.JUnitRunner'
     }
     lintOptions.disable 'InvalidPackage'
     DdmPreferences.setTimeOut 60000

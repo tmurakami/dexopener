@@ -2,6 +2,7 @@ package com.github.tmurakami.dexopener;
 
 import android.support.annotation.NonNull;
 
+@SuppressWarnings("deprecation")
 final class ClassNameFilterWrapper implements ClassNameFilter {
 
     private static final String[] INCLUDED_PACKAGES = {

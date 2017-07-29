@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+@SuppressWarnings("deprecation")
 final class DexClassSourceFactory {
 
     // This was empirically determined. If this value is too large, dex file generation will be
@@ -23,7 +24,7 @@ final class DexClassSourceFactory {
     private static final Opcodes OPCODES = Opcodes.getDefault();
     private static final ClassSource NULL_SOURCE = new ClassSource() {
         @Override
-        public ClassFile getClassFile(String s) throws IOException {
+        public ClassFile getClassFile(String className) throws IOException {
             return null;
         }
     };

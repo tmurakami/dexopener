@@ -14,13 +14,16 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provides the ability to mock final classes and methods.
-     * <p>
-     * This is equivalent to the following code:
+     * Provides the ability to mock final classes and methods. This is equivalent to the following
+     * code:
      * <pre>{@code
      * Context context = instrumentation.getTargetContext();
      * builder(context).build().installTo(context.getClassLoader());
      * }</pre>
+     * <p>
+     * Note that this method must be called before calling
+     * {@link Instrumentation#newApplication(ClassLoader, String, Context)
+     * super.newApplication(ClassLoader, String, Context)}.
      *
      * @param instrumentation the instrumentation
      * @see #builder(Context)
@@ -36,10 +39,12 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provides the ability to mock final classes and methods.
-     * After calling this method, you can mock classes loaded by the given class loader.
+     * Provides the ability to mock final classes and methods. After calling this method, you can
+     * mock classes loaded by the given class loader.
      * <p>
-     * Note that final classes loaded before calling this cannot be mocked.
+     * Note that this method must be called before calling
+     * {@link Instrumentation#newApplication(ClassLoader, String, Context)
+     * super.newApplication(ClassLoader, String, Context)}.
      *
      * @param classLoader the class loader
      */
@@ -47,36 +52,19 @@ public abstract class DexOpener {
 
     /**
      * Instantiates a new {@link Builder} instance.
-     * <p>
-     * By default, mockable final classes and methods are restricted under the package obtained by
-     * {@link Context#getPackageName()}.
-     * To change this restriction, use {@link Builder#classNameFilter(ClassNameFilter)} or
-     * {@link Builder#openIf(ClassNameFilter)}.
      *
      * @param context the context
      * @return the {@link Builder}
      */
     @NonNull
     public static Builder builder(@NonNull Context context) {
-        return new Builder(context,
-                           new DexFileLoader(),
-                           new DexClassFileFactory(),
-                           openClassesBelongingTo(context.getPackageName()));
-    }
-
-    private static ClassNameFilter openClassesBelongingTo(String packageName) {
-        final String packagePrefix = packageName + '.';
-        return new ClassNameFilter() {
-            @Override
-            public boolean accept(@NonNull String className) {
-                return className.startsWith(packagePrefix);
-            }
-        };
+        return new Builder(context, new DexFileLoader(), new DexClassFileFactory());
     }
 
     /**
      * The builder for {@link DexOpener}.
      */
+    @SuppressWarnings("deprecation")
     public static final class Builder {
 
         private final Context context;
@@ -86,25 +74,23 @@ public abstract class DexOpener {
 
         private Builder(Context context,
                         DexFileLoader dexFileLoader,
-                        DexClassFileFactory dexClassFileFactory,
-                        ClassNameFilter classNameFilter) {
+                        DexClassFileFactory dexClassFileFactory) {
             this.context = context;
             this.dexFileLoader = dexFileLoader;
             this.dexClassFileFactory = dexClassFileFactory;
-            this.classNameFilter = classNameFilter;
         }
 
         /**
          * Sets a {@link ClassNameFilter}.
-         * This is an alias of {@link #classNameFilter(ClassNameFilter)}. Using this makes code more
-         * readable with lambda expressions, as in the following code:
-         * <pre>{@code
-         * openIf(name -> name.startsWith("package.you.want.to.mock."))
-         * }</pre>
          *
          * @param filter the {@link ClassNameFilter}
          * @return this builder
+         * @see #buildConfig(Class)
+         * @deprecated Use {@link #buildConfig(Class)} if your app's root package is different from
+         * the value obtained by calling {@link Context#getPackageName()}. This will be removed in
+         * the future.
          */
+        @Deprecated
         @NonNull
         public Builder openIf(@NonNull ClassNameFilter filter) {
             return classNameFilter(filter);
@@ -115,10 +101,52 @@ public abstract class DexOpener {
          *
          * @param filter the {@link ClassNameFilter}
          * @return this builder
+         * @see #buildConfig(Class)
+         * @deprecated Use {@link #buildConfig(Class)} if your app's root package is different from
+         * the value obtained by calling {@link Context#getPackageName()}. This will be removed in
+         * the future.
          */
+        @Deprecated
         @NonNull
         public Builder classNameFilter(@NonNull ClassNameFilter filter) {
             classNameFilter = filter;
+            return this;
+        }
+
+        /**
+         * Sets the app's BuildConfig class. Only those final classes which is under the package of
+         * the given class can be mocked. If not set, DexOpener will try to find the class which
+         * name is {@link Context#getPackageName()} + ".BuildConfig".
+         * <p>
+         * If the package name of the BuildConfig is not equal to your app's applicationId
+         * (e.g., you are using applicationIdSuffix in your build.gradle), DexOpener cannot find the
+         * BuildConfig class. In such case, you should set your app's BuildConfig class using this
+         * method.
+         *
+         * @param buildConfigClass the app's BuildConfig class
+         * @return this builder
+         */
+        @NonNull
+        public Builder buildConfig(@NonNull Class<?> buildConfigClass) {
+            String applicationId = null;
+            try {
+                applicationId = (String) buildConfigClass.getField("APPLICATION_ID").get(null);
+            } catch (NoSuchFieldException ignored) {
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+            if (!context.getPackageName().equals(applicationId)) {
+                throw new IllegalArgumentException("'buildConfigClass' must be your app's BuildConfig.class");
+            }
+            String className = buildConfigClass.getName();
+            String simpleName = buildConfigClass.getSimpleName();
+            final String packagePrefix = className.substring(0, className.lastIndexOf(simpleName));
+            classNameFilter = new ClassNameFilter() {
+                @Override
+                public boolean accept(@NonNull String className) {
+                    return className.startsWith(packagePrefix);
+                }
+            };
             return this;
         }
 
@@ -130,9 +158,22 @@ public abstract class DexOpener {
         @NonNull
         public DexOpener build() {
             return new DexOpenerImpl(context,
-                                     new ClassNameFilterWrapper(classNameFilter),
+                                     new ClassNameFilterWrapper(getClassNameFilter()),
                                      dexFileLoader,
                                      dexClassFileFactory);
+        }
+
+        private ClassNameFilter getClassNameFilter() {
+            if (classNameFilter == null) {
+                String buildConfigName = context.getPackageName() + ".BuildConfig";
+                ClassLoader loader = context.getClassLoader();
+                try {
+                    buildConfig(loader.loadClass(buildConfigName));
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException("BuildConfig.class must be set using #buildConfig(Class)");
+                }
+            }
+            return classNameFilter;
         }
 
     }

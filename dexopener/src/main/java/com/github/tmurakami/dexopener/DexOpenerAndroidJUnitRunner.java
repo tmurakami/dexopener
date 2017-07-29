@@ -5,9 +5,8 @@ import android.content.Context;
 import android.support.test.runner.AndroidJUnitRunner;
 
 /**
- * An {@link AndroidJUnitRunner} that provides the ability to mock final classes and methods.
- * <p>
- * To use this, add the following to your build.gradle file.
+ * An {@link AndroidJUnitRunner} that provides the ability to mock final classes and methods. To use
+ * this, add the following into your build.gradle:
  * <pre><code>
  * android {
  *   defaultConfig {

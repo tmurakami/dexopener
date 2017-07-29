@@ -1,11 +1,18 @@
 package com.github.tmurakami.dexopener;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 /**
  * The class name filter.
+ *
+ * @see DexOpener.Builder#buildConfig(Class)
+ * @deprecated If your app's root package is different from the value obtained by calling
+ * {@link Context#getPackageName()}, Use {@link DexOpener.Builder#buildConfig(Class)}. This will be
+ * removed in the future.
  */
-@SuppressWarnings("WeakerAccess")
+@Deprecated
+@SuppressWarnings({"WeakerAccess", "deprecation"})
 public interface ClassNameFilter {
 
     /**
