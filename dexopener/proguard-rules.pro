@@ -19,9 +19,6 @@
     public static com.github.tmurakami.classinjector.ClassInjector from(com.github.tmurakami.classinjector.ClassSource);
     public void into(java.lang.ClassLoader);
 }
--keep class com.github.tmurakami.classinjector.ClassSources {
-    public <init>(java.lang.Iterable);
-}
 -keep class com.github.tmurakami.classinjector.android.DexClassFile {
     public <init>(java.lang.String, dalvik.system.DexFile);
 }
@@ -33,7 +30,14 @@
     public java.util.Set getClasses();
 }
 -keep class org.jf.dexlib2.iface.ClassDef {
-    public *;
+    public int getAccessFlags();
+    public java.util.Set getAnnotations();
+    public java.lang.Iterable getFields();
+    public java.util.List getInterfaces();
+    public java.lang.Iterable getMethods();
+    public java.lang.String getSourceFile();
+    public java.lang.String getSuperclass();
+    public java.lang.String getType();
 }
 -keep class org.jf.dexlib2.immutable.ImmutableClassDef {
     public <init>(java.lang.String, int, java.lang.String, java.util.Collection, java.lang.String, java.util.Collection, java.lang.Iterable, java.lang.Iterable);

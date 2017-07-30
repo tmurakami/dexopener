@@ -24,7 +24,7 @@ public class JUnitRunner extends AndroidJUnitRunner {
                                      }
                                  }),
                                  new DexFileLoader(),
-                                 new DexClassFileFactory());
+                                 new DexClassSourceFactory(new DexClassFileFactory()));
     }
 
 }

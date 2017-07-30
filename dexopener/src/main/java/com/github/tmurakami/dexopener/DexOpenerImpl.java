@@ -9,23 +9,40 @@ import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjec
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 
 import java.io.File;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("deprecation")
 final class DexOpenerImpl extends DexOpener {
 
+    private static final Executor EXECUTOR;
+
+    static {
+        final AtomicInteger count = new AtomicInteger();
+        int nThreads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), 4));
+        EXECUTOR = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
+            @Override
+            public Thread newThread(@NonNull Runnable r) {
+                return new Thread(r, "DexOpener #" + count.incrementAndGet());
+            }
+        });
+    }
+
     private final Context context;
     private final ClassNameFilter classNameFilter;
     private final DexFileLoader dexFileLoader;
-    private final DexClassFileFactory dexClassFileFactory;
+    private final DexClassSourceFactory dexClassSourceFactory;
 
     DexOpenerImpl(Context context,
                   ClassNameFilter classNameFilter,
                   DexFileLoader dexFileLoader,
-                  DexClassFileFactory dexClassFileFactory) {
+                  DexClassSourceFactory dexClassSourceFactory) {
         this.context = context;
         this.classNameFilter = classNameFilter;
         this.dexFileLoader = dexFileLoader;
-        this.dexClassFileFactory = dexClassFileFactory;
+        this.dexClassSourceFactory = dexClassSourceFactory;
     }
 
     @Override
@@ -40,14 +57,16 @@ final class DexOpenerImpl extends DexOpener {
     private ClassSource newClassSource(ApplicationInfo ai) {
         return new AndroidClassSource(ai.sourceDir,
                                       classNameFilter,
-                                      newDexClassSourceFactory(ai));
+                                      newDexFileHolderMapper(ai),
+                                      dexClassSourceFactory);
     }
 
-    private DexClassSourceFactory newDexClassSourceFactory(ApplicationInfo ai) {
-        return new DexClassSourceFactory(classNameFilter,
-                                         getCacheDir(ai),
-                                         dexFileLoader,
-                                         dexClassFileFactory);
+    private DexFileHolderMapper newDexFileHolderMapper(ApplicationInfo ai) {
+        return new DexFileHolderMapper(classNameFilter, EXECUTOR, newDexFileTaskFactory(ai));
+    }
+
+    private DexFileTaskFactory newDexFileTaskFactory(ApplicationInfo ai) {
+        return new DexFileTaskFactory(getCacheDir(ai), new ClassOpener(), dexFileLoader);
     }
 
     private static File getCacheDir(ApplicationInfo ai) {

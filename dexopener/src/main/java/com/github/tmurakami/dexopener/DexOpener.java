@@ -4,6 +4,8 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import java.lang.reflect.Field;
+
 /**
  * This is an object that provides the ability to mock final classes and methods.
  */
@@ -58,7 +60,9 @@ public abstract class DexOpener {
      */
     @NonNull
     public static Builder builder(@NonNull Context context) {
-        return new Builder(context, new DexFileLoader(), new DexClassFileFactory());
+        return new Builder(context,
+                           new DexFileLoader(),
+                           new DexClassSourceFactory(new DexClassFileFactory()));
     }
 
     /**
@@ -69,15 +73,15 @@ public abstract class DexOpener {
 
         private final Context context;
         private final DexFileLoader dexFileLoader;
-        private final DexClassFileFactory dexClassFileFactory;
+        private final DexClassSourceFactory dexClassSourceFactory;
         private ClassNameFilter classNameFilter;
 
         private Builder(Context context,
                         DexFileLoader dexFileLoader,
-                        DexClassFileFactory dexClassFileFactory) {
+                        DexClassSourceFactory dexClassSourceFactory) {
             this.context = context;
             this.dexFileLoader = dexFileLoader;
-            this.dexClassFileFactory = dexClassFileFactory;
+            this.dexClassSourceFactory = dexClassSourceFactory;
         }
 
         /**
@@ -130,13 +134,15 @@ public abstract class DexOpener {
         public Builder buildConfig(@NonNull Class<?> buildConfigClass) {
             String applicationId = null;
             try {
-                applicationId = (String) buildConfigClass.getField("APPLICATION_ID").get(null);
+                Field field = buildConfigClass.getField("APPLICATION_ID");
+                applicationId = (String) field.get(null);
             } catch (NoSuchFieldException ignored) {
             } catch (IllegalAccessException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
             if (!context.getPackageName().equals(applicationId)) {
-                throw new IllegalArgumentException("'buildConfigClass' must be your app's BuildConfig.class");
+                throw new IllegalArgumentException(
+                        "'buildConfigClass' must be your app's BuildConfig.class");
             }
             String className = buildConfigClass.getName();
             String simpleName = buildConfigClass.getSimpleName();
@@ -160,17 +166,18 @@ public abstract class DexOpener {
             return new DexOpenerImpl(context,
                                      new ClassNameFilterWrapper(getClassNameFilter()),
                                      dexFileLoader,
-                                     dexClassFileFactory);
+                                     dexClassSourceFactory);
         }
 
         private ClassNameFilter getClassNameFilter() {
             if (classNameFilter == null) {
+                Context context = this.context;
                 String buildConfigName = context.getPackageName() + ".BuildConfig";
                 ClassLoader loader = context.getClassLoader();
                 try {
                     buildConfig(loader.loadClass(buildConfigName));
                 } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException("BuildConfig.class must be set using #buildConfig(Class)");
+                    throw new IllegalStateException("BuildConfig.class must be set");
                 }
             }
             return classNameFilter;

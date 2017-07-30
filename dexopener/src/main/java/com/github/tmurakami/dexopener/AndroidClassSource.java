@@ -4,12 +4,12 @@ import android.support.annotation.NonNull;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSources;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -20,14 +20,17 @@ final class AndroidClassSource implements ClassSource {
 
     private final String sourceDir;
     private final ClassNameFilter classNameFilter;
+    private final DexFileHolderMapper dexFileHolderMapper;
     private final DexClassSourceFactory dexClassSourceFactory;
     private ClassSource delegate;
 
     AndroidClassSource(String sourceDir,
                        ClassNameFilter classNameFilter,
+                       DexFileHolderMapper dexFileHolderMapper,
                        DexClassSourceFactory dexClassSourceFactory) {
         this.sourceDir = sourceDir;
         this.classNameFilter = classNameFilter;
+        this.dexFileHolderMapper = dexFileHolderMapper;
         this.dexClassSourceFactory = dexClassSourceFactory;
     }
 
@@ -46,7 +49,7 @@ final class AndroidClassSource implements ClassSource {
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private ClassSource newDelegate() throws IOException {
-        List<ClassSource> sources = new ArrayList<>();
+        Map<String, DexFileHolder> holderMap = new HashMap<>();
         ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
         try {
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
@@ -58,12 +61,15 @@ final class AndroidClassSource implements ClassSource {
                 if (logger.isLoggable(Level.FINEST)) {
                     logger.finest("Reading the entry " + name + " from " + sourceDir);
                 }
-                sources.add(dexClassSourceFactory.newClassSource(IOUtils.readBytes(in)));
+                dexFileHolderMapper.map(IOUtils.readBytes(in), holderMap);
             }
         } finally {
             in.close();
         }
-        return new ClassSources(sources);
+        if (holderMap.isEmpty()) {
+            throw new IllegalStateException("There are no classes to be opened");
+        }
+        return dexClassSourceFactory.newClassSource(Collections.unmodifiableMap(holderMap));
     }
 
 }

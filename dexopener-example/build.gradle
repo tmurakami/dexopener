@@ -13,7 +13,7 @@ android {
         versionName version
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
         // Since Android 4.4, several classes under the package `com.android.dex` are now included
-        // in the Android system, but on Android 4.4, some of them is incompatible with
+        // in the Android system, but on Android 4.4, some of them are incompatible with
         // `libcore-dex` on which `mockito-android` relies. As a result,
         // IncompatibleClassChangeError occurs while loading `DexIndexOverflowException`, so we
         // filter out it from the classes to be scanned by AndroidJUnitRunner, as shown below.
