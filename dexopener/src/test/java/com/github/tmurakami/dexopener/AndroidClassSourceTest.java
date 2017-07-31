@@ -2,8 +2,10 @@ package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.pool.DexPool;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,6 +23,7 @@ import org.mockito.stubbing.VoidAnswer2;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -76,16 +79,16 @@ public class AndroidClassSourceTest {
                           }
                       }))
                       .getClassFile(className)).willReturn(classFile);
-        DexPool pool = new DexPool(Opcodes.getDefault());
-        pool.internClass(new ImmutableClassDef(TypeUtils.getInternalName(className),
-                                               0,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null));
-        byte[] bytecode = DexPoolUtils.toBytecode(pool);
+        ClassDef def = new ImmutableClassDef(TypeUtils.getInternalName(className),
+                                             0,
+                                             null,
+                                             null,
+                                             null,
+                                             null,
+                                             null,
+                                             null);
+        DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
+        byte[] bytecode = DexPoolUtils.toBytecode(dexFile);
         File apk = generateZip(bytecode);
         assertSame(classFile, new AndroidClassSource(apk.getCanonicalPath(),
                                                      classNameFilter,
@@ -107,8 +110,8 @@ public class AndroidClassSourceTest {
     public void getClassFile_should_throw_IllegalStateException_if_no_class_to_be_opened_was_found() throws Exception {
         String className = "foo.Bar";
         given(classNameFilter.accept(className)).willReturn(true);
-        DexPool pool = new DexPool(Opcodes.getDefault());
-        byte[] bytecode = DexPoolUtils.toBytecode(pool);
+        DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.<ClassDef>emptySet());
+        byte[] bytecode = DexPoolUtils.toBytecode(dexFile);
         File apk = generateZip(bytecode);
         new AndroidClassSource(apk.getCanonicalPath(),
                                classNameFilter,

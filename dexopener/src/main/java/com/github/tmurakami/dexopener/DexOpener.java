@@ -5,6 +5,10 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This is an object that provides the ability to mock final classes and methods.
@@ -48,9 +52,9 @@ public abstract class DexOpener {
      * {@link Instrumentation#newApplication(ClassLoader, String, Context)
      * super.newApplication(ClassLoader, String, Context)}.
      *
-     * @param classLoader the class loader
+     * @param target the class loader
      */
-    public abstract void installTo(@NonNull ClassLoader classLoader);
+    public abstract void installTo(@NonNull ClassLoader target);
 
     /**
      * Instantiates a new {@link Builder} instance.
@@ -60,9 +64,7 @@ public abstract class DexOpener {
      */
     @NonNull
     public static Builder builder(@NonNull Context context) {
-        return new Builder(context,
-                           new DexFileLoader(),
-                           new DexClassSourceFactory(new DexClassFileFactory()));
+        return new Builder(context);
     }
 
     /**
@@ -71,17 +73,24 @@ public abstract class DexOpener {
     @SuppressWarnings("deprecation")
     public static final class Builder {
 
+        private static final Executor EXECUTOR;
+
+        static {
+            final AtomicInteger count = new AtomicInteger();
+            int nThreads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), 4));
+            EXECUTOR = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
+                @Override
+                public Thread newThread(@NonNull Runnable r) {
+                    return new Thread(r, "DexOpener #" + count.incrementAndGet());
+                }
+            });
+        }
+
         private final Context context;
-        private final DexFileLoader dexFileLoader;
-        private final DexClassSourceFactory dexClassSourceFactory;
         private ClassNameFilter classNameFilter;
 
-        private Builder(Context context,
-                        DexFileLoader dexFileLoader,
-                        DexClassSourceFactory dexClassSourceFactory) {
+        private Builder(Context context) {
             this.context = context;
-            this.dexFileLoader = dexFileLoader;
-            this.dexClassSourceFactory = dexClassSourceFactory;
         }
 
         /**
@@ -163,10 +172,9 @@ public abstract class DexOpener {
          */
         @NonNull
         public DexOpener build() {
-            return new DexOpenerImpl(context,
-                                     new ClassNameFilterWrapper(getClassNameFilter()),
-                                     dexFileLoader,
-                                     dexClassSourceFactory);
+            ClassNameFilter classNameFilter = new ClassNameFilterWrapper(getClassNameFilter());
+            AndroidClassSourceFactory classSourceFactory = new AndroidClassSourceFactory(classNameFilter, EXECUTOR);
+            return new DexOpenerImpl(context, classSourceFactory, new ClassInjectorFactory());
         }
 
         private ClassNameFilter getClassNameFilter() {

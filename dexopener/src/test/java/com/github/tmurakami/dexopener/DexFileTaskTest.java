@@ -2,7 +2,9 @@ package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,11 +32,9 @@ public class DexFileTaskTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Mock
-    private ClassOpener classOpener;
-    @Mock
     private DexFileLoader dexFileLoader;
     @Mock
-    private dalvik.system.DexFile dexFile;
+    private dalvik.system.DexFile file;
 
     @Captor
     private ArgumentCaptor<String> sourcePathNameCaptor;
@@ -51,16 +51,12 @@ public class DexFileTaskTest {
                                              null,
                                              null,
                                              null);
-        given(classOpener.openClass(def)).willReturn(def);
+        DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
         given(dexFileLoader.loadDex(sourcePathNameCaptor.capture(),
                                     outputPathNameCaptor.capture(),
-                                    eq(0))).willReturn(dexFile);
+                                    eq(0))).willReturn(file);
         File cacheDir = folder.newFolder();
-        assertSame(dexFile, new DexFileTask(Opcodes.getDefault(),
-                                            Collections.singleton(def),
-                                            cacheDir,
-                                            classOpener,
-                                            dexFileLoader).call());
+        assertSame(file, new DexFileTask(dexFile, cacheDir, dexFileLoader).call());
         File dex = new File(sourcePathNameCaptor.getValue());
         assertEquals(cacheDir, dex.getParentFile());
         assertTrue(dex.getName().startsWith("classes"));
@@ -79,12 +75,8 @@ public class DexFileTaskTest {
                                              null,
                                              null,
                                              null);
-        given(classOpener.openClass(def)).willReturn(def);
-        new DexFileTask(Opcodes.getDefault(),
-                        Collections.singleton(def),
-                        folder.newFile(),
-                        classOpener,
-                        dexFileLoader).call();
+        DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
+        new DexFileTask(dexFile, folder.newFile(), dexFileLoader).call();
     }
 
 }

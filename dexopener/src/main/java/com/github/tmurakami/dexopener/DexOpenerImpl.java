@@ -5,76 +5,36 @@ import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 
 import java.io.File;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
-@SuppressWarnings("deprecation")
 final class DexOpenerImpl extends DexOpener {
 
-    private static final Executor EXECUTOR;
-
-    static {
-        final AtomicInteger count = new AtomicInteger();
-        int nThreads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), 4));
-        EXECUTOR = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
-            @Override
-            public Thread newThread(@NonNull Runnable r) {
-                return new Thread(r, "DexOpener #" + count.incrementAndGet());
-            }
-        });
-    }
-
     private final Context context;
-    private final ClassNameFilter classNameFilter;
-    private final DexFileLoader dexFileLoader;
-    private final DexClassSourceFactory dexClassSourceFactory;
+    private final AndroidClassSourceFactory androidClassSourceFactory;
+    private final ClassInjectorFactory classInjectorFactory;
 
     DexOpenerImpl(Context context,
-                  ClassNameFilter classNameFilter,
-                  DexFileLoader dexFileLoader,
-                  DexClassSourceFactory dexClassSourceFactory) {
+                  AndroidClassSourceFactory androidClassSourceFactory,
+                  ClassInjectorFactory classInjectorFactory) {
         this.context = context;
-        this.classNameFilter = classNameFilter;
-        this.dexFileLoader = dexFileLoader;
-        this.dexClassSourceFactory = dexClassSourceFactory;
+        this.androidClassSourceFactory = androidClassSourceFactory;
+        this.classInjectorFactory = classInjectorFactory;
     }
 
     @Override
-    public void installTo(@NonNull ClassLoader classLoader) {
+    public void installTo(@NonNull ClassLoader target) {
         Context context = this.context;
         ApplicationInfo ai = context.getApplicationInfo();
         assertMinSdkVersionIsLowerThan26(ai);
         assertApplicationIsNotCreated(context);
-        ClassInjector.from(newClassSource(ai)).into(classLoader);
-    }
-
-    private ClassSource newClassSource(ApplicationInfo ai) {
-        return new AndroidClassSource(ai.sourceDir,
-                                      classNameFilter,
-                                      newDexFileHolderMapper(ai),
-                                      dexClassSourceFactory);
-    }
-
-    private DexFileHolderMapper newDexFileHolderMapper(ApplicationInfo ai) {
-        return new DexFileHolderMapper(classNameFilter, EXECUTOR, newDexFileTaskFactory(ai));
-    }
-
-    private DexFileTaskFactory newDexFileTaskFactory(ApplicationInfo ai) {
-        return new DexFileTaskFactory(getCacheDir(ai), new ClassOpener(), dexFileLoader);
-    }
-
-    private static File getCacheDir(ApplicationInfo ai) {
         File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
         if (cacheDir.isDirectory()) {
             FileUtils.delete(cacheDir.listFiles());
         }
-        return cacheDir;
+        ClassSource classSource = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
+        classInjectorFactory.newClassInjector(classSource).into(target);
     }
 
     // Currently, dexlib2 does not support version `038` of the Dex format.

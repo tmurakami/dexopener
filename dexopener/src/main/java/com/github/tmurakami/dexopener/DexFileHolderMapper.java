@@ -3,9 +3,9 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -65,8 +65,7 @@ final class DexFileHolderMapper {
 
     private FutureTask<dalvik.system.DexFile> newDexFileTask(Set<ClassDef> classesToBeOpened) {
         FutureTask<dalvik.system.DexFile> task =
-                dexFileTaskFactory.newDexFileTask(OPCODES,
-                                                  Collections.unmodifiableSet(classesToBeOpened));
+                dexFileTaskFactory.newDexFileTask(new ImmutableDexFile(OPCODES, classesToBeOpened));
         // In order to improve performance when opening many classes, run the task in the
         // background.
         executor.execute(task);

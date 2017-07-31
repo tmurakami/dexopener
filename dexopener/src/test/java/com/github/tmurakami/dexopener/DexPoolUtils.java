@@ -1,5 +1,6 @@
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.io.FileDataStore;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.pool.DexPool;
 
@@ -15,9 +16,9 @@ final class DexPoolUtils {
     }
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    static byte[] toBytecode(DexPool pool) throws IOException {
+    static byte[] toBytecode(DexFile dexFile) throws IOException {
         File tmp = File.createTempFile("classes", ".dex");
-        pool.writeTo(new FileDataStore(tmp));
+        DexPool.writeTo(new FileDataStore(tmp), dexFile);
         BufferedInputStream in = new BufferedInputStream(new FileInputStream(tmp));
         try {
             return IOUtils.readBytes(in);
