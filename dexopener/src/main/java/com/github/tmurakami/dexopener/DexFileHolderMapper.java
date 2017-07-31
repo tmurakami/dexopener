@@ -23,7 +23,7 @@ final class DexFileHolderMapper {
     private static final Opcodes OPCODES = Opcodes.getDefault();
     // This was empirically determined. If this value is too large, dex file generation will be
     // slow.
-    private static final int MAX_CLASSES_PER_DEX_FILE = 150;
+    private static final int MAX_CLASSES_PER_DEX_FILE = 100;
 
     private final ClassNameFilter classNameFilter;
     private final Executor executor;

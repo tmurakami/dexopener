@@ -53,7 +53,7 @@ public class DexFileHolderMapperTest {
     @Test
     public void map_should_collect_DexFileHolders() throws Exception {
         Set<ClassDef> classes = new HashSet<>();
-        int classCount = 151;
+        int classCount = 101; // DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE + 1
         for (int i = 0; i < classCount; i++) {
             String className = "foo.Bar" + i;
             classes.add(new ImmutableClassDef(TypeUtils.getInternalName(className),
@@ -74,7 +74,7 @@ public class DexFileHolderMapperTest {
         assertEquals(classCount, holderMap.size());
         List<DexFile> dexFileList = dexFileCaptor.getAllValues();
         assertEquals(2, dexFileList.size());
-        assertEquals(150, dexFileList.get(0).getClasses().size());
+        assertEquals(100 /* = DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE */, dexFileList.get(0).getClasses().size());
         assertEquals(1, dexFileList.get(1).getClasses().size());
         HashSet<DexFileHolder> holders = new HashSet<>(holderMap.values());
         assertEquals(2, holders.size());
