@@ -25,8 +25,6 @@ import java.util.concurrent.FutureTask;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
 
 @SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -56,7 +54,7 @@ public class DexFileHolderMapperTest {
         int classCount = 101; // DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE + 1
         for (int i = 0; i < classCount; i++) {
             String className = "foo.Bar" + i;
-            classes.add(new ImmutableClassDef(TypeUtils.getInternalName(className),
+            classes.add(new ImmutableClassDef(NameUtils.javaToDexName(className),
                                               0,
                                               null,
                                               null,
@@ -68,21 +66,14 @@ public class DexFileHolderMapperTest {
         byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(), classes));
         given(classNameFilter.accept(anyString())).willReturn(true);
         given(dexFileTaskFactory.newDexFileTask(dexFileCaptor.capture())).willReturn(task);
-        given(task.get()).willReturn(dexFile);
         Map<String, DexFileHolder> holderMap = new HashMap<>();
         testTarget.map(bytecode, holderMap);
         assertEquals(classCount, holderMap.size());
-        List<DexFile> dexFileList = dexFileCaptor.getAllValues();
-        assertEquals(2, dexFileList.size());
-        assertEquals(100 /* = DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE */, dexFileList.get(0).getClasses().size());
-        assertEquals(1, dexFileList.get(1).getClasses().size());
-        HashSet<DexFileHolder> holders = new HashSet<>(holderMap.values());
-        assertEquals(2, holders.size());
-        for (DexFileHolder holder : holders) {
-            assertEquals(dexFile, holder.get());
-        }
-        then(task).should(times(2)).run();
-        then(executor).should(times(2)).execute(task);
+        assertEquals(2, new HashSet<>(holderMap.values()).size());
+        List<DexFile> dexFiles = dexFileCaptor.getAllValues();
+        assertEquals(2, dexFiles.size());
+        assertEquals(100 /* = DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE */, dexFiles.get(0).getClasses().size());
+        assertEquals(1, dexFiles.get(1).getClasses().size());
     }
 
 }

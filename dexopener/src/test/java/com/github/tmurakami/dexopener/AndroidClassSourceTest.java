@@ -67,8 +67,7 @@ public class AndroidClassSourceTest {
             public void answer(byte[] bytecode, Map<String, DexFileHolder> holderMap) throws Throwable {
                 holderMap.put(className, dexFileHolder);
             }
-        })).given(dexFileMapper)
-           .map(bytecodeCaptor.capture(), ArgumentMatchers.<String, DexFileHolder>anyMap());
+        })).given(dexFileMapper).map(bytecodeCaptor.capture(), ArgumentMatchers.<String, DexFileHolder>anyMap());
         given(dexClassSourceFactory
                       .newClassSource(argThat(new ArgumentMatcher<Map<String, DexFileHolder>>() {
                           @Override
@@ -79,7 +78,7 @@ public class AndroidClassSourceTest {
                           }
                       }))
                       .getClassFile(className)).willReturn(classFile);
-        ClassDef def = new ImmutableClassDef(TypeUtils.getInternalName(className),
+        ClassDef def = new ImmutableClassDef(NameUtils.javaToDexName(className),
                                              0,
                                              null,
                                              null,

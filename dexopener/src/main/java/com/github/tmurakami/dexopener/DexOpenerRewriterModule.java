@@ -4,7 +4,6 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Annotation
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.AnnotationElement;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Method;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.value.EncodedValue;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.value.IntEncodedValue;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableAnnotationElement;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.value.ImmutableIntEncodedValue;
@@ -40,8 +39,7 @@ final class DexOpenerRewriterModule extends RewriterModule {
                                 if (!name.equals("accessFlags")) {
                                     return annotationElement;
                                 }
-                                EncodedValue value = annotationElement.getValue();
-                                int accessFlags = ((IntEncodedValue) value).getValue();
+                                int accessFlags = ((IntEncodedValue) annotationElement.getValue()).getValue();
                                 int nonFinal = accessFlags & ~Modifier.FINAL;
                                 if (nonFinal == accessFlags) {
                                     return annotationElement;

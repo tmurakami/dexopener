@@ -21,13 +21,13 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DexOpenerImplTest {
+public class DexOpenerTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     @InjectMocks
-    private DexOpenerImpl testTarget;
+    private DexOpener testTarget;
 
     @Mock
     private Context context;

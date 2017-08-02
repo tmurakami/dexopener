@@ -74,7 +74,7 @@ public class DexOpenerRewriterModuleTest {
     }
 
     @Test
-    public void annotationRewriter_should_remove_final_modifier_from_the_given_inner_class() {
+    public void annotationRewriter_should_remove_final_modifier_from_the_given_inner_class_annotation() {
         Set<AnnotationElement> elements = new HashSet<>();
         elements.add(new ImmutableAnnotationElement("name", new ImmutableStringEncodedValue("Lfoo/Bar;")));
         elements.add(new ImmutableAnnotationElement("accessFlags", new ImmutableIntEncodedValue(Modifier.FINAL)));

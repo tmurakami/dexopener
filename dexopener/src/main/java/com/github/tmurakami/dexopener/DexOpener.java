@@ -2,21 +2,31 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.support.annotation.NonNull;
 
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
+
+import java.io.File;
 import java.lang.reflect.Field;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This is an object that provides the ability to mock final classes and methods.
  */
 @SuppressWarnings("WeakerAccess")
-public abstract class DexOpener {
+public final class DexOpener {
 
-    DexOpener() {
+    private final Context context;
+    private final AndroidClassSourceFactory androidClassSourceFactory;
+    private final ClassInjectorFactory classInjectorFactory;
+
+    DexOpener(Context context,
+              AndroidClassSourceFactory androidClassSourceFactory,
+              ClassInjectorFactory classInjectorFactory) {
+        this.context = context;
+        this.androidClassSourceFactory = androidClassSourceFactory;
+        this.classInjectorFactory = classInjectorFactory;
     }
 
     /**
@@ -54,7 +64,24 @@ public abstract class DexOpener {
      *
      * @param target the class loader
      */
-    public abstract void installTo(@NonNull ClassLoader target);
+    public void installTo(@NonNull ClassLoader target) {
+        Context context = this.context;
+        ApplicationInfo ai = context.getApplicationInfo();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && ai.minSdkVersion >= 26) {
+            // dexlib2 does not currently support version `038` of the DEX format added in the
+            // Android O.
+            throw new UnsupportedOperationException("minSdkVersion must be lower than 26");
+        }
+        if (context.getApplicationContext() != null) {
+            throw new IllegalStateException("This method must be called before the Application instance is created");
+        }
+        File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
+        if (cacheDir.isDirectory()) {
+            FileUtils.delete(cacheDir.listFiles());
+        }
+        ClassSource classSource = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
+        classInjectorFactory.newClassInjector(classSource).into(target);
+    }
 
     /**
      * Instantiates a new {@link Builder} instance.
@@ -72,19 +99,6 @@ public abstract class DexOpener {
      */
     @SuppressWarnings("deprecation")
     public static final class Builder {
-
-        private static final Executor EXECUTOR;
-
-        static {
-            final AtomicInteger count = new AtomicInteger();
-            int nThreads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), 4));
-            EXECUTOR = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
-                @Override
-                public Thread newThread(@NonNull Runnable r) {
-                    return new Thread(r, "DexOpener #" + count.incrementAndGet());
-                }
-            });
-        }
 
         private final Context context;
         private ClassNameFilter classNameFilter;
@@ -173,8 +187,9 @@ public abstract class DexOpener {
         @NonNull
         public DexOpener build() {
             ClassNameFilter classNameFilter = new ClassNameFilterWrapper(getClassNameFilter());
-            AndroidClassSourceFactory classSourceFactory = new AndroidClassSourceFactory(classNameFilter, EXECUTOR);
-            return new DexOpenerImpl(context, classSourceFactory, new ClassInjectorFactory());
+            return new DexOpener(context,
+                                 new AndroidClassSourceFactory(classNameFilter),
+                                 new ClassInjectorFactory());
         }
 
         private ClassNameFilter getClassNameFilter() {
@@ -185,7 +200,7 @@ public abstract class DexOpener {
                 try {
                     buildConfig(loader.loadClass(buildConfigName));
                 } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException("BuildConfig.class must be set");
+                    throw new IllegalStateException("BuildConfig.class must be set by DexOpener.Builder#buildConfig(Class)");
                 }
             }
             return classNameFilter;
