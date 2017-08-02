@@ -54,7 +54,7 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
 }
 ```
 
-If it is not possible to change the base class, you should call `DexOpener#install(Instrumentation)` before calling `super.newApplication()`.
+If it is not possible to change the base class, you should call `DexOpener#install(Instrumentation)` before calling `super.newApplication(ClassLoader, String, Context)`.
 
 ```java
 public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
@@ -110,7 +110,7 @@ The final classes and methods in the following libraries cannot be mocked.
 - [Mockito](http://site.mockito.org/)
 - [Objenesis](http://objenesis.org/)
 
-Currently, `minSdkVersion` cannot be set to `26` because [dexlib2](https://github.com/JesusFreke/smali) does not support version `038` of the Dex format.
+`minSdkVersion` cannot be set to `26` because [dexlib2](https://github.com/JesusFreke/smali) does not currently support version `038` of the DEX format.
 
 ## Notice
 
