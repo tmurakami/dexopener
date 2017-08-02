@@ -16,9 +16,13 @@ androidVariants.all {
             xml.enabled = true
             xml.destination "$reportDir/${jacocoTaskName}.xml"
         }
-        sourceDirectories = files(javaCompile.source)
+        sourceDirectories = files(
+                android.sourceSets.main.java.srcDirs,
+                android.sourceSets[variantName].java.srcDirs,
+                android.sourceSets[buildType.name].java.srcDirs,
+                productFlavors.collect { android.sourceSets[it.name].java.srcDirs })
         classDirectories = fileTree(
-                dir: "$buildDir/intermediates/classes/debug",
+                dir: javaCompiler.destinationDir,
                 excludes: ['**/BuildConfig.class', '**/R.class', '**/R$*.class'])
         executionData = files("$buildDir/jacoco/${testTaskName}.exec")
     }
