@@ -11,7 +11,6 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName version
-        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
         // Since Android 4.4, several classes under the package `com.android.dex` are now included
         // in the Android system, but on Android 4.4, some of them are incompatible with
         // `libcore-dex` on which `mockito-android` relies. As a result,
@@ -21,6 +20,28 @@ android {
     }
     buildTypes.debug.testCoverageEnabled true
     DdmPreferences.setTimeOut 60000
+    productFlavors {
+        basic {
+            testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+        }
+        multidexing {
+            multiDexEnabled true
+            testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+            // If NoClassDefFoundError for BuildConfig occurs while testing, you must manually
+            // specify your app's BuildConfig in the primary DEX file.
+            // https://developer.android.com/studio/build/multidex.html?hl=en#keep
+            multiDexKeepProguard file('multidex-config.pro')
+        }
+        usingApplicationIdSuffix {
+            applicationIdSuffix '.using.application.id.suffix'
+            // DexOpener requests the app's BuildConfig in order to discover the classes to be
+            // opened. By default, DexOpener try to load `applicationId + ".BuildConfig"`, but if
+            // the package name of the BuildConfig is not equal to your app's `applicationId`,
+            // loading it will fail. In that case, you should put your AndroidJUnitRunner and set
+            // your app's BuildConfig by using `DexOpener.Builder#buildConfig(Class)`.
+            testInstrumentationRunner 'com.example.dexopener.using.application.id.suffix.JUnitRunner'
+        }
+    }
 }
 
 dependencies {
