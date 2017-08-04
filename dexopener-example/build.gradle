@@ -30,7 +30,7 @@ android {
             // If NoClassDefFoundError for BuildConfig occurs while testing, you must manually
             // specify your app's BuildConfig in the primary DEX file.
             // https://developer.android.com/studio/build/multidex.html?hl=en#keep
-            multiDexKeepProguard file('multidex-config.pro')
+            multiDexKeepFile file('multidex-config.txt')
         }
         usingApplicationIdSuffix {
             applicationIdSuffix '.using.application.id.suffix'
