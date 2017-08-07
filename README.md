@@ -49,6 +49,9 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        // Do not call `Class#getName()` here to get the Application class name because class
+        // inconsistency error occurs when classes are loaded before DexOpener manipulates the
+        // DEX bytecode.
         return super.newApplication(cl, "your.app.TestApplication", context);
     }
 }
@@ -67,9 +70,9 @@ public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
 }
 ```
 
-By default, DexOpener try to load `applicationId + ".BuildConfig"` in order to discover the classes to be opened.
-But if the package name of the BuildConfig is not equal to your app's `applicationId`, loading it will fail.
-In that case, you should set your app's BuildConfig using `DexOpener.Builder#buildConfig(Class)` like the following code:
+By default, DexOpener try to load `applicationId + ".BuildConfig"` in order to find the classes to be opened.
+But if the package name of the BuildConfig is not equal to your app's `applicationId` (e.g., you are using `applicationIdSuffix` in your build.gradle), loading it will fail.
+In that case, you should set your app's BuildConfig by using `DexOpener.Builder` like the following code:
 
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
@@ -77,7 +80,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         DexOpener.builder(context)
-                .buildConfig(your.apps.BuildConfig.class)
+                .buildConfig(your.apps.BuildConfig.class) // Set your app's BuildConfig
                 .build()
                 .installTo(cl);
         return super.newApplication(cl, "your.app.TestApplication", context);
@@ -87,7 +90,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 
 ## Limitations
 
-- Mockable final classes and methods are restricted under the package of the the app's BuildConfig.
+- Mockable final classes and methods are restricted under the package of the app's BuildConfig.
 - `minSdkVersion` cannot be set to `26` because [dexlib2](https://github.com/JesusFreke/smali) does not currently support version `038` of the DEX format.
 
 ## Notice
