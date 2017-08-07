@@ -49,9 +49,9 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        // Do not call `Class#getName()` here to get the Application class name because class
-        // inconsistency error occurs when classes are loaded before DexOpener manipulates the
-        // DEX bytecode.
+        // Do not call `Class#getName()` here to get the Application class name because loading
+        // the Application class before DexOpener manipulates the DEX bytecode may cause class
+        // inconsistency error.
         return super.newApplication(cl, "your.app.TestApplication", context);
     }
 }
