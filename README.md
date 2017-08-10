@@ -40,8 +40,8 @@ android {
 }
 ```
 
-> Note: If NoClassDefFoundError for your app's BuildConfig is thrown by using Multidex, you must specify the BuildConfig in the primary DEX file.
-> https://developer.android.com/studio/build/multidex.html?hl=en#keep
+> **Note:** If NoClassDefFoundError for your app's BuildConfig is thrown by using Multidex, you must specify the BuildConfig in the primary DEX file.
+> See https://developer.android.com/studio/build/multidex.html?hl=en#keep
 
 ## Extending
 
