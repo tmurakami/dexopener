@@ -40,6 +40,9 @@ android {
 }
 ```
 
+> Note: If NoClassDefFoundError for your app's BuildConfig is thrown by using Multidex, you must specify the BuildConfig in the primary DEX file.
+> https://developer.android.com/studio/build/multidex.html?hl=en#keep
+
 ## Extending
 
 To replace your `Application` instance while testing, all you need to do is extend `DexOpenerAndroidJUnitRunner` class instead of `AndroidJUnitRunner` and override the `newApplication(ClassLoader, String, Context)` method, as shown here:
@@ -49,7 +52,7 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        // Do not call `Class#getName()` here to get the Application class name because loading
+        // Do not call Class#getName() here to get the Application class name because loading
         // the Application class before DexOpener manipulates the DEX bytecode may cause class
         // inconsistency error.
         return super.newApplication(cl, "your.app.TestApplication", context);
@@ -57,22 +60,22 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
 }
 ```
 
-If it is not possible to change the base class, you should call `DexOpener#install(Instrumentation)` before calling `super.newApplication(ClassLoader, String, Context)`.
+If it is not possible to change the base class, you can use `DexOpener#install(Instrumentation)`.
 
 ```java
 public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.install(this);
+        DexOpener.install(this); // Call this before super.newApplication()
         return super.newApplication(cl, "your.app.TestApplication", context);
     }
 }
 ```
 
 By default, DexOpener try to load `applicationId + ".BuildConfig"` in order to find the classes to be opened.
-But if the package name of the BuildConfig is not equal to your app's `applicationId` (e.g., you are using `applicationIdSuffix` in your build.gradle), loading it will fail.
-In that case, you should set your app's BuildConfig by using `DexOpener.Builder` like the following code:
+However, if the package name of the BuildConfig is not equal to your app's `applicationId` (e.g., you are using `applicationIdSuffix` in your build.gradle), loading it will fail.
+In that case, you must specify your app's BuildConfig by using `DexOpener.Builder` like the following code:
 
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
@@ -80,7 +83,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         DexOpener.builder(context)
-                .buildConfig(your.apps.BuildConfig.class) // Set your app's BuildConfig
+                .buildConfig(your.apps.BuildConfig.class) // Set the BuildConfig class
                 .build()
                 .installTo(cl);
         return super.newApplication(cl, "your.app.TestApplication", context);
