@@ -3,6 +3,7 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 
 import java.util.HashSet;
@@ -17,8 +18,7 @@ import java.util.logging.Logger;
 final class DexFileHolderMapper {
 
     private static final Opcodes OPCODES = Opcodes.getDefault();
-    // This was empirically determined. If this value is too large, dex file generation will be
-    // slow.
+    // Empirically determined value. Increasing this will slow DEX file generation.
     private static final int MAX_CLASSES_PER_DEX_FILE = 100;
 
     private final ClassNameFilter classNameFilter;
@@ -37,8 +37,7 @@ final class DexFileHolderMapper {
         Set<ClassDef> classesToBeOpened = new HashSet<>();
         DexFileHolderImpl holder = new DexFileHolderImpl();
         for (ClassDef def : new DexBackedDexFile(OPCODES, bytecode).getClasses()) {
-            String type = def.getType();
-            String className = type.substring(1, type.length() - 1).replace('/', '.');
+            String className = dexToJavaName(def.getType());
             if (classNameFilter.accept(className)) {
                 Logger logger = Loggers.get();
                 if (logger.isLoggable(Level.FINEST)) {
@@ -46,7 +45,7 @@ final class DexFileHolderMapper {
                 }
                 classesToBeOpened.add(def);
                 holderMap.put(className, holder);
-                // Generating a dex file for multiple classes at once is faster than processing per
+                // It is faster to generate a DEX file for multiple classes at once than for one
                 // class.
                 if (classesToBeOpened.size() == MAX_CLASSES_PER_DEX_FILE) {
                     holder.setTask(newDexFileTask(classesToBeOpened));
@@ -61,12 +60,16 @@ final class DexFileHolderMapper {
     }
 
     private FutureTask<dalvik.system.DexFile> newDexFileTask(Set<ClassDef> classesToBeOpened) {
-        FutureTask<dalvik.system.DexFile> task =
-                dexFileTaskFactory.newDexFileTask(new ImmutableDexFile(OPCODES, classesToBeOpened));
-        // In order to improve performance when opening many classes, run the task in the
-        // background.
+        DexFile dexFile = new ImmutableDexFile(OPCODES, classesToBeOpened);
+        FutureTask<dalvik.system.DexFile> task = dexFileTaskFactory.newDexFileTask(dexFile);
+        // Run the task in the background in order to improve performance.
         executor.execute(task);
         return task;
+    }
+
+    private static String dexToJavaName(String dexName) {
+        // The `dexName` must be neither a primitive type nor an array type.
+        return dexName.substring(1, dexName.length() - 1).replace('/', '.');
     }
 
 }

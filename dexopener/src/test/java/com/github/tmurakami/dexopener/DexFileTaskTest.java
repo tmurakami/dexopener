@@ -46,7 +46,7 @@ public class DexFileTaskTest {
 
     @Test
     public void call_should_generate_the_dex_file() throws Exception {
-        ClassDef def = new ImmutableClassDef(NameUtils.javaToDexName("foo.Bar"),
+        ClassDef def = new ImmutableClassDef(TypeNameUtils.javaToDexName("foo.Bar"),
                                              0,
                                              null,
                                              null,
@@ -68,7 +68,7 @@ public class DexFileTaskTest {
 
     @Test(expected = IOException.class)
     public void call_should_throw_IOException_if_the_cache_directory_cannot_be_created() throws Exception {
-        ClassDef def = new ImmutableClassDef(NameUtils.javaToDexName("foo.Bar"),
+        ClassDef def = new ImmutableClassDef(TypeNameUtils.javaToDexName("foo.Bar"),
                                              0,
                                              null,
                                              null,

@@ -17,7 +17,8 @@ final class AndroidClassSourceFactory {
 
     static {
         final AtomicInteger count = new AtomicInteger();
-        int nThreads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), 4));
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+        int nThreads = Math.max(1, Math.min(availableProcessors, 4)); // 1 to 4
         EXECUTOR = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
             @Override
             public Thread newThread(@NonNull Runnable r) {

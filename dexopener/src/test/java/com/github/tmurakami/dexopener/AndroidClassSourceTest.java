@@ -78,7 +78,7 @@ public class AndroidClassSourceTest {
                           }
                       }))
                       .getClassFile(className)).willReturn(classFile);
-        ClassDef def = new ImmutableClassDef(NameUtils.javaToDexName(className),
+        ClassDef def = new ImmutableClassDef(TypeNameUtils.javaToDexName(className),
                                              0,
                                              null,
                                              null,

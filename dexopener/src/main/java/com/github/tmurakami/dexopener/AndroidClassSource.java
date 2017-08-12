@@ -50,6 +50,7 @@ final class AndroidClassSource implements ClassSource {
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private ClassSource newDelegate() throws IOException {
         Map<String, DexFileHolder> holderMap = new HashMap<>();
+        Logger logger = Loggers.get();
         ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
         try {
             for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
@@ -57,7 +58,6 @@ final class AndroidClassSource implements ClassSource {
                 if (!name.startsWith("classes") || !name.endsWith(".dex")) {
                     continue;
                 }
-                Logger logger = Loggers.get();
                 if (logger.isLoggable(Level.FINEST)) {
                     logger.finest("Reading the entry " + name + " from " + sourceDir);
                 }
@@ -68,6 +68,9 @@ final class AndroidClassSource implements ClassSource {
         }
         if (holderMap.isEmpty()) {
             throw new IllegalStateException("There are no classes to be opened");
+        }
+        if (logger.isLoggable(Level.FINEST)) {
+            logger.finest(holderMap.size() + " classes will be opened");
         }
         return dexClassSourceFactory.newClassSource(Collections.unmodifiableMap(holderMap));
     }
