@@ -40,7 +40,7 @@ android {
 }
 ```
 
-> **Note:** If NoClassDefFoundError for your app's BuildConfig is thrown by using Multidex, you must specify the BuildConfig in the primary DEX file.
+> **Note:** If a NoClassDefFoundError for your app's BuildConfig is thrown by using Multidex, you must specify the BuildConfig in the primary DEX file.
 > See https://developer.android.com/studio/build/multidex.html?hl=en#keep
 
 ## Extending
@@ -74,7 +74,7 @@ public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
 ```
 
 By default, DexOpener try to load `applicationId + ".BuildConfig"` in order to find the classes to be opened.
-However, if the package name of the BuildConfig is not equal to your app's `applicationId` (e.g., you are using `applicationIdSuffix` in your build.gradle), loading it will fail.
+However, if the package name of the BuildConfig is not equal to your app's `applicationId` (e.g. you are using `applicationIdSuffix` in your build.gradle), loading it will fail.
 In that case, you must specify your app's BuildConfig by using `DexOpener.Builder` like the following code:
 
 ```java
@@ -104,4 +104,4 @@ This library contains the classes of the following libraries:
 - [dexlib2 (part of smali/baksmali)](https://github.com/JesusFreke/smali)
 - [Guava](https://github.com/google/guava)
 
-These classes have been minified with [ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
+They have been minified with [ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with [Jar Jar Links](https://code.google.com/archive/p/jarjar/).

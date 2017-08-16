@@ -146,7 +146,7 @@ public final class DexOpener {
          * name is {@link Context#getPackageName()} + ".BuildConfig".
          * <p>
          * If the package name of the BuildConfig is not equal to your app's applicationId
-         * (e.g., you are using applicationIdSuffix in your build.gradle), DexOpener cannot find the
+         * (e.g. you are using applicationIdSuffix in your build.gradle), DexOpener cannot find the
          * BuildConfig class. In such case, you should set your app's BuildConfig class using this
          * method.
          *
