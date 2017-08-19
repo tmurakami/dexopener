@@ -24,17 +24,23 @@ final class ClassNameFilterWrapper implements ClassNameFilter {
             "com.github.tmurakami.dexmockito.",
             "com.github.tmurakami.dexopener.",
             "com.github.tmurakami.mockito4k.",
+            "dalvik.",
             "java.",
             "javax.",
             "junit.",
             "kotlin.",
             "kotlinx.",
             "net.bytebuddy.",
+            "org.apache.http.",
             "org.hamcrest.",
             "org.jacoco.",
+            "org.json.",
             "org.junit.",
             "org.mockito.",
             "org.objenesis.",
+            "org.w3c.dom.",
+            "org.xml.sax.",
+            "org.xmlpull.v1.",
     };
 
     private final ClassNameFilter delegate;
