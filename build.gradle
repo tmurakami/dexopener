@@ -36,7 +36,7 @@ dependencyUpdates.resolutionStrategy {
 }
 
 ext {
-    def mockito_version = '2.8.47'
+    def mockito_version = '2.9.0'
     deps = [dexopener      : project(':dexopener'),
             jarjar         : 'com.googlecode.jarjar:jarjar:1.3',
             classinjector  : 'com.github.tmurakami.classinjector:classinjector-android:0.3.0',
