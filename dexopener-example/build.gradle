@@ -11,13 +11,6 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName version
-        // Since Android 4.4, several classes under the package `com.android.dex` are now included
-        // in the Android system, but on Android 4.4, some of them are incompatible with
-        // `libcore-dex` on which `mockito-android` relies, so IncompatibleClassChangeError occurs
-        // when AndroidJUnitRunenr loads `DexIndexOverflowException`. Therefore, when testing on
-        // Android 4.4, you need to filter out `DexIndexOverflowException` from the classes scanned
-        // by AndroidJUnitRunner.
-        testInstrumentationRunnerArguments.notClass = 'com.android.dex.DexIndexOverflowException'
     }
     buildTypes.debug.testCoverageEnabled true
     DdmPreferences.setTimeOut 60000
@@ -28,10 +21,11 @@ android {
         usingApplicationIdSuffix {
             applicationIdSuffix '.using.application.id.suffix'
             // DexOpener requests the app's BuildConfig in order to find the classes to be opened.
-            // By default, DexOpener try to load `applicationId + ".BuildConfig"`, but if the
-            // package name of the BuildConfig is not equal to your app's `applicationId`, loading
-            // it will fail. In that case, you should put your AndroidJUnitRunner and set your app's
-            // BuildConfig by using `DexOpener.Builder#buildConfig(Class)`.
+            // By default, DexOpener will try to load a class named `applicationId + '.BuildConfig'`
+            // and therefore loading it will fail if the package name of your app's BuildConfig is
+            // different from the `applicationId`. In that case, you should put an
+            // AndroidJUnitRunner subclass into your `androidTest` directory and set the BuildConfig
+            // class by using `DexOpener.Builder#buildConfig(Class)`.
             testInstrumentationRunner 'com.example.dexopener.using.application.id.suffix.JUnitRunner'
         }
     }
