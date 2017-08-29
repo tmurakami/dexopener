@@ -12,9 +12,9 @@ androidVariants.all {
         reports {
             def reportDir = "$buildDir/reports/jacoco/$testTaskName/$variantName"
             html.enabled = true
-            html.destination "$reportDir/html"
+            html.destination file("$reportDir/html")
             xml.enabled = true
-            xml.destination "$reportDir/${jacocoTaskName}.xml"
+            xml.destination file("$reportDir/${jacocoTaskName}.xml")
         }
         sourceDirectories = files(
                 android.sourceSets.main.java.srcDirs,

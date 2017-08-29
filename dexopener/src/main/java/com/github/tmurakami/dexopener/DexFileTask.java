@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@SuppressWarnings("deprecation")
 final class DexFileTask implements Callable<dalvik.system.DexFile> {
 
     private DexFile dexFile;

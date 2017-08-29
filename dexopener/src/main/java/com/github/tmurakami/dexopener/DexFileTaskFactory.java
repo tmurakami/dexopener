@@ -16,6 +16,7 @@ final class DexFileTaskFactory {
         this.cacheDir = cacheDir;
     }
 
+    @SuppressWarnings("deprecation")
     FutureTask<dalvik.system.DexFile> newDexFileTask(DexFile dexFile) {
         return new FutureTask<>(new DexFileTask(dexFile, dexRewriter, cacheDir, dexFileLoader));
     }

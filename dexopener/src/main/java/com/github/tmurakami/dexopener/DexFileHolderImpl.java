@@ -37,7 +37,7 @@ final class DexFileHolderImpl implements DexFileHolder {
             } else if (cause instanceof Error) {
                 throw (Error) cause;
             } else {
-                throw new UndeclaredThrowableException(e, "Unexpected error");
+                throw new UndeclaredThrowableException(cause, "Unexpected error");
             }
         } finally {
             if (interrupted) {

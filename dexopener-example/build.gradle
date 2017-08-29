@@ -14,11 +14,14 @@ android {
     }
     buildTypes.debug.testCoverageEnabled true
     DdmPreferences.setTimeOut 60000
+    flavorDimensions 'example'
     productFlavors {
         basic {
+            dimension 'example'
             testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
         }
         usingApplicationIdSuffix {
+            dimension 'example'
             applicationIdSuffix '.using.application.id.suffix'
             // DexOpener requests the app's BuildConfig in order to find the classes to be opened.
             // By default, DexOpener will try to load a class named `applicationId + '.BuildConfig'`

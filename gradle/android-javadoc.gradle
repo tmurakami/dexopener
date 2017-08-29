@@ -1,10 +1,8 @@
 task javadoc(type: Javadoc) {
-    classpath += files(configurations.compile, configurations.provided)
     androidVariants.matching { it.name == 'release' }.all {
-        owner.dependsOn tasks["prepare${name.capitalize()}Dependencies"]
-        owner.source += javaCompile.source
-        owner.classpath += files(android.bootClasspath, javaCompile.classpath)
-        owner.classpath += files(configurations["${name}Compile"], configurations["${name}Provided"])
+        dependsOn tasks["prepare${name.capitalize()}Dependencies"]
+        source += javaCompile.source
+        classpath += files(android.bootClasspath, javaCompile.classpath)
     }
     excludes = ['**/BuildConfig.java', '**/R.java']
     options.links 'https://developer.android.com/reference/'
