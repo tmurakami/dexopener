@@ -16,14 +16,14 @@ test:
         parallel: true
   override:
     - ./gradlew -p dexopener lintDebug jacocoTestDebugUnitTestReport
-    - ./gradlew assembleDebugAndroidTest
+    - ./gradlew assembleAndroidTest
     - circle-android wait-for-boot
     - adb shell input keyevent 82
     - adb shell svc power stayon true
     - adb shell settings put global window_animation_scale 0
     - adb shell settings put global transition_animation_scale 0
     - adb shell settings put global animator_duration_scale 0
-    - ./gradlew connectedDebugAndroidTest
+    - ./gradlew connectedAndroidTest
   post:
     - find . -type d -regex '.*/build/reports' -exec cp -pr {} $CIRCLE_ARTIFACTS \;
     - mkdir $CIRCLE_TEST_REPORTS/junit
