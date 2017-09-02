@@ -26,8 +26,8 @@ android {
             // DexOpener requests the app's BuildConfig in order to find the classes to be opened.
             // By default, DexOpener will try to load a class named `applicationId + '.BuildConfig'`
             // and therefore loading it will fail if the package name of the BuildConfig is
-            // different from the `applicationId`. To avoid this, put an AndroidJUnitRunner subclass
-            // into the project's instrumented tests directory and call
+            // different from the `applicationId`. To avoid this error, put an AndroidJUnitRunner
+            // subclass into the project's instrumented tests directory and call
             // `DexOpener.Builder#buildConfig(Class)` in order to specify the BuildConfig class.
             testInstrumentationRunner 'com.example.dexopener.using.application.id.suffix.JUnitRunner'
         }
