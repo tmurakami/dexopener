@@ -7,11 +7,11 @@
         <!--suppress AndroidElementNotAllowed -->
         <!--
         Since Android 4.4, several classes under the package `com.android.dex` are now included in
-        the Android system, but on Android 4.4, some of them are incompatible with `libcore-dex` on
-        which `mockito-android` relies. As a result,
-        `IncompatibleClassChangeError: superclass is final` occurs while the AndroidJUnitRunner is
-        looking for an `org.junit.runner.Runner` subclass. Therefore, filter out
-        `DexIndexOverflowException` from the classes that AndroidJUnitRunner scans.
+        the Android system, but on Android 4.4, they are incompatible with `libcore-dex` on which
+        `mockito-android` relies. As a result, `IncompatibleClassChangeError: superclass is final`
+        occurs while AndroidJUnitRunner is looking for an `org.junit.runner.Runner` subclass.
+        Therefore, filter out `DexIndexOverflowException` from the classes that AndroidJUnitRunner
+        scans.
         -->
         <meta-data
             android:name="notClass"
