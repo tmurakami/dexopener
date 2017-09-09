@@ -165,7 +165,7 @@ public final class DexOpener {
             }
             if (!context.getPackageName().equals(applicationId)) {
                 throw new IllegalArgumentException(
-                        "'buildConfigClass' must be your app's BuildConfig.class");
+                        "'buildConfigClass' must be the BuildConfig class for the target application");
             }
             String className = buildConfigClass.getName();
             String simpleName = buildConfigClass.getSimpleName();
@@ -200,7 +200,23 @@ public final class DexOpener {
                 try {
                     buildConfig(loader.loadClass(buildConfigName));
                 } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException("BuildConfig.class must be set by DexOpener.Builder#buildConfig(Class)");
+                    throw new IllegalStateException(
+                            "The BuildConfig for the target application could not be found.\n"
+                                    + "You need to put an AndroidJUnitRunner subclass like below "
+                                    + "in the instrumented tests directory and specify it as the "
+                                    + "default test instrumentation runner in the project's "
+                                    + "build.gradle.\n\n"
+                                    + "public class YourAndroidJUnitRunner extends AndroidJUnitRunner {\n"
+                                    + "    @Override\n"
+                                    + "    public Application newApplication(ClassLoader cl, String className, Context context)\n"
+                                    + "            throws InstantiationException, IllegalAccessException, ClassNotFoundException {\n"
+                                    + "        DexOpener.builder(context)\n"
+                                    + "                 .buildConfig(your.apps.BuildConfig.class) // Set the BuildConfig class\n"
+                                    + "                 .build()\n"
+                                    + "                 .installTo(cl);\n"
+                                    + "        return super.newApplication(cl, className, context);\n"
+                                    + "    }\n"
+                                    + "}");
                 }
             }
             return classNameFilter;
