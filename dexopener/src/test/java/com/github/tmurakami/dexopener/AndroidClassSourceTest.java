@@ -36,7 +36,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 
-@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class AndroidClassSourceTest {
 

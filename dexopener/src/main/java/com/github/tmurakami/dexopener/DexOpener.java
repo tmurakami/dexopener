@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 /**
  * This is an object that provides the ability to mock final classes and methods.
@@ -73,7 +72,8 @@ public final class DexOpener {
             throw new UnsupportedOperationException("minSdkVersion must be lower than 26");
         }
         if (context.getApplicationContext() != null) {
-            throw new IllegalStateException("This method must be called before the Application instance is created");
+            throw new IllegalStateException(
+                    "This method must be called before the Application instance is created");
         }
         File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
         if (cacheDir.isDirectory()) {
@@ -101,43 +101,10 @@ public final class DexOpener {
     public static final class Builder {
 
         private final Context context;
-        private ClassNameFilter classNameFilter;
+        private Class<?> buildConfigClass;
 
         private Builder(Context context) {
             this.context = context;
-        }
-
-        /**
-         * Sets a {@link ClassNameFilter}.
-         *
-         * @param filter the {@link ClassNameFilter}
-         * @return this builder
-         * @see #buildConfig(Class)
-         * @deprecated Use {@link #buildConfig(Class)} if your app's root package is different from
-         * the value obtained by calling {@link Context#getPackageName()}. This will be removed in
-         * the future.
-         */
-        @Deprecated
-        @NonNull
-        public Builder openIf(@NonNull ClassNameFilter filter) {
-            return classNameFilter(filter);
-        }
-
-        /**
-         * Sets a {@link ClassNameFilter}.
-         *
-         * @param filter the {@link ClassNameFilter}
-         * @return this builder
-         * @see #buildConfig(Class)
-         * @deprecated Use {@link #buildConfig(Class)} if your app's root package is different from
-         * the value obtained by calling {@link Context#getPackageName()}. This will be removed in
-         * the future.
-         */
-        @Deprecated
-        @NonNull
-        public Builder classNameFilter(@NonNull ClassNameFilter filter) {
-            classNameFilter = filter;
-            return this;
         }
 
         /**
@@ -157,25 +124,15 @@ public final class DexOpener {
         public Builder buildConfig(@NonNull Class<?> buildConfigClass) {
             String applicationId = null;
             try {
-                Field field = buildConfigClass.getField("APPLICATION_ID");
-                applicationId = (String) field.get(null);
+                applicationId = (String) buildConfigClass.getField("APPLICATION_ID").get(null);
             } catch (NoSuchFieldException ignored) {
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException(e.getMessage(), e);
+            } catch (IllegalAccessException ignored) {
             }
             if (!context.getPackageName().equals(applicationId)) {
                 throw new IllegalArgumentException(
                         "'buildConfigClass' must be the BuildConfig class for the target application");
             }
-            String className = buildConfigClass.getName();
-            String simpleName = buildConfigClass.getSimpleName();
-            final String packagePrefix = className.substring(0, className.lastIndexOf(simpleName));
-            classNameFilter = new ClassNameFilter() {
-                @Override
-                public boolean accept(@NonNull String className) {
-                    return className.startsWith(packagePrefix);
-                }
-            };
+            this.buildConfigClass = buildConfigClass;
             return this;
         }
 
@@ -186,40 +143,44 @@ public final class DexOpener {
          */
         @NonNull
         public DexOpener build() {
-            ClassNameFilter classNameFilter = new ClassNameFilterWrapper(getClassNameFilter());
-            return new DexOpener(context,
-                                 new AndroidClassSourceFactory(classNameFilter),
-                                 new ClassInjectorFactory());
+            if (buildConfigClass == null) {
+                buildConfigClass = loadBuildConfigClass();
+            }
+            return new DexOpener(context, newAndroidClassSourceFactory(), new ClassInjectorFactory());
         }
 
-        private ClassNameFilter getClassNameFilter() {
-            if (classNameFilter == null) {
-                Context context = this.context;
-                String buildConfigName = context.getPackageName() + ".BuildConfig";
-                ClassLoader loader = context.getClassLoader();
-                try {
-                    buildConfig(loader.loadClass(buildConfigName));
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException(
-                            "The BuildConfig for the target application could not be found.\n"
-                                    + "You need to put an AndroidJUnitRunner subclass like below "
-                                    + "in the instrumented tests directory and specify it as the "
-                                    + "default test instrumentation runner in the project's "
-                                    + "build.gradle.\n\n"
-                                    + "public class YourAndroidJUnitRunner extends AndroidJUnitRunner {\n"
-                                    + "    @Override\n"
-                                    + "    public Application newApplication(ClassLoader cl, String className, Context context)\n"
-                                    + "            throws InstantiationException, IllegalAccessException, ClassNotFoundException {\n"
-                                    + "        DexOpener.builder(context)\n"
-                                    + "                 .buildConfig(your.apps.BuildConfig.class) // Set the BuildConfig class\n"
-                                    + "                 .build()\n"
-                                    + "                 .installTo(cl);\n"
-                                    + "        return super.newApplication(cl, className, context);\n"
-                                    + "    }\n"
-                                    + "}");
-                }
+        private Class<?> loadBuildConfigClass() {
+            ClassLoader loader = context.getClassLoader();
+            String name = context.getPackageName() + ".BuildConfig";
+            try {
+                return loader.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(
+                        "The BuildConfig for the target application could not be found.\n"
+                                + "You need to put an AndroidJUnitRunner subclass like below "
+                                + "in the instrumented tests directory and specify it as the "
+                                + "default test instrumentation runner in the project's "
+                                + "build.gradle.\n\n"
+                                + "public class YourAndroidJUnitRunner extends AndroidJUnitRunner {\n"
+                                + "    @Override\n"
+                                + "    public Application newApplication(ClassLoader cl, String className, Context context)\n"
+                                + "            throws InstantiationException, IllegalAccessException, ClassNotFoundException {\n"
+                                + "        DexOpener.builder(context)\n"
+                                + "                 .buildConfig(target.application.BuildConfig.class) // Set the BuildConfig class\n"
+                                + "                 .build()\n"
+                                + "                 .installTo(cl);\n"
+                                + "        return super.newApplication(cl, className, context);\n"
+                                + "    }\n"
+                                + "}");
             }
-            return classNameFilter;
+        }
+
+        private AndroidClassSourceFactory newAndroidClassSourceFactory() {
+            Class<?> buildConfigClass = this.buildConfigClass;
+            String className = buildConfigClass.getName();
+            String simpleName = buildConfigClass.getSimpleName();
+            String packagePrefix = className.substring(0, className.lastIndexOf(simpleName));
+            return new AndroidClassSourceFactory(new ClassNameFilter(packagePrefix));
         }
 
     }

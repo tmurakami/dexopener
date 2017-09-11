@@ -14,7 +14,6 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@SuppressWarnings("deprecation")
 final class DexFileHolderMapper {
 
     private static final Opcodes OPCODES = Opcodes.getDefault();
@@ -59,6 +58,7 @@ final class DexFileHolderMapper {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private FutureTask<dalvik.system.DexFile> newDexFileTask(Set<ClassDef> classesToBeOpened) {
         DexFile dexFile = new ImmutableDexFile(OPCODES, classesToBeOpened);
         FutureTask<dalvik.system.DexFile> task = dexFileTaskFactory.newDexFileTask(dexFile);

@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SuppressWarnings("deprecation")
 final class AndroidClassSourceFactory {
 
     private static final Executor EXECUTOR;

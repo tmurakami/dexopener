@@ -1,7 +1,5 @@
 package com.github.tmurakami.dexopener;
 
-import android.support.annotation.NonNull;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -12,23 +10,17 @@ import static org.junit.Assert.assertSame;
 
 @SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
-public class ClassNameFilterWrapperTest {
+public class ClassNameFilterTest {
 
     private static final boolean ALLOW = true;
     private static final boolean DENY = false;
 
-    private final ClassNameFilterWrapper testTarget =
-            new ClassNameFilterWrapper(new ClassNameFilter() {
-                @Override
-                public boolean accept(@NonNull String className) {
-                    return true;
-                }
-            });
+    private final ClassNameFilter testTarget = new ClassNameFilter("foo.");
 
     private final String className;
     private final boolean expected;
 
-    public ClassNameFilterWrapperTest(String className, boolean expected) {
+    public ClassNameFilterTest(String className, boolean expected) {
         this.className = className;
         this.expected = expected;
     }
@@ -63,14 +55,11 @@ public class ClassNameFilterWrapperTest {
                              new Object[]{"foo.R$string", DENY},
                              new Object[]{"foo.BuildConfig", DENY},
                              new Object[]{"foo.BR", DENY},
+                             new Object[]{"C", DENY},
                              new Object[]{"android.databinding.DataBinderMapper", ALLOW},
                              new Object[]{"android.databinding.DataBindingComponent", ALLOW},
                              new Object[]{"android.databinding.DataBindingUtil", ALLOW},
                              new Object[]{"android.databinding.generated.C", ALLOW},
-                             new Object[]{"R", ALLOW},
-                             new Object[]{"R$string", ALLOW},
-                             new Object[]{"BuildConfig", ALLOW},
-                             new Object[]{"BR", ALLOW},
                              new Object[]{"foo.Bar$R", ALLOW},
                              new Object[]{"foo.Bar$R$string", ALLOW},
                              new Object[]{"foo.Bar$BuildConfig", ALLOW},
