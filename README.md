@@ -73,10 +73,10 @@ public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
 }
 ```
 
-By default, DexOpener try to load `applicationId + ".BuildConfig"` in order to find the classes to be opened.
+By default, DexOpener tries loading `applicationId + '.BuildConfig'` in order to find the classes to be opened.
 However, if the package name of the BuildConfig is not equal to your app's `applicationId` (e.g. you are using `applicationIdSuffix` in your build.gradle), loading it will fail.
 
-In that case, you must specify your app's BuildConfig by using `DexOpener.Builder` like the following code:
+To prevent this, you must specify your app's BuildConfig by using `DexOpener.Builder` like the following code:
 
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {

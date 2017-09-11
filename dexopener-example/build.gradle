@@ -14,22 +14,22 @@ android {
     }
     buildTypes.debug.testCoverageEnabled true
     DdmPreferences.setTimeOut 60000
-    flavorDimensions 'example'
+    flavorDimensions 'default'
     productFlavors {
         basic {
-            dimension 'example'
+            dimension 'default'
             testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
         }
         usingApplicationIdSuffix {
-            dimension 'example'
+            dimension 'default'
             applicationIdSuffix '.using.application.id.suffix'
-            // DexOpener requests the app's BuildConfig in order to find the classes to be opened.
-            // By default, DexOpener will try to load a class named `applicationId + '.BuildConfig'`
-            // and therefore loading it will fail if the package name of the BuildConfig is
-            // different from the `applicationId`.
-            // To avoid this error, put an AndroidJUnitRunner subclass into the project's
-            // instrumented tests directory and call `DexOpener.Builder#buildConfig(Class)` in order
-            // to specify the BuildConfig class.
+            // By default, DexOpener tries loading `applicationId + '.BuildConfig'` in order to find
+            // the classes to be opened.
+            // However, in a project using `applicationIdSuffix`, loading it will fail because the
+            // package name of BuildConfig is not equal to `applicationId`.
+            // To prevent this, put an AndroidJUnitRunner subclass into the project's instrumented
+            // tests directory and call `DexOpener.Builder#buildConfig(Class)` in order to specify
+            // the BuildConfig class.
             testInstrumentationRunner 'com.example.dexopener.using.application.id.suffix.JUnitRunner'
         }
     }
