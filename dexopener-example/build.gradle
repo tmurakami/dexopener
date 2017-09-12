@@ -23,10 +23,11 @@ android {
         usingApplicationIdSuffix {
             dimension 'default'
             applicationIdSuffix '.using.application.id.suffix'
-            // By default, DexOpener tries loading `applicationId + '.BuildConfig'` in order to find
-            // the classes to be opened.
-            // However, in a project using `applicationIdSuffix`, loading it will fail because the
-            // package name of BuildConfig is not equal to `applicationId`.
+            // By default, DexOpener tries loading `Context#getPackageName() + ".BuildConfig"` in
+            // order to find the classes to be opened.
+            // However, in a project using `applicationIdSuffix`, since the package name of
+            // BuildConfig is not equal to the value of `Context#getPackageName()`, loading it will
+            // fail.
             // To prevent this, put an AndroidJUnitRunner subclass into the project's instrumented
             // tests directory and call `DexOpener.Builder#buildConfig(Class)` in order to specify
             // the BuildConfig class.

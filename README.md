@@ -11,6 +11,72 @@ A library that provides the ability to mock final classes and methods on Android
 
 See the [example application](dexopener-example).
 
+## Usage
+
+We provide the following classes to install DexOpener into your test application.
+
+### `DexOpenerAndroidJUnitRunner`
+
+If you are **NOT** using `applicationIdSuffix` in your build.gradle, you can use this class as the default test instrumentation runner.
+
+```groovy
+android {
+    defaultConfig {
+        minSdkVersion 16 // 16 to 25
+        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+    }
+}
+```
+
+### `DexOpener`
+
+If you already have your own AndroidJUnitRunner subclass, you can also use `DexOpener#install(Instrumentation)` instead of `DexOpenerAndroidJUnitRunner`.
+
+```java
+public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
+    @Override
+    public Application newApplication(ClassLoader cl, String className, Context context)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        DexOpener.install(this); // Call this before super.newApplication()
+        return super.newApplication(cl, className, context);
+    }
+}
+```
+
+### `DexOpener.Builder`
+
+If you would like to use `applicationIdSuffix` in your build.gradle, you need to use this class.
+
+By default, DexOpener tries loading `Context#getPackageName() + ".BuildConfig"` in order to find the classes to be opened.
+Therefore, if you are using `applicationIdSuffix`, loading it will fail because the package name of the BuildConfig is not equal to the value of `Context#getPackageName()`.
+
+To prevent this, put an AndroidJUnitRunner subclass like the following code into the project's instrumented tests directory.
+
+```java
+public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
+    @Override
+    public Application newApplication(ClassLoader cl, String className, Context context)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        DexOpener.builder(context)
+                .buildConfig(your.app.BuildConfig.class) // Set the BuildConfig class
+                .build()
+                .installTo(cl);
+        return super.newApplication(cl, className, context);
+    }
+}
+```
+
+And then, specify it as the default test instrumentation runner.
+
+```groovy
+android {
+    defaultConfig {
+        minSdkVersion 16 // 16 to 25
+        testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
+    }
+}
+```
+
 ## Installation
 
 First, add the [JitPack](https://jitpack.io/) repository to your build.gradle.
@@ -29,73 +95,16 @@ dependencies {
 }
 ```
 
-Finally, set `DexOpenerAndroidJUnitRunner` as the default test instrumentation runner.
-
-```groovy
-android {
-    defaultConfig {
-        minSdkVersion 16 // 16 to 25
-        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
-    }
-}
-```
+[![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
 
 > **Note:** If a NoClassDefFoundError for your app's BuildConfig is thrown by using Multidex, you must specify the BuildConfig in the primary DEX file.
 > See https://developer.android.com/studio/build/multidex.html?hl=en#keep
-
-## Extending
-
-To replace your `Application` instance while testing, all you need to do is extend `DexOpenerAndroidJUnitRunner` class instead of `AndroidJUnitRunner` and override the `newApplication(ClassLoader, String, Context)` method, as shown here:
-
-```java
-public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        // Do not call Class#getName() here to get the Application class name because loading
-        // the Application class before DexOpener manipulates the DEX bytecode may cause class
-        // inconsistency error.
-        return super.newApplication(cl, "your.app.TestApplication", context);
-    }
-}
-```
-
-If it is not possible to change the base class, you can use `DexOpener#install(Instrumentation)`.
-
-```java
-public class YourAndroidJUnitRunner extends OtherAndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.install(this); // Call this before super.newApplication()
-        return super.newApplication(cl, "your.app.TestApplication", context);
-    }
-}
-```
-
-By default, DexOpener tries loading `applicationId + '.BuildConfig'` in order to find the classes to be opened.
-However, if the package name of the BuildConfig is not equal to your app's `applicationId` (e.g. you are using `applicationIdSuffix` in your build.gradle), loading it will fail.
-
-To prevent this, you must specify your app's BuildConfig by using `DexOpener.Builder` like the following code:
-
-```java
-public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.builder(context)
-                .buildConfig(your.apps.BuildConfig.class) // Set the BuildConfig class
-                .build()
-                .installTo(cl);
-        return super.newApplication(cl, "your.app.TestApplication", context);
-    }
-}
-```
 
 ## Limitations
 
 - Mockable final classes and methods are restricted under the package of the app's BuildConfig.
 - `minSdkVersion` cannot be set to `26` because [dexlib2](https://github.com/JesusFreke/smali) does not currently support version `038` of the DEX format.
+- Do **NOT** load any classes under your app package until the Application instance is created. If you have your own AndroidJUnitRunner subclass, loading your classes before calling `super.newApplication(ClassLoader, String, Context)` may cause class inconsistency error.
 
 ## Notice
 
