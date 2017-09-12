@@ -28,6 +28,8 @@ android {
 }
 ```
 
+If you would like to use `applicationIdSuffix`, use [`DexOpener.Builder`](#dexopenerbuilder) instead.
+
 ### `DexOpener`
 
 If you already have your own AndroidJUnitRunner subclass, you can also use `DexOpener#install(Instrumentation)` instead of `DexOpenerAndroidJUnitRunner`.
