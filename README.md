@@ -17,7 +17,7 @@ We provide the following classes to install DexOpener into your test application
 
 ### `DexOpenerAndroidJUnitRunner`
 
-If `applicationIdSuffix` is **NOT** specified in your build.gradle, you can use this class as the default test instrumentation runner.
+If you do **NOT** specify `applicationIdSuffix` in your build.gradle, you can use this class as the default test instrumentation runner.
 
 ```groovy
 android {
@@ -47,7 +47,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 
 ### `DexOpener.Builder`
 
-If `applicationIdSuffix` is specified in your build.gradle, you need to use this class.
+If you are specifying `applicationIdSuffix` in your build.gradle, you need to use this class.
 
 By default, DexOpener tries loading `Context#getPackageName() + ".BuildConfig"` in order to find the classes to be opened.
 Therefore, for projects using `applicationIdSuffix`, loading it will fail because the package name of the BuildConfig is not equal to the value of `Context#getPackageName()`.
