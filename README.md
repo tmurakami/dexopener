@@ -17,7 +17,7 @@ We provide the following classes to install DexOpener into your test application
 
 ### `DexOpenerAndroidJUnitRunner`
 
-If you are **NOT** using `applicationIdSuffix` in your build.gradle, you can use this class as the default test instrumentation runner.
+If `applicationIdSuffix` is **NOT** specified in your build.gradle, you can use this class as the default test instrumentation runner.
 
 ```groovy
 android {
@@ -28,7 +28,7 @@ android {
 }
 ```
 
-If you would like to use `applicationIdSuffix`, use [`DexOpener.Builder`](#dexopenerbuilder) instead.
+For projects using `applicationIdSuffix`, use [`DexOpener.Builder`](#dexopenerbuilder) instead.
 
 ### `DexOpener`
 
@@ -47,7 +47,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 
 ### `DexOpener.Builder`
 
-If you would like to use `applicationIdSuffix` in your build.gradle, you need to use this class.
+If `applicationIdSuffix` is specified in your build.gradle, you need to use this class.
 
 By default, DexOpener tries loading `Context#getPackageName() + ".BuildConfig"` in order to find the classes to be opened.
 Therefore, if you are using `applicationIdSuffix`, loading it will fail because the package name of the BuildConfig is not equal to the value of `Context#getPackageName()`.
@@ -106,7 +106,7 @@ dependencies {
 
 - Mockable final classes and methods are restricted under the package of the app's BuildConfig.
 - `minSdkVersion` cannot be set to `26` because [dexlib2](https://github.com/JesusFreke/smali) does not currently support version `038` of the DEX format.
-- Do **NOT** load any classes under your app package until the Application instance is created. If you have your own AndroidJUnitRunner subclass, loading your classes before calling `super.newApplication(ClassLoader, String, Context)` may cause class inconsistency error.
+- Do **NOT** load any class under your app package until the Application instance is created. If you have your own AndroidJUnitRunner subclass, loading your classes before calling `super.newApplication(ClassLoader, String, Context)` may cause class inconsistency error.
 
 ## Notice
 
