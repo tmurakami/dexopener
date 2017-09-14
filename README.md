@@ -50,7 +50,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 If `applicationIdSuffix` is specified in your build.gradle, you need to use this class.
 
 By default, DexOpener tries loading `Context#getPackageName() + ".BuildConfig"` in order to find the classes to be opened.
-Therefore, if you are using `applicationIdSuffix`, loading it will fail because the package name of the BuildConfig is not equal to the value of `Context#getPackageName()`.
+Therefore, for projects using `applicationIdSuffix`, loading it will fail because the package name of the BuildConfig is not equal to the value of `Context#getPackageName()`.
 
 To prevent this, put an AndroidJUnitRunner subclass like the following code into the project's instrumented tests directory.
 
