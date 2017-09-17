@@ -13,9 +13,9 @@ See the [example application](dexopener-example).
 
 ## Usage
 
-We provide the following classes to install DexOpener into your test application.
+There are three ways to use this library.
 
-### `DexOpenerAndroidJUnitRunner`
+### DexOpenerAndroidJUnitRunner
 
 If you do **NOT** specify `applicationIdSuffix` in your build.gradle, you can use this class as the default test instrumentation runner.
 
@@ -30,7 +30,7 @@ android {
 
 For projects using `applicationIdSuffix`, use [`DexOpener.Builder`](#dexopenerbuilder) instead.
 
-### `DexOpener`
+### DexOpener
 
 If you already have your own AndroidJUnitRunner subclass, you can also use `DexOpener#install(Instrumentation)` instead of `DexOpenerAndroidJUnitRunner`.
 
@@ -45,7 +45,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 }
 ```
 
-### `DexOpener.Builder`
+### DexOpener.Builder
 
 If you are specifying `applicationIdSuffix` in your build.gradle, you need to use this class.
 

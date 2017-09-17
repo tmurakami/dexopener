@@ -2,11 +2,11 @@
 
 This application contains the following examples as product flavors:
 
-## `basic` flavor
+### basic
 
 An example using `DexOpenerAndroidJUnitRunner`.
 
-## `usingApplicationIdSuffix` flavor
+### usingApplicationIdSuffix
 
 An example using `DexOpener.Builder`.
 
