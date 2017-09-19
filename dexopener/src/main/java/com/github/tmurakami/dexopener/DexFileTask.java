@@ -21,7 +21,8 @@ final class DexFileTask implements Callable<dalvik.system.DexFile> {
 
     DexFileTask(DexFile dexFile,
                 DexRewriter dexRewriter,
-                File cacheDir, DexFileLoader dexFileLoader) {
+                File cacheDir,
+                DexFileLoader dexFileLoader) {
         this.dexFile = dexFile;
         this.dexRewriter = dexRewriter;
         this.cacheDir = cacheDir;
