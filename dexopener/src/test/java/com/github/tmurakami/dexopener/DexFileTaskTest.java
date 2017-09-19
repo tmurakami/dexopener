@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
-@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class DexFileTaskTest {
 
@@ -37,14 +36,13 @@ public class DexFileTaskTest {
     private DexRewriter dexRewriter;
     @Mock
     private DexFileLoader dexFileLoader;
-    @Mock
-    private dalvik.system.DexFile file;
 
     @Captor
     private ArgumentCaptor<String> tmpPathCaptor;
     @Captor
     private ArgumentCaptor<String> dexPathCaptor;
 
+    @SuppressWarnings("deprecation")
     @Test
     public void call_should_generate_the_dex_file() throws Exception {
         ClassDef def = new ImmutableClassDef(TypeNameUtils.javaToDexName("foo.Bar"),
@@ -57,6 +55,7 @@ public class DexFileTaskTest {
                                              null);
         DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
         given(dexRewriter.rewriteDexFile(dexFile)).willReturn(dexFile);
+        dalvik.system.DexFile file = new dalvik.system.DexFile("test");
         given(dexFileLoader.loadDex(tmpPathCaptor.capture(), dexPathCaptor.capture(), eq(0))).willReturn(file);
         File cacheDir = folder.newFolder();
         assertSame(file, new DexFileTask(dexFile, dexRewriter, cacheDir, dexFileLoader).call());

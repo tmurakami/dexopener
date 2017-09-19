@@ -25,6 +25,8 @@ import java.util.concurrent.FutureTask;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 @SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -41,8 +43,6 @@ public class DexFileHolderMapperTest {
     private DexFileTaskFactory dexFileTaskFactory;
     @Mock
     private FutureTask<dalvik.system.DexFile> task;
-    @Mock
-    private dalvik.system.DexFile dexFile;
 
     @Captor
     private ArgumentCaptor<DexFile> dexFileCaptor;
@@ -74,6 +74,7 @@ public class DexFileHolderMapperTest {
         assertEquals(2, dexFiles.size());
         assertEquals(100 /* = DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE */, dexFiles.get(0).getClasses().size());
         assertEquals(1, dexFiles.get(1).getClasses().size());
+        then(executor).should(times(2)).execute(task);
     }
 
 }

@@ -15,7 +15,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 
-@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class DexClassSourceTest {
 
@@ -24,14 +23,14 @@ public class DexClassSourceTest {
     @Mock
     private DexFileHolder dexFileHolder;
     @Mock
-    private dalvik.system.DexFile dexFile;
-    @Mock
     private ClassFile classFile;
 
+    @SuppressWarnings("deprecation")
     @Test
     public void getClassFile_should_return_the_ClassFile_if_the_given_name_is_in_the_map_of_holders() throws Exception {
-        String className = "foo.Bar";
+        dalvik.system.DexFile dexFile = new dalvik.system.DexFile("test");
         given(dexFileHolder.get()).willReturn(dexFile);
+        String className = "foo.Bar";
         given(dexClassFileFactory.newClassFile(className, dexFile)).willReturn(classFile);
         Map<String, DexFileHolder> holderMap = new HashMap<>();
         holderMap.put(className, dexFileHolder);

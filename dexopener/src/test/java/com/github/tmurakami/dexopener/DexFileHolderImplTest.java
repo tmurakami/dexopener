@@ -24,8 +24,6 @@ public class DexFileHolderImplTest {
 
     @Mock
     private FutureTask<dalvik.system.DexFile> task;
-    @Mock
-    private dalvik.system.DexFile dexFile;
 
     @Before
     public void setUp() throws Exception {
@@ -35,6 +33,7 @@ public class DexFileHolderImplTest {
 
     @Test
     public void get_should_return_the_dex_file() throws Exception {
+        dalvik.system.DexFile dexFile = new dalvik.system.DexFile("test");
         given(task.get()).willReturn(dexFile);
         assertSame(dexFile, testTarget.get());
         then(task).should().run();
@@ -42,6 +41,7 @@ public class DexFileHolderImplTest {
 
     @Test
     public void get_should_return_the_dex_file_even_if_the_thread_is_interrupted() throws Exception {
+        dalvik.system.DexFile dexFile = new dalvik.system.DexFile("test");
         given(task.get()).willThrow(new InterruptedException()).willReturn(dexFile);
         assertSame(dexFile, testTarget.get());
         assertTrue(Thread.interrupted());
