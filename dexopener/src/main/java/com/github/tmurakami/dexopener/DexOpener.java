@@ -101,7 +101,7 @@ public final class DexOpener {
     public static final class Builder {
 
         private final Context context;
-        private Class<?> buildConfigClass;
+        private String packageToBeOpened;
 
         private Builder(Context context) {
             this.context = context;
@@ -123,16 +123,22 @@ public final class DexOpener {
         @NonNull
         public Builder buildConfig(@NonNull Class<?> buildConfigClass) {
             String applicationId = null;
-            try {
-                applicationId = (String) buildConfigClass.getField("APPLICATION_ID").get(null);
-            } catch (NoSuchFieldException ignored) {
-            } catch (IllegalAccessException ignored) {
+            if (buildConfigClass.getSimpleName().equals("BuildConfig")) {
+                try {
+                    applicationId = (String) buildConfigClass.getField("APPLICATION_ID").get(null);
+                } catch (NoSuchFieldException ignored) {
+                } catch (IllegalAccessException ignored) {
+                }
             }
-            if (!context.getPackageName().equals(applicationId)) {
+            String packageToBeOpened = null;
+            if (context.getPackageName().equals(applicationId)) {
+                packageToBeOpened = retrievePackageName(buildConfigClass);
+            }
+            if (packageToBeOpened == null || packageToBeOpened.isEmpty()) {
                 throw new IllegalArgumentException(
                         "'buildConfigClass' must be the BuildConfig class for the target application");
             }
-            this.buildConfigClass = buildConfigClass;
+            this.packageToBeOpened = packageToBeOpened;
             return this;
         }
 
@@ -143,13 +149,20 @@ public final class DexOpener {
          */
         @NonNull
         public DexOpener build() {
-            if (buildConfigClass == null) {
-                buildConfigClass = loadBuildConfigClass();
+            if (packageToBeOpened == null) {
+                packageToBeOpened = retrievePackageName(loadBuildConfigClass(context));
             }
-            return new DexOpener(context, newAndroidClassSourceFactory(), new ClassInjectorFactory());
+            ClassNameFilter filter = new ClassNameFilter(packageToBeOpened + '.');
+            AndroidClassSourceFactory classSourceFactory = new AndroidClassSourceFactory(filter);
+            return new DexOpener(context, classSourceFactory, new ClassInjectorFactory());
         }
 
-        private Class<?> loadBuildConfigClass() {
+        private static String retrievePackageName(Class<?> c) {
+            String className = c.getName();
+            return className.substring(0, className.lastIndexOf('.'));
+        }
+
+        private static Class<?> loadBuildConfigClass(Context context) {
             ClassLoader loader = context.getClassLoader();
             String name = context.getPackageName() + ".BuildConfig";
             try {
@@ -173,14 +186,6 @@ public final class DexOpener {
                                 + "    }\n"
                                 + "}");
             }
-        }
-
-        private AndroidClassSourceFactory newAndroidClassSourceFactory() {
-            Class<?> buildConfigClass = this.buildConfigClass;
-            String className = buildConfigClass.getName();
-            String simpleName = buildConfigClass.getSimpleName();
-            String packagePrefix = className.substring(0, className.lastIndexOf(simpleName));
-            return new AndroidClassSourceFactory(new ClassNameFilter(packagePrefix));
         }
 
     }
