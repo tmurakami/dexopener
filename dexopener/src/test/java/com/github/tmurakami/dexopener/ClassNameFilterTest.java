@@ -38,6 +38,7 @@ public class ClassNameFilterTest {
                              new Object[]{"java.C", DENY},
                              new Object[]{"javax.C", DENY},
                              new Object[]{"junit.C", DENY},
+                             new Object[]{"junitparams.C", DENY},
                              new Object[]{"kotlin.C", DENY},
                              new Object[]{"kotlinx.C", DENY},
                              new Object[]{"net.bytebuddy.C", DENY},

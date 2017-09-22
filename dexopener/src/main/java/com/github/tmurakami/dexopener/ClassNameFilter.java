@@ -25,6 +25,7 @@ final class ClassNameFilter {
             "java.",
             "javax.",
             "junit.",
+            "junitparams.",
             "kotlin.",
             "kotlinx.",
             "net.bytebuddy.",
