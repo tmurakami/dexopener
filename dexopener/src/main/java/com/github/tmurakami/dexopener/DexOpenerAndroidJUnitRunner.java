@@ -23,8 +23,9 @@ import android.support.test.runner.AndroidJUnitRunner;
  *   androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
  * }
  * </code></pre>
+ * <a href="https://jitpack.io/#tmurakami/dexopener"><img alt="release" src="https://jitpack.io/v/tmurakami/dexopener.svg"></a>
  * <p>
- * If you have your own {@link AndroidJUnitRunner}, you can use {@link DexOpener} instead of this.
+ * If you have your own {@link AndroidJUnitRunner}, you can use {@link DexOpener} instead.
  *
  * @see AndroidJUnitRunner
  * @see DexOpener

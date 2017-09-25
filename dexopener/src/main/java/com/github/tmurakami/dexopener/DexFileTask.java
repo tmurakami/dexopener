@@ -34,7 +34,7 @@ final class DexFileTask implements Callable<dalvik.system.DexFile> {
         try {
             return generateDex(dexRewriter.rewriteDexFile(dexFile));
         } finally {
-            // The `dexFile` has the bytecode that may eat many memory, so we release it here.
+            // The `dexFile` may have bytecode to eat a lot of memory, so we release it here.
             dexFile = null;
         }
     }
@@ -45,13 +45,14 @@ final class DexFileTask implements Callable<dalvik.system.DexFile> {
             throw new IOException("Cannot create " + cacheDir);
         }
         File dex = File.createTempFile("classes", ".dex", cacheDir);
+        String dexPath = dex.getCanonicalPath();
         // The extension of the source file must be `dex`.
         File tmp = new File(cacheDir, dex.getName() + ".tmp.dex");
-        String dexPath = dex.getCanonicalPath();
+        String tmpPath = tmp.getCanonicalPath();
         dalvik.system.DexFile file;
         try {
             DexPool.writeTo(new FileDataStore(tmp), dexFile);
-            file = dexFileLoader.loadDex(tmp.getCanonicalPath(), dexPath, 0);
+            file = dexFileLoader.loadDex(tmpPath, dexPath, 0);
         } finally {
             FileUtils.delete(tmp);
         }
