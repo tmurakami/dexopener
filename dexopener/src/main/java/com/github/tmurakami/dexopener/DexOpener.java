@@ -149,8 +149,10 @@ public final class DexOpener {
          */
         @NonNull
         public DexOpener build() {
+            String packageToBeOpened = this.packageToBeOpened;
             if (packageToBeOpened == null) {
-                packageToBeOpened = retrievePackageName(loadBuildConfigClass(context));
+                Class<?> buildConfigClass = loadBuildConfigClass(context);
+                packageToBeOpened = this.packageToBeOpened = retrievePackageName(buildConfigClass);
             }
             ClassNameFilter filter = new ClassNameFilter(packageToBeOpened + '.');
             AndroidClassSourceFactory classSourceFactory = new AndroidClassSourceFactory(filter);

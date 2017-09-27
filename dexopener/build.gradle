@@ -18,8 +18,7 @@ apply from: "$rootDir/gradle/android.gradle"
 
 group = 'com.github.tmurakami'
 
-def package_name = "$group.$name"
-def repackaged_jar = "$buildDir/libs/repackaged.jar"
+ext.repackaged = "$buildDir/libs/repackaged.jar"
 
 android {
     defaultConfig {
@@ -44,27 +43,28 @@ dependencies {
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
     }
     compile deps.runner
-    compile files(repackaged_jar) { builtBy 'repackageDependencies' }
+    compile files(repackaged) { builtBy 'repackageDependencies' }
     testCompile deps.junit
     testCompile deps.mockito
 }
 
 task repackageDependencies(type: ProGuardTask) {
-    outputs.file repackaged_jar
+    outputs.file repackaged
     injars filter: '!AndroidManifest.xml,!META-INF/**', configurations.repackage
     outjars "$buildDir/tmp/repackage.tmp.jar"
     configuration 'proguard-rules.pro'
     doFirst { libraryjars android.bootClasspath }
     doLast {
+        def rootPackage = "${project.group}.${project.name}.repackaged"
         ant {
             taskdef name: 'jarjar',
                     classname: 'com.tonicsystems.jarjar.JarJarTask',
                     classpath: configurations.jarjar.asPath
-            jarjar(jarfile: repackaged_jar) {
+            jarjar(jarfile: repackaged) {
                 outJarFiles.each { zipfileset src: it }
-                rule pattern: 'com.github.tmurakami.classinjector.**', result: "${package_name}.repackaged.@0"
-                rule pattern: 'com.google.common.**', result: "${package_name}.repackaged.@0"
-                rule pattern: 'org.jf.**', result: "${package_name}.repackaged.@0"
+                rule pattern: 'com.github.tmurakami.classinjector.**', result: "$rootPackage.@0"
+                rule pattern: 'com.google.common.**', result: "$rootPackage.@0"
+                rule pattern: 'org.jf.**', result: "$rootPackage.@0"
             }
         }
         files(outJarFiles)*.delete()
