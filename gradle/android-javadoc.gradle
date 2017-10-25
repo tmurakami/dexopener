@@ -1,6 +1,5 @@
 task javadoc(type: Javadoc) {
     androidVariants.matching { it.name == 'release' }.all {
-        dependsOn tasks["prepare${name.capitalize()}Dependencies"]
         source += javaCompiler.source
         classpath += files(android.bootClasspath, javaCompiler.classpath)
     }

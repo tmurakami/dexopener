@@ -42,10 +42,10 @@ dependencies {
         exclude group: 'com.beust', module: 'jcommander'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
     }
-    compile deps.runner
-    compile files(repackaged) { builtBy 'repackageDependencies' }
-    testCompile deps.junit
-    testCompile deps.mockito
+    api deps.runner
+    implementation files(repackaged) { builtBy 'repackageDependencies' }
+    testImplementation deps.junit
+    testImplementation deps.mockito
 }
 
 task repackageDependencies(type: ProGuardTask) {
