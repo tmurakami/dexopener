@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId 'com.example.dexopener'
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
         versionName version
     }
