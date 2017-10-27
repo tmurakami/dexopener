@@ -2,30 +2,15 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.os.Build;
 import android.support.annotation.NonNull;
-
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
-
-import java.io.File;
 
 /**
  * This is an object that provides the ability to mock final classes and methods.
  */
 @SuppressWarnings("WeakerAccess")
-public final class DexOpener {
+public abstract class DexOpener {
 
-    private final Context context;
-    private final AndroidClassSourceFactory androidClassSourceFactory;
-    private final ClassInjectorFactory classInjectorFactory;
-
-    DexOpener(Context context,
-              AndroidClassSourceFactory androidClassSourceFactory,
-              ClassInjectorFactory classInjectorFactory) {
-        this.context = context;
-        this.androidClassSourceFactory = androidClassSourceFactory;
-        this.classInjectorFactory = classInjectorFactory;
+    DexOpener() {
     }
 
     /**
@@ -63,25 +48,7 @@ public final class DexOpener {
      *
      * @param target the class loader
      */
-    public void installTo(@NonNull ClassLoader target) {
-        Context context = this.context;
-        ApplicationInfo ai = context.getApplicationInfo();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && ai.minSdkVersion >= 26) {
-            // dexlib2 does not currently support version `038` of the DEX format added in the
-            // Android O.
-            throw new UnsupportedOperationException("minSdkVersion must be lower than 26");
-        }
-        if (context.getApplicationContext() != null) {
-            throw new IllegalStateException(
-                    "This method must be called before the Application instance is created");
-        }
-        File cacheDir = new File(ai.dataDir, "code_cache/dexopener");
-        if (cacheDir.isDirectory()) {
-            FileUtils.delete(cacheDir.listFiles());
-        }
-        ClassSource classSource = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
-        classInjectorFactory.newClassInjector(classSource).into(target);
-    }
+    public abstract void installTo(@NonNull ClassLoader target);
 
     /**
      * Instantiates a new {@link Builder} instance.
@@ -156,7 +123,7 @@ public final class DexOpener {
             }
             ClassNameFilter filter = new ClassNameFilter(packageToBeOpened + '.');
             AndroidClassSourceFactory classSourceFactory = new AndroidClassSourceFactory(filter);
-            return new DexOpener(context, classSourceFactory, new ClassInjectorFactory());
+            return new DexOpenerImpl(context, classSourceFactory, new ClassInjectorFactory());
         }
 
         private static String retrievePackageName(Class<?> c) {
