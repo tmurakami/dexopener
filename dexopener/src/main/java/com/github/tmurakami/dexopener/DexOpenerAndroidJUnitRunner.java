@@ -2,6 +2,7 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.annotation.CallSuper;
 import android.support.test.runner.AndroidJUnitRunner;
 
 /**
@@ -32,6 +33,7 @@ import android.support.test.runner.AndroidJUnitRunner;
  */
 public class DexOpenerAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
+    @CallSuper
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         DexOpener.install(this);

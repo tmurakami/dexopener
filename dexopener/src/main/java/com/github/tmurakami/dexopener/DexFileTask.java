@@ -45,6 +45,7 @@ final class DexFileTask implements Callable<dalvik.system.DexFile> {
             throw new IOException("Cannot create " + cacheDir);
         }
         File dex = File.createTempFile("classes", ".dex", cacheDir);
+        dex.deleteOnExit();
         String dexPath = dex.getCanonicalPath();
         // The extension of the source file must be `dex`.
         File tmp = new File(cacheDir, dex.getName() + ".tmp.dex");

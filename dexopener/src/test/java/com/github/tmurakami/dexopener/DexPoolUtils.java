@@ -23,7 +23,11 @@ final class DexPoolUtils {
         try {
             return IOUtils.readBytes(in);
         } finally {
-            in.close();
+            try {
+                in.close();
+            } catch (IOException ignored) {
+            }
+            FileUtils.delete(tmp);
         }
     }
 

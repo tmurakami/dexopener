@@ -2,6 +2,7 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 
 /**
@@ -57,6 +58,7 @@ public abstract class DexOpener {
      * @return the {@link Builder}
      */
     @NonNull
+    @CheckResult
     public static Builder builder(@NonNull Context context) {
         return new Builder(context);
     }
@@ -88,6 +90,7 @@ public abstract class DexOpener {
          * @return this builder
          */
         @NonNull
+        @CheckResult
         public Builder buildConfig(@NonNull Class<?> buildConfigClass) {
             String applicationId = null;
             if (buildConfigClass.getSimpleName().equals("BuildConfig")) {
@@ -115,6 +118,7 @@ public abstract class DexOpener {
          * @return the {@link DexOpener}
          */
         @NonNull
+        @CheckResult
         public DexOpener build() {
             String packageToBeOpened = this.packageToBeOpened;
             if (packageToBeOpened == null) {
