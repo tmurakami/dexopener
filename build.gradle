@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     }
 }
@@ -36,7 +36,7 @@ dependencyUpdates.resolutionStrategy {
 }
 
 ext {
-    def mockitoVersion = '2.12.0'
+    def mockitoVersion = '2.13.0'
     deps = [dexopener      : project(':dexopener'),
             jarjar         : 'com.googlecode.jarjar:jarjar:1.3',
             classinjector  : 'com.github.tmurakami.classinjector:classinjector-android:0.4.1',
