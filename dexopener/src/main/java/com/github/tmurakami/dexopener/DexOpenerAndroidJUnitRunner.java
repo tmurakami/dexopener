@@ -6,8 +6,8 @@ import android.support.annotation.CallSuper;
 import android.support.test.runner.AndroidJUnitRunner;
 
 /**
- * An {@link AndroidJUnitRunner} that provides the ability to mock final classes and methods. To use
- * this, add the following into your build.gradle:
+ * An {@link AndroidJUnitRunner} that provides the ability to mock your final classes/methods. To
+ * use this, add the following into your build.gradle:
  * <pre><code>
  * android {
  *   defaultConfig {

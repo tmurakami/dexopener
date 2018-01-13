@@ -6,7 +6,7 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 
 /**
- * This is an object that provides the ability to mock final classes and methods.
+ * This is an object that provides the ability to mock your final classes/methods.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class DexOpener {
@@ -15,7 +15,7 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provides the ability to mock final classes and methods. This is equivalent to the following
+     * Provides the ability to mock your final classes/methods. This is equivalent to the following
      * code:
      * <pre>{@code
      * Context context = instrumentation.getTargetContext();
@@ -40,7 +40,7 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provides the ability to mock final classes and methods. After calling this method, you can
+     * Provides the ability to mock your final classes/methods. After calling this method, you can
      * mock classes loaded by the given class loader.
      * <p>
      * Note that this method must be called before calling

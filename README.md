@@ -5,7 +5,7 @@
 [![Javadoc](https://img.shields.io/badge/Javadoc-0.12.1-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/0.12.1/javadoc/)<br>
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
-A library that provides the ability to mock final classes and methods on Android.
+A library that provides the ability to mock [your final classes/methods](#limitations_final_you_can_mock) on Android.
 
 ## Example
 
@@ -17,7 +17,7 @@ There are three ways to use this library.
 
 ### DexOpenerAndroidJUnitRunner
 
-If you do **NOT** specify `applicationIdSuffix` in your build.gradle, you can use this class as the default test instrumentation runner.
+If you are **NOT** specifying `applicationIdSuffix` in your build.gradle, you can use this class as the default test instrumentation runner.
 
 ```groovy
 android {
@@ -32,7 +32,7 @@ For projects using `applicationIdSuffix`, use [`DexOpener.Builder`](#dexopenerbu
 
 ### DexOpener
 
-If you already have your own AndroidJUnitRunner subclass, you can also use `DexOpener#install(Instrumentation)` instead of `DexOpenerAndroidJUnitRunner`.
+If you want to instantiate your custom `android.app.Application` object other than default application, use `DexOpener#install(Instrumentation)` instead of `DexOpenerAndroidJUnitRunner`.
 
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
@@ -40,7 +40,18 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         DexOpener.install(this); // Call this before super.newApplication()
-        return super.newApplication(cl, className, context);
+        return super.newApplication(cl, YourCustomApplication.class.getName(), context);
+    }
+}
+```
+
+And then, specify it as the default test instrumentation runner.
+
+```groovy
+android {
+    defaultConfig {
+        minSdkVersion 16 // 16 to 25
+        testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
     }
 }
 ```
@@ -68,7 +79,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 }
 ```
 
-And then, specify it as the default test instrumentation runner.
+Make sure to update your build.gradle with the new runner like this:
 
 ```groovy
 android {
@@ -78,6 +89,11 @@ android {
     }
 }
 ```
+
+## Limitations
+
+- <a name="limitations_final_you_can_mock"></a>The final classes/methods you can mock are only those under the package of your app's BuildConfig. Therefore, you cannot mock final classes/methods you don't own, such as Android system classes and third-party libraries.
+- `minSdkVersion` cannot be set to more than `26` because [dexlib2](https://github.com/JesusFreke/smali) does not currently support version `038` of the DEX format.
 
 ## Installation
 
@@ -99,14 +115,7 @@ dependencies {
 
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
 
-> **Note:** If a NoClassDefFoundError for your app's BuildConfig is thrown by using Multidex, you must specify the BuildConfig in the primary DEX file.
-> See https://developer.android.com/studio/build/multidex.html?hl=en#keep
-
-## Limitations
-
-- Mockable final classes and methods are restricted under the package of the app's BuildConfig.
-- `minSdkVersion` cannot be set to `26` because [dexlib2](https://github.com/JesusFreke/smali) does not currently support version `038` of the DEX format.
-- Do **NOT** load any class under your app package until the Application instance is created. If you have your own AndroidJUnitRunner subclass, loading your classes before calling `super.newApplication(ClassLoader, String, Context)` may cause class inconsistency error.
+> **Note:** If you are using [Multidex](https://developer.android.com/studio/build/multidex.html?hl=en), you need to specify your app's BuildConfig [in the primary DEX file](https://developer.android.com/studio/build/multidex.html?hl=en#keep), otherwise, you will get the NoClassDefFoundError.
 
 ## Notice
 
@@ -114,6 +123,6 @@ This library contains the classes of the following libraries:
 
 - [ClassInjector](https://github.com/tmurakami/classinjector)
 - [dexlib2 (part of smali/baksmali)](https://github.com/JesusFreke/smali)
-- [Guava](https://github.com/google/guava)
+- [Guava (on which dexlib2 relies)](https://github.com/google/guava)
 
 They have been minified with [ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with [Jar Jar Links](https://code.google.com/archive/p/jarjar/).
