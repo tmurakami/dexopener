@@ -6,8 +6,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'net.sf.proguard:proguard-gradle:6.0.1'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+        classpath 'net.sf.proguard:proguard-gradle:6.0.2'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
