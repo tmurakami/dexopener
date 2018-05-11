@@ -77,8 +77,34 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         // Call this first.
         DexOpener.install(this);
-        // Don't call Class#getName() here.
+        return super.newApplication(cl, className, context);
+    }
+}
+```
+
+To replace the Application class, pass a string literal of that class
+name instead of `className` as the second argument to
+`super.newApplication()`.
+
+```java
+public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
+    @Override
+    public Application newApplication(ClassLoader cl, String className, Context context)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        DexOpener.install(this);
+        // Don't call Class#getName() here, or a class inconsistency error may occur.
         return super.newApplication(cl, "your.app.YourTestApplication", context);
+    }
+}
+```
+
+Also, make sure to update your build.gradle.
+
+```groovy
+android {
+    defaultConfig {
+        minSdkVersion 16 // 16 to 25
+        testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
     }
 }
 ```
@@ -106,8 +132,35 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
                 .buildConfig(your.app.BuildConfig.class)
                 .build()
                 .installTo(cl);
-        // Don't call Class#getName() here.
+        return super.newApplication(cl, className, context);
+    }
+}
+```
+
+Of course, you can replace the application class for testing.
+
+```java
+public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
+    @Override
+    public Application newApplication(ClassLoader cl, String className, Context context)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        DexOpener.builder(context)
+                .buildConfig(your.app.BuildConfig.class)
+                .build()
+                .installTo(cl);
+        // Don't call Class#getName() here, or a class inconsistency error may occur.
         return super.newApplication(cl, "your.app.YourTestApplication", context);
+    }
+}
+```
+
+Don't forget to update your build.gradle.
+
+```groovy
+android {
+    defaultConfig {
+        minSdkVersion 16 // 16 to 25
+        testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
     }
 }
 ```
@@ -119,7 +172,7 @@ you can mock are only those under the package of your app's BuildConfig.
 Therefore, you cannot mock final classes/methods you don't own, such as
 Android system classes and third-party libraries.
 - `minSdkVersion` cannot be set to more than `26` because
-[dexlib2](https://github.com/JesusFreke/smali) does not currently
+[dexlib2](https://github.com/JesusFreke/smali) version 2.2.2 does not
 support version `038` of the DEX format.
 
 ## Installation
