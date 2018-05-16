@@ -28,6 +28,9 @@ android {
     }
     lintOptions.disable 'InvalidPackage'
     DdmPreferences.setTimeOut 60000
+    libraryVariants.all {
+        it.generateBuildConfig.enabled = false
+    }
 }
 
 configurations {
