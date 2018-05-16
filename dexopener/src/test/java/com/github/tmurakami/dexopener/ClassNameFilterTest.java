@@ -69,7 +69,7 @@ public class ClassNameFilterTest {
     }
 
     @Test
-    public void accept_should_return_a_value_equal_to_the_expected_value() throws Exception {
+    public void accept_should_return_a_value_equal_to_the_expected_value() {
         assertSame(expected, testTarget.accept(className));
     }
 

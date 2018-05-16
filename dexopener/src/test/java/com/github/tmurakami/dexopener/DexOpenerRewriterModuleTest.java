@@ -38,12 +38,12 @@ public class DexOpenerRewriterModuleTest {
     private DexRewriter rewriter;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         rewriter = new DexRewriter(testTarget);
     }
 
     @Test
-    public void classDefRewriter_should_remove_final_modifier_from_the_given_class() throws Exception {
+    public void classDefRewriter_should_remove_final_modifier_from_the_given_class() {
         ClassDef in = new ImmutableClassDef("Lfoo/Bar;",
                                             Modifier.FINAL,
                                             "Ljava/lang/Object;",
@@ -59,7 +59,7 @@ public class DexOpenerRewriterModuleTest {
     }
 
     @Test
-    public void methodRewriter_should_remove_final_modifier_from_the_given_method() throws Exception {
+    public void methodRewriter_should_remove_final_modifier_from_the_given_method() {
         Method in = new ImmutableMethod("Lfoo/Bar;",
                                         "f",
                                         Collections.<MethodParameter>emptySet(),

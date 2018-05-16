@@ -56,7 +56,7 @@ public class DexOpenerImplTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void installTo_should_throw_IllegalStateException_if_the_Application_has_been_created() throws Exception {
+    public void installTo_should_throw_IllegalStateException_if_the_Application_has_been_created() {
         ApplicationInfo applicationInfo = new ApplicationInfo();
         given(context.getApplicationInfo()).willReturn(applicationInfo);
         given(context.getApplicationContext()).willReturn(new Application());

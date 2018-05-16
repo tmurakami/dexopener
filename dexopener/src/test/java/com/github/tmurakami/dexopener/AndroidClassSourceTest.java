@@ -63,7 +63,7 @@ public class AndroidClassSourceTest {
         given(classNameFilter.accept(className)).willReturn(true);
         will(answerVoid(new VoidAnswer2<byte[], Map<String, DexFileHolder>>() {
             @Override
-            public void answer(byte[] bytecode, Map<String, DexFileHolder> holderMap) throws Throwable {
+            public void answer(byte[] bytecode, Map<String, DexFileHolder> holderMap) {
                 holderMap.put(className, dexFileHolder);
             }
         })).given(dexFileMapper).map(bytecodeCaptor.capture(), ArgumentMatchers.<String, DexFileHolder>anyMap());
