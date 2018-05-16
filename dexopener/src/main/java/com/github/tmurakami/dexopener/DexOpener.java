@@ -126,8 +126,7 @@ public abstract class DexOpener {
                 packageToBeOpened = this.packageToBeOpened = retrievePackageName(buildConfigClass);
             }
             ClassNameFilter filter = new ClassNameFilter(packageToBeOpened + '.');
-            AndroidClassSourceFactory classSourceFactory = new AndroidClassSourceFactory(filter);
-            return new DexOpenerImpl(context, classSourceFactory, new ClassInjectorFactory());
+            return new DexOpenerImpl(context, new AndroidClassSourceFactory(filter));
         }
 
         private static String retrievePackageName(Class<?> c) {

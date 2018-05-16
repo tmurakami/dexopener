@@ -5,7 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
 
 import java.io.File;
 
@@ -13,14 +13,10 @@ final class DexOpenerImpl extends DexOpener {
 
     private final Context context;
     private final AndroidClassSourceFactory androidClassSourceFactory;
-    private final ClassInjectorFactory classInjectorFactory;
 
-    DexOpenerImpl(Context context,
-                  AndroidClassSourceFactory androidClassSourceFactory,
-                  ClassInjectorFactory classInjectorFactory) {
+    DexOpenerImpl(Context context, AndroidClassSourceFactory androidClassSourceFactory) {
         this.context = context;
         this.androidClassSourceFactory = androidClassSourceFactory;
-        this.classInjectorFactory = classInjectorFactory;
     }
 
     @Override
@@ -42,8 +38,8 @@ final class DexOpenerImpl extends DexOpener {
         if (cacheDir.isDirectory()) {
             FileUtils.delete(cacheDir.listFiles());
         }
-        ClassSource classSource = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
-        classInjectorFactory.newClassInjector(classSource).into(target);
+        ClassInjector.from(androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir))
+                     .into(target);
     }
 
     private static File getCodeCacheDir(Context context) {
