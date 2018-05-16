@@ -14,33 +14,6 @@ final class ClassNameFilter {
             "android.databinding.DataBindingUtil",
     };
 
-    private static final String[] EXCLUDED_PACKAGES = {
-            "android.",
-            "com.android.",
-            "com.github.tmurakami.classinjector.",
-            "com.github.tmurakami.dexmockito.",
-            "com.github.tmurakami.dexopener.",
-            "com.github.tmurakami.mockito4k.",
-            "dalvik.",
-            "java.",
-            "javax.",
-            "junit.",
-            "junitparams.",
-            "kotlin.",
-            "kotlinx.",
-            "net.bytebuddy.",
-            "org.apache.http.",
-            "org.hamcrest.",
-            "org.jacoco.",
-            "org.json.",
-            "org.junit.",
-            "org.mockito.",
-            "org.objenesis.",
-            "org.w3c.dom.",
-            "org.xml.sax.",
-            "org.xmlpull.v1.",
-    };
-
     private final String packagePrefix;
 
     ClassNameFilter(String packagePrefix) {
@@ -56,11 +29,6 @@ final class ClassNameFilter {
         for (String cls : INCLUDED_CLASSES) {
             if (className.equals(cls)) {
                 return true;
-            }
-        }
-        for (String pkg : EXCLUDED_PACKAGES) {
-            if (className.startsWith(pkg)) {
-                return false;
             }
         }
         return !className.endsWith(".R")
