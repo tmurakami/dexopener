@@ -25,7 +25,7 @@ final class DexOpenerImpl extends DexOpener {
         ApplicationInfo ai = context.getApplicationInfo();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
                 && ai.minSdkVersion >= Build.VERSION_CODES.O) {
-            // dexlib2 does not currently support version `038` of the DEX format added in the
+            // dexlib2 version 2.2.2 does not support version `038` of the DEX format added in the
             // Android O.
             throw new UnsupportedOperationException(
                     "minSdkVersion must be lower than " + Build.VERSION_CODES.O);
