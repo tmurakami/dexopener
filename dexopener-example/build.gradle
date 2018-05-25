@@ -16,22 +16,15 @@ android {
     DdmPreferences.setTimeOut 60000
     flavorDimensions 'default'
     productFlavors {
-        basic {
+        usingDexOpenerAndroidJUnitRunner {
+            applicationIdSuffix '.using.dexopenerandroidjunitrunner'
             dimension 'default'
             testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
         }
-        usingApplicationIdSuffix {
+        usingDexOpener {
             dimension 'default'
-            applicationIdSuffix '.using.application.id.suffix'
-            // By default, DexOpener tries loading `Context#getPackageName() + ".BuildConfig"` in
-            // order to find the classes to be opened.
-            // However, for projects using `applicationIdSuffix`, since the package name of
-            // BuildConfig is not equal to the value of `Context#getPackageName()`, loading it will
-            // fail.
-            // To prevent this, put an AndroidJUnitRunner subclass into the project's instrumented
-            // tests directory and call `DexOpener.Builder#buildConfig(Class)` in order to specify
-            // the BuildConfig class.
-            testInstrumentationRunner 'com.example.dexopener.using.application.id.suffix.JUnitRunner'
+            applicationIdSuffix '.using.dexopener'
+            testInstrumentationRunner 'com.example.dexopener.using.dexopener.MyAndroidJUnitRunner'
         }
     }
 }

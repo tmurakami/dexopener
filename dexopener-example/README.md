@@ -2,12 +2,10 @@
 
 This application contains the following examples as product flavors:
 
-### basic
+### usingDexOpenerAndroidJUnitRunner
 
 An example using `DexOpenerAndroidJUnitRunner`.
 
-### usingApplicationIdSuffix
+### usingDexOpener
 
-An example using `DexOpener.Builder`.
-
-If you are using `applicationIdSuffix` in your build.gradle, please refer to this flavor as a reference.
+An example using `DexOpener`.

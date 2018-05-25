@@ -19,6 +19,7 @@ final class DexOpenerImpl extends DexOpener {
         this.androidClassSourceFactory = androidClassSourceFactory;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void installTo(@NonNull ClassLoader target) {
         Context context = this.context;

@@ -15,28 +15,22 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provides the ability to mock your final classes/methods. This is equivalent to the following
-     * code:
-     * <pre>{@code
-     * Context context = instrumentation.getTargetContext();
-     * builder(context).build().installTo(context.getClassLoader());
-     * }</pre>
+     * Provides the ability to mock your final classes/methods.
      * <p>
      * Note that this method must be called before calling
      * {@link Instrumentation#newApplication(ClassLoader, String, Context)
      * super.newApplication(ClassLoader, String, Context)}.
      *
      * @param instrumentation the instrumentation
-     * @see #builder(Context)
-     * @see #installTo(ClassLoader)
-     * @see Builder#build()
      */
+    @SuppressWarnings("deprecation")
     public static void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
         if (context == null) {
             throw new IllegalArgumentException("'instrumentation' has not yet been initialized");
         }
-        builder(context).build().installTo(context.getClassLoader());
+        Class<?> buildConfigClass = findBuildConfigClass(context);
+        builder(context).buildConfig(buildConfigClass).build().installTo(context.getClassLoader());
     }
 
     /**
@@ -48,7 +42,12 @@ public abstract class DexOpener {
      * super.newApplication(ClassLoader, String, Context)}.
      *
      * @param target the class loader
+     * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
+     * for the target application. Therefore, you no longer need to use {@link Builder} to create a
+     * {@link DexOpener} instance.
      */
+    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
+    @Deprecated
     public abstract void installTo(@NonNull ClassLoader target);
 
     /**
@@ -56,17 +55,44 @@ public abstract class DexOpener {
      *
      * @param context the context
      * @return the {@link Builder}
+     * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
+     * for the target application. Therefore, you no longer need to use {@link Builder} to create a
+     * {@link DexOpener} instance.
      */
+    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
+    @Deprecated
     @NonNull
     @CheckResult
     public static Builder builder(@NonNull Context context) {
         return new Builder(context);
     }
 
+    private static Class<?> findBuildConfigClass(Context context) {
+        String packageName = context.getPackageName();
+        while (true) {
+            try {
+                return Class.forName(packageName + ".BuildConfig");
+            } catch (ClassNotFoundException e) {
+                int lastDotPos = packageName.lastIndexOf('.');
+                if (lastDotPos == -1) {
+                    break;
+                }
+                packageName = packageName.substring(0, lastDotPos);
+            }
+        }
+        throw new IllegalStateException(
+                "The BuildConfig class for the target application could not be found.");
+    }
+
     /**
      * The builder for {@link DexOpener}.
+     *
+     * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
+     * for the target application. Therefore, you no longer need to use {@link Builder} to create a
+     * {@link DexOpener} instance.
      */
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
+    @Deprecated
     public static final class Builder {
 
         private final Context context;
@@ -88,7 +114,11 @@ public abstract class DexOpener {
          *
          * @param buildConfigClass the app's BuildConfig class
          * @return this builder
+         * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig
+         * class for the target application. Therefore, you no longer need to use {@link Builder} to
+         * create a {@link DexOpener} instance.
          */
+        @Deprecated
         @NonNull
         @CheckResult
         public Builder buildConfig(@NonNull Class<?> buildConfigClass) {
@@ -116,7 +146,11 @@ public abstract class DexOpener {
          * Instantiates a new {@link DexOpener} instance.
          *
          * @return the {@link DexOpener}
+         * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig
+         * class for the target application. Therefore, you no longer need to use {@link Builder} to
+         * create a {@link DexOpener} instance.
          */
+        @Deprecated
         @NonNull
         @CheckResult
         public DexOpener build() {

@@ -20,6 +20,7 @@ import java.io.File;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 
+@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.class)
 public class DexOpenerImplTest {
 
