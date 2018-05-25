@@ -43,7 +43,7 @@ public abstract class DexOpener {
      *
      * @param target the class loader
      * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
-     * for the target application. Therefore, you no longer need to use {@link Builder} to create a
+     * of the target application. Therefore, you no longer need to use {@link Builder} to create a
      * {@link DexOpener} instance.
      */
     @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
@@ -56,7 +56,7 @@ public abstract class DexOpener {
      * @param context the context
      * @return the {@link Builder}
      * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
-     * for the target application. Therefore, you no longer need to use {@link Builder} to create a
+     * of the target application. Therefore, you no longer need to use {@link Builder} to create a
      * {@link DexOpener} instance.
      */
     @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
@@ -81,14 +81,14 @@ public abstract class DexOpener {
             }
         }
         throw new IllegalStateException(
-                "The BuildConfig class for the target application could not be found.");
+                "The BuildConfig class of the target application could not be found.");
     }
 
     /**
      * The builder for {@link DexOpener}.
      *
      * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
-     * for the target application. Therefore, you no longer need to use {@link Builder} to create a
+     * of the target application. Therefore, you no longer need to use {@link Builder} to create a
      * {@link DexOpener} instance.
      */
     @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
@@ -115,7 +115,7 @@ public abstract class DexOpener {
          * @param buildConfigClass the app's BuildConfig class
          * @return this builder
          * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig
-         * class for the target application. Therefore, you no longer need to use {@link Builder} to
+         * class of the target application. Therefore, you no longer need to use {@link Builder} to
          * create a {@link DexOpener} instance.
          */
         @Deprecated
@@ -136,7 +136,7 @@ public abstract class DexOpener {
             }
             if (packageToBeOpened == null || packageToBeOpened.isEmpty()) {
                 throw new IllegalArgumentException(
-                        "'buildConfigClass' must be the BuildConfig class for the target application");
+                        "'buildConfigClass' must be the BuildConfig class of the target application");
             }
             this.packageToBeOpened = packageToBeOpened;
             return this;
@@ -147,7 +147,7 @@ public abstract class DexOpener {
          *
          * @return the {@link DexOpener}
          * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig
-         * class for the target application. Therefore, you no longer need to use {@link Builder} to
+         * class of the target application. Therefore, you no longer need to use {@link Builder} to
          * create a {@link DexOpener} instance.
          */
         @Deprecated
@@ -175,7 +175,7 @@ public abstract class DexOpener {
                 return loader.loadClass(name);
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(
-                        "The BuildConfig for the target application could not be found.\n"
+                        "The BuildConfig of the target application could not be found.\n"
                                 + "You need to put an AndroidJUnitRunner subclass like below "
                                 + "in the instrumented tests directory and specify it as the "
                                 + "default test instrumentation runner in the project's "
