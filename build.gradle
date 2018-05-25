@@ -42,7 +42,7 @@ ext {
             classinjector  : 'com.github.tmurakami.classinjector:classinjector-android:0.4.1',
             dexlib2        : 'org.smali:dexlib2:2.2.2',
             junit          : 'junit:junit:4.12',
-            runner         : 'com.android.support.test:runner:0.5',
+            runner         : 'com.android.support.test:runner:1.0.2',
             rules          : 'com.android.support.test:rules:1.0.2',
             mockito        : "org.mockito:mockito-inline:$mockitoVersion",
             mockito_android: "org.mockito:mockito-android:$mockitoVersion",]
