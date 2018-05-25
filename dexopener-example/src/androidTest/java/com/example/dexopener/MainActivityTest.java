@@ -30,7 +30,7 @@ public class MainActivityTest {
     public final MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
 
     @Test
-    public void onCreate_should_simply_call_MainActivityDelegate_onCreate() throws Exception {
+    public void onCreate_should_simply_call_MainActivityDelegate_onCreate() {
         activityRule.launchActivity(null);
         verify(activityRule.getActivity().delegate).onCreate(null);
     }
