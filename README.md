@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/tmurakami/dexopener.svg?style=shield)](https://circleci.com/gh/tmurakami/dexopener)
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
-[![Javadoc](https://img.shields.io/badge/Javadoc-0.12.1-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/0.12.1/javadoc/)<br>
+[![Javadoc](https://img.shields.io/badge/Javadoc-0.13.0-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/0.13.0/javadoc/)<br>
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
 A library that provides the ability to mock
@@ -15,13 +15,17 @@ See the [example application](dexopener-example).
 
 ## Usage
 
-There are three ways to use this library.
+There are two ways to use this library.
+
+> **Note:** Starting at version 0.13.0, DexOpener automatically detects
+the BuildConfig class of the target application. Therefore, you no
+longer need to use `DexOpener.Builder`.
 
 ### DexOpenerAndroidJUnitRunner
 
-If you are **NOT** specifying `applicationIdSuffix` in your
-build.gradle, you can use this class as the default test instrumentation
-runner.
+If you do not have your own test instrumentation runner, all you need to
+do is specify `DexOpenerAndroidJUnitRunner` as the default test
+instrumentation runner.
 
 ```groovy
 android {
@@ -32,73 +36,38 @@ android {
 }
 ```
 
-To instantiate your custom `android.app.Application` object other than
-default application, all you need to do is create a new test runner that
-extends `DexOpenerAndroidJUnitRunner` instead of `AndroidJUnitRunner`.
+You can extend this class to create your custom `AndroidJUnitRunner`.
 
 ```java
-public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        /*
-         * Don't call Class#getName() to get the Application class name, or a class
-         * inconsistency error may occur. Instead, specify a string literal for its name.
-         */
-        return super.newApplication(cl, "your.app.YourTestApplication", context);
-    }
-}
+public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner { ... }
 ```
 
-Make sure to update your build.gradle with the new test runner.
-
-```groovy
-android {
-    defaultConfig {
-        minSdkVersion 16 // 16 to 25
-        testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
-    }
-}
-```
-
-For projects using `applicationIdSuffix`, use
-[`DexOpener.Builder`](#dexopenerbuilder) instead.
+If you want to replace the application instance for testing, extend this
+class and implement `newApplication()` method as shown in
+[Tips](#replacing-the-application-instance-for-testing).
 
 ### DexOpener
 
-If it is not possible to change the base class of your test runner to
-`DexOpenerAndroidJUnitRunner`, you can use
-`DexOpener#install(Instrumentation)`.
+If you already have your own test instrumentation runner, you can use
+`DexOpener` instead of `DexOpenerAndroidJUnitRunner`.
 
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        // Call this first.
         DexOpener.install(this);
         return super.newApplication(cl, className, context);
     }
 }
 ```
 
-To replace the Application class, pass a string literal of that class
-name instead of `className` as the second argument to
-`super.newApplication()`.
+> **Note:** If you are using a class literal to replace the
+Application instance, you will need to use a string literal instead.
+See [Tips](#replacing-the-application-instance-for-testing).
 
-```java
-public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.install(this);
-        // Don't call Class#getName() here, or a class inconsistency error may occur.
-        return super.newApplication(cl, "your.app.YourTestApplication", context);
-    }
-}
-```
-
-Also, make sure to update your build.gradle.
+And make sure your test instrumentation runner is specified in your
+build.gradle.
 
 ```groovy
 android {
@@ -109,68 +78,42 @@ android {
 }
 ```
 
-### DexOpener.Builder
+## Tips
 
-If you are specifying `applicationIdSuffix` in your build.gradle, you
-need to use this class.
+### Replacing the Application instance for testing
 
-By default, DexOpener tries loading
-`Context#getPackageName() + ".BuildConfig"` in order to find the classes
-to be opened. Therefore, for projects using `applicationIdSuffix`,
-loading it will fail because the package name of the BuildConfig is not
-equal to the value of `Context#getPackageName()`.
-
-To prevent this, put an AndroidJUnitRunner subclass like the following
-code into the project's instrumented tests directory.
+To instantiate your custom `android.app.Application` object other than
+default application, pass a string literal of that class name as the
+second argument to `super.newApplication()` in your test instrumentation
+runner.
 
 ```java
-public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.builder(context)
-                .buildConfig(your.app.BuildConfig.class)
-                .build()
-                .installTo(cl);
-        return super.newApplication(cl, className, context);
-    }
+@Override
+public Application newApplication(ClassLoader cl, String className, Context context)
+        throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+
+    ...
+
+    return super.newApplication(cl, "your.app.YourTestApplication", context);
 }
 ```
 
-Of course, you can replace the application class for testing.
+**Do not call `Class#getName()` to get the Application class name**. The
+following code may cause a class inconsistency error.
 
 ```java
-public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.builder(context)
-                .buildConfig(your.app.BuildConfig.class)
-                .build()
-                .installTo(cl);
-        // Don't call Class#getName() here, or a class inconsistency error may occur.
-        return super.newApplication(cl, "your.app.YourTestApplication", context);
-    }
-}
-```
-
-Don't forget to update your build.gradle.
-
-```groovy
-android {
-    defaultConfig {
-        minSdkVersion 16 // 16 to 25
-        testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
-    }
-}
-```
+// This code may cause a class inconsistency error.
+return super.newApplication(cl, YourTestApplication.class.getName(), context);
+````
 
 ## Limitations
 
-- <a name="limitations_final_you_can_mock"></a>The final classes/methods
-you can mock are only those under the package of your app's BuildConfig.
-Therefore, you cannot mock final classes/methods you don't own, such as
-Android system classes and third-party libraries.
+- <a name="limitations_final_you_can_mock"></a>The final classes you can
+mock are only those under the package of your app's BuildConfig. For
+example, if the FQCN of your BuildConfig is `foo.bar.BuildConfig`,
+you can mock only the final classes belonging to `foo.bar.**`.
+Therefore, you cannot mock final classes/methods of both Android system
+classes and third-party libraries.
 - `minSdkVersion` cannot be set to more than `26` because
 [dexlib2](https://github.com/JesusFreke/smali) version 2.2.2 does not
 support version `038` of the DEX format.
