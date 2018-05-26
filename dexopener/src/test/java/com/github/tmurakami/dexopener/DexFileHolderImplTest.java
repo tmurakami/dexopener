@@ -26,7 +26,7 @@ public class DexFileHolderImplTest {
     private FutureTask<dalvik.system.DexFile> task;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         testTarget = new DexFileHolderImpl();
         testTarget.setTask(task);
     }
