@@ -1,0 +1,2 @@
+-dontwarn sun.misc.Unsafe
+-dontnote com.github.tmurakami.dexopener.**
