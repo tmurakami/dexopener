@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertSame;
 
-@SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
 public class ClassNameFilterTest {
 
