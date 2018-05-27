@@ -52,11 +52,12 @@ dependencies {
     repackage deps.classinjector
     repackage deps.guava
     repackage files(backportDir) { builtBy 'backportDependencies' }
-    api deps.androidx.test.runner
+    compileOnly deps.androidx.annotation
     implementation files(repackagedJar) { builtBy 'repackageDependencies' }
     testImplementation deps.junit
     testImplementation deps.mockito.inline
     testImplementation deps.dexlib2
+    androidTestImplementation deps.androidx.test.runner
 }
 
 task backportDependencies(type: JavaExec) {
