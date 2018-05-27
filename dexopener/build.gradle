@@ -56,7 +56,7 @@ task repackageDependencies(type: ProGuardTask) {
     outputs.file repackaged
     injars filter: '!AndroidManifest.xml,!META-INF/**', configurations.repackage
     outjars "$buildDir/tmp/repackage.tmp.jar"
-    configuration 'proguard-rules.pro'
+    configuration 'proguard-rules-repackage.pro'
     doFirst { libraryjars android.bootClasspath }
     doLast {
         def rootPackage = "${project.group}.${project.name}.repackaged"
