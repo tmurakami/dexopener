@@ -18,8 +18,8 @@ android {
 }
 
 dependencies {
-    implementation deps.android.annotations
+    implementation deps.androidx.annotation
     androidTestImplementation project(':dexopener')
-    androidTestImplementation deps.android.test.rules
+    androidTestImplementation deps.androidx.test.rules
     androidTestImplementation deps.mockito.android
 }

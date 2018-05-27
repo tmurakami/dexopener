@@ -52,7 +52,7 @@ dependencies {
     repackage deps.classinjector
     repackage deps.guava
     repackage files(backportDir) { builtBy 'backportDependencies' }
-    api deps.android.test.runner
+    api deps.androidx.test.runner
     implementation files(repackagedJar) { builtBy 'repackageDependencies' }
     testImplementation deps.junit
     testImplementation deps.mockito.inline

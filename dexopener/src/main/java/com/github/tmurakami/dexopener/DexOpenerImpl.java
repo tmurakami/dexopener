@@ -19,11 +19,12 @@ package com.github.tmurakami.dexopener;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
-import android.support.annotation.NonNull;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
 
 final class DexOpenerImpl extends DexOpener {
 

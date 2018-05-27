@@ -19,11 +19,12 @@ package com.github.tmurakami.dexopener;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.support.annotation.CallSuper;
-import android.support.test.runner.AndroidJUnitRunner;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import androidx.annotation.CallSuper;
+import androidx.test.runner.AndroidJUnitRunner;
 
 /**
  * An {@link AndroidJUnitRunner} that provides the ability to mock your final classes. To use this,

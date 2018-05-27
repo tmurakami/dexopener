@@ -18,7 +18,8 @@ package com.example.dexopener.simple;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
+
+import androidx.annotation.VisibleForTesting;
 
 public final class MainActivity extends Activity {
 

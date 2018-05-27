@@ -18,8 +18,9 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.support.annotation.CheckResult;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.CheckResult;
+import androidx.annotation.NonNull;
 
 /**
  * This is an object that provides the ability to mock your final classes.
