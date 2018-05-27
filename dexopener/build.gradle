@@ -25,7 +25,7 @@ android {
         minSdkVersion 16
         testApplicationId 'test.com.github.tmurakami.dexopener'
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
-        consumerProguardFile 'proguard-rules-consumer.pro'
+        consumerProguardFile 'proguard-rules.pro'
     }
     lintOptions.disable 'InvalidPackage'
     DdmPreferences.setTimeOut 60000
