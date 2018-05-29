@@ -17,8 +17,8 @@ android {
     flavorDimensions 'default'
     productFlavors {
         usingDexOpenerAndroidJUnitRunner {
-            applicationIdSuffix '.using.dexopenerandroidjunitrunner'
             dimension 'default'
+            applicationIdSuffix '.using.dexopenerandroidjunitrunner'
             testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
         }
         usingDexOpener {
