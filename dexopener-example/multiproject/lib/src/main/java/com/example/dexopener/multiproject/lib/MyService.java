@@ -16,11 +16,6 @@
 
 package com.example.dexopener.multiproject.lib;
 
-// The final classes you can mock on instrumented unit tests are only those under the package
-// indicated by the `applicationId` of the `app` project. In this example, it is
-// `com.example.dexopener.multiproject` as specified in the build.gradle of the `app` project.
-// The package name of this class is `com.example.dexopener.multiproject.lib` as above and therefore
-// this class can be mocked on instrumented unit tests.
 public final class MyService {
     public void doIt() {
     }

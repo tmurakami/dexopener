@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.dexopener.simple;
+package com.github.tmurakami.dexopener;
 
-final class MyService {
-    void doIt() {
+final class Constants {
+
+    static final String MY_PACKAGE = "com.github.tmurakami.dexopener";
+
+    private Constants() {
+        throw new AssertionError("Do not instantiate");
     }
+
 }

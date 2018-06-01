@@ -30,7 +30,8 @@ public class ClassNameFilterTest {
     private static final boolean ALLOW = true;
     private static final boolean DENY = false;
 
-    private final ClassNameFilter testTarget = new ClassNameFilter("foo.");
+    private final ClassNameFilter testTarget =
+            new ClassNameFilter("foo.").excludeClasses("foo.bar.Baz");
 
     private final String className;
     private final boolean expected;
@@ -47,6 +48,7 @@ public class ClassNameFilterTest {
                              new Object[]{"foo.BuildConfig", DENY},
                              new Object[]{"foo.R", DENY},
                              new Object[]{"foo.R$string", DENY},
+                             new Object[]{"foo.bar.Baz", DENY},
                              new Object[]{"android.databinding.DataBinderMapper", ALLOW},
                              new Object[]{"android.databinding.DataBindingComponent", ALLOW},
                              new Object[]{"android.databinding.DataBindingUtil", ALLOW},

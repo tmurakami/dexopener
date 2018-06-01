@@ -5,6 +5,9 @@ task javadoc(type: Javadoc) {
     }
     excludes = ['**/BuildConfig.java', '**/R.java']
     options.links 'https://developer.android.com/reference/'
+    options.tags = ['apiNote:a:API Note:',
+                    'implSpec:a:Implementation Requirements:',
+                    'implNote:a:Implementation Note:',]
     if (JavaVersion.current() >= JavaVersion.VERSION_1_9) options.addBooleanOption('html5', true)
 }
 
