@@ -13,6 +13,7 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.getkeepsafe.dexcount'
 
 apply from: "$rootDir/gradle/android.gradle"
 
