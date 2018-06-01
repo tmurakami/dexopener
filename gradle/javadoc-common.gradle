@@ -1,6 +1,7 @@
 javadoc.options {
-    bottom '<script>for(var i in document.links){var e=document.links[i];if(e.href.indexOf("is-external=true")!=-1)e.target="_blank"}</script>'
     def v = JavaVersion.current()
+    addBooleanOption 'html5', v.java9Compatible
     def g = System.properties['java.version'] =~ /\d+/
     addBooleanOption '-allow-script-in-comments', v.java9Compatible || v.majorVersion == '8' && g.size() == 4 && ((g[2] as int) > 0 || (g[3] as int) >= 121)
+    bottom '<script>for(var i in document.links){var e=document.links[i];if(e.href.indexOf("is-external=true")!=-1)e.target="_blank"}</script>'
 }
