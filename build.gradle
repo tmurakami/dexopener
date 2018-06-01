@@ -41,7 +41,7 @@ ext {
     def mockitoVersion = '2.18.3'
     deps = [dexopener      : project(':dexopener'),
             jarjar         : 'com.googlecode.jarjar:jarjar:1.3',
-            classinjector  : 'com.github.tmurakami.classinjector:classinjector-android:0.4.1',
+            classinjector  : 'com.github.tmurakami.classinjector:classinjector-android:0.4.2',
             dexlib2        : 'org.smali:dexlib2:2.2.2',
             junit          : 'junit:junit:4.12',
             runner         : "com.android.support.test:runner:$testVersion",
