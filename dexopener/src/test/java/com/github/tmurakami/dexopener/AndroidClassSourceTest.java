@@ -71,9 +71,9 @@ public class AndroidClassSourceTest {
                       .newClassSource(argThat(new ArgumentMatcher<Map<String, DexFileHolder>>() {
                           @Override
                           public boolean matches(Map<String, DexFileHolder> holderMap) {
-                              return holderMap.size() == 1
-                                      && holderMap.containsKey(className)
-                                      && holderMap.containsValue(dexFileHolder);
+                              return holderMap.size() == 1 &&
+                                     holderMap.containsKey(className) &&
+                                     holderMap.containsValue(dexFileHolder);
                           }
                       }))
                       .getClassFile(className)).willReturn(classFile);
@@ -96,7 +96,8 @@ public class AndroidClassSourceTest {
     }
 
     @Test
-    public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter() throws Exception {
+    public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter()
+            throws Exception {
         AndroidClassSource classSource = new AndroidClassSource("",
                                                                 classNameFilter,
                                                                 dexFileMapper,
@@ -105,7 +106,8 @@ public class AndroidClassSourceTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getClassFile_should_throw_IllegalStateException_if_no_class_to_be_opened_was_found() throws Exception {
+    public void getClassFile_should_throw_IllegalStateException_if_no_class_to_be_opened_was_found()
+            throws Exception {
         String className = "foo.Bar";
         given(classNameFilter.accept(className)).willReturn(true);
         DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.<ClassDef>emptySet());

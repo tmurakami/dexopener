@@ -31,11 +31,11 @@ final class ClassNameFilter {
                 return true;
             }
         }
-        return !className.endsWith(".R")
-                && !className.contains(".R$")
-                && !className.endsWith(".BuildConfig")
-                && !className.endsWith(".BR")
-                && className.startsWith(packagePrefix);
+        return !className.endsWith(".BR") &&
+               !className.endsWith(".BuildConfig") &&
+               !className.endsWith(".R") &&
+               !className.contains(".R$") &&
+               className.startsWith(packagePrefix);
     }
 
 }

@@ -27,7 +27,8 @@ public class DexClassSourceTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void getClassFile_should_return_the_ClassFile_if_the_given_name_is_in_the_map_of_holders() throws Exception {
+    public void getClassFile_should_return_the_ClassFile_if_the_given_name_is_in_the_map_of_holders()
+            throws Exception {
         dalvik.system.DexFile dexFile = new dalvik.system.DexFile("test");
         given(dexFileHolder.get()).willReturn(dexFile);
         String className = "foo.Bar";
@@ -38,7 +39,8 @@ public class DexClassSourceTest {
     }
 
     @Test
-    public void getClassFile_should_return_null_if_the_given_name_is_not_in_the_map_of_holders() throws Exception {
+    public void getClassFile_should_return_null_if_the_given_name_is_not_in_the_map_of_holders()
+            throws Exception {
         assertNull(new DexClassSource(Collections.<String, DexFileHolder>emptyMap(),
                                       dexClassFileFactory).getClassFile("foo.Bar"));
     }

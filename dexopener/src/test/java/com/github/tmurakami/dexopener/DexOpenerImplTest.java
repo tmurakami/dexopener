@@ -40,7 +40,8 @@ public class DexOpenerImplTest {
     private ClassFile classFile;
 
     @Test
-    public void installTo_should_inject_the_class_source_into_the_given_class_loader() throws Exception {
+    public void installTo_should_inject_the_class_source_into_the_given_class_loader()
+            throws Exception {
         ApplicationInfo applicationInfo = new ApplicationInfo();
         given(context.getApplicationInfo()).willReturn(applicationInfo);
         applicationInfo.sourceDir = "test";

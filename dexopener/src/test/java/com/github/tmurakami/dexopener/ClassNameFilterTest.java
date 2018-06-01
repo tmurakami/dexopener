@@ -26,20 +26,20 @@ public class ClassNameFilterTest {
 
     @Parameterized.Parameters(name = "name={0}")
     public static Iterable<Object[]> parameters() {
-        return Arrays.asList(new Object[]{"foo.R", DENY},
-                             new Object[]{"foo.R$string", DENY},
-                             new Object[]{"foo.BuildConfig", DENY},
+        return Arrays.asList(new Object[]{"C", DENY},
                              new Object[]{"foo.BR", DENY},
-                             new Object[]{"C", DENY},
+                             new Object[]{"foo.BuildConfig", DENY},
+                             new Object[]{"foo.R", DENY},
+                             new Object[]{"foo.R$string", DENY},
                              new Object[]{"android.databinding.DataBinderMapper", ALLOW},
                              new Object[]{"android.databinding.DataBindingComponent", ALLOW},
                              new Object[]{"android.databinding.DataBindingUtil", ALLOW},
                              new Object[]{"android.databinding.generated.C", ALLOW},
-                             new Object[]{"foo.Bar$R", ALLOW},
-                             new Object[]{"foo.Bar$R$string", ALLOW},
-                             new Object[]{"foo.Bar$BuildConfig", ALLOW},
+                             new Object[]{"foo.Bar", ALLOW},
                              new Object[]{"foo.Bar$BR", ALLOW},
-                             new Object[]{"foo.Bar", ALLOW});
+                             new Object[]{"foo.Bar$BuildConfig", ALLOW},
+                             new Object[]{"foo.Bar$R", ALLOW},
+                             new Object[]{"foo.Bar$R$string", ALLOW});
     }
 
     @Test
