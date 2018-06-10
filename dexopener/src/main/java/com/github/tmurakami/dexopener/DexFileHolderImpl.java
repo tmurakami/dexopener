@@ -8,21 +8,21 @@ import java.util.concurrent.FutureTask;
 @SuppressWarnings("deprecation")
 final class DexFileHolderImpl implements DexFileHolder {
 
-    private FutureTask<dalvik.system.DexFile> task;
+    private FutureTask<dalvik.system.DexFile> dexFileTask;
 
-    void setTask(FutureTask<dalvik.system.DexFile> task) {
-        this.task = task;
+    void setDexFileTask(FutureTask<dalvik.system.DexFile> dexFileTask) {
+        this.dexFileTask = dexFileTask;
     }
 
     @Override
     public dalvik.system.DexFile get() throws IOException {
         // The task might not be completed, so we do it here first.
-        task.run();
+        dexFileTask.run();
         boolean interrupted = false;
         try {
             while (true) {
                 try {
-                    return task.get();
+                    return dexFileTask.get();
                 } catch (InterruptedException e) {
                     // Refuse to be interrupted
                     interrupted = true;

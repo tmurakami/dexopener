@@ -42,7 +42,7 @@ public class DexFileHolderMapperTest {
     @Mock
     private DexFileTaskFactory dexFileTaskFactory;
     @Mock
-    private FutureTask<dalvik.system.DexFile> task;
+    private FutureTask<dalvik.system.DexFile> dexFileTask;
 
     @Captor
     private ArgumentCaptor<DexFile> dexFileCaptor;
@@ -65,7 +65,7 @@ public class DexFileHolderMapperTest {
         }
         byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(), classes));
         given(classNameFilter.accept(anyString())).willReturn(true);
-        given(dexFileTaskFactory.newDexFileTask(dexFileCaptor.capture())).willReturn(task);
+        given(dexFileTaskFactory.newDexFileTask(dexFileCaptor.capture())).willReturn(dexFileTask);
         Map<String, DexFileHolder> holderMap = new HashMap<>();
         testTarget.map(bytecode, holderMap);
         assertEquals(classCount, holderMap.size());
@@ -74,7 +74,7 @@ public class DexFileHolderMapperTest {
         assertEquals(2, dexFiles.size());
         assertEquals(100 /* = DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE */, dexFiles.get(0).getClasses().size());
         assertEquals(1, dexFiles.get(1).getClasses().size());
-        then(executor).should(times(2)).execute(task);
+        then(executor).should(times(2)).execute(dexFileTask);
     }
 
 }

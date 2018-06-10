@@ -47,24 +47,24 @@ final class DexFileHolderMapper {
                 // It is faster to generate a DEX file for multiple classes at once than for one
                 // class.
                 if (classesToBeOpened.size() == MAX_CLASSES_PER_DEX_FILE) {
-                    holder.setTask(newDexFileTask(classesToBeOpened));
+                    holder.setDexFileTask(newDexFileTask(classesToBeOpened));
                     classesToBeOpened = new HashSet<>();
                     holder = new DexFileHolderImpl();
                 }
             }
         }
         if (!classesToBeOpened.isEmpty()) {
-            holder.setTask(newDexFileTask(classesToBeOpened));
+            holder.setDexFileTask(newDexFileTask(classesToBeOpened));
         }
     }
 
     @SuppressWarnings("deprecation")
     private FutureTask<dalvik.system.DexFile> newDexFileTask(Set<ClassDef> classesToBeOpened) {
         DexFile dexFile = new ImmutableDexFile(OPCODES, classesToBeOpened);
-        FutureTask<dalvik.system.DexFile> task = dexFileTaskFactory.newDexFileTask(dexFile);
+        FutureTask<dalvik.system.DexFile> dexFileTask = dexFileTaskFactory.newDexFileTask(dexFile);
         // Run the task in the background in order to improve performance.
-        executor.execute(task);
-        return task;
+        executor.execute(dexFileTask);
+        return dexFileTask;
     }
 
     private static String dexToJavaName(String dexName) {
