@@ -77,7 +77,8 @@ public class AndroidClassSourceTest {
                           }
                       }))
                       .getClassFile(className)).willReturn(classFile);
-        ClassDef def = new ImmutableClassDef(TypeNameUtils.javaToDexName(className),
+        // The `javaName` must be neither a primitive type nor an array type.
+        ClassDef def = new ImmutableClassDef("Lfoo/Bar;",
                                              0,
                                              null,
                                              null,

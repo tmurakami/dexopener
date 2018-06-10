@@ -53,8 +53,7 @@ public class DexFileHolderMapperTest {
         Set<ClassDef> classes = new HashSet<>();
         int classCount = 101; // DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE + 1
         for (int i = 0; i < classCount; i++) {
-            String className = "foo.Bar" + i;
-            classes.add(new ImmutableClassDef(TypeNameUtils.javaToDexName(className),
+            classes.add(new ImmutableClassDef("Lfoo/Bar" + i + ';',
                                               0,
                                               null,
                                               null,

@@ -15,22 +15,16 @@ import java.util.logging.Logger;
 final class OpenDexFile implements Callable<dalvik.system.DexFile> {
 
     private DexFile dexFile;
-    private final DexRewriter dexRewriter;
     private final File cacheDir;
-    private final DexFileLoader dexFileLoader;
 
-    OpenDexFile(DexFile dexFile,
-                DexRewriter dexRewriter,
-                File cacheDir,
-                DexFileLoader dexFileLoader) {
+    OpenDexFile(DexFile dexFile, File cacheDir) {
         this.dexFile = dexFile;
-        this.dexRewriter = dexRewriter;
         this.cacheDir = cacheDir;
-        this.dexFileLoader = dexFileLoader;
     }
 
     @Override
     public dalvik.system.DexFile call() throws IOException {
+        DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
         try {
             return generateDex(dexRewriter.rewriteDexFile(dexFile));
         } finally {
@@ -53,7 +47,7 @@ final class OpenDexFile implements Callable<dalvik.system.DexFile> {
         dalvik.system.DexFile file;
         try {
             DexPool.writeTo(new FileDataStore(tmp), dexFile);
-            file = dexFileLoader.loadDex(tmpPath, dexPath, 0);
+            file = dalvik.system.DexFile.loadDex(tmpPath, dexPath, 0);
         } finally {
             FileUtils.delete(tmp);
         }
