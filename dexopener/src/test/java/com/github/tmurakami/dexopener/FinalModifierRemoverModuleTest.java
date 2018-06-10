@@ -30,16 +30,16 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.then;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class DexOpenerRewriterModuleTest {
+public class FinalModifierRemoverModuleTest {
 
     @Spy
-    private DexOpenerRewriterModule testTarget;
+    private FinalModifierRemoverModule testTarget;
 
-    private DexRewriter rewriter;
+    private DexRewriter dexRewriter;
 
     @Before
     public void setUp() {
-        rewriter = new DexRewriter(testTarget);
+        dexRewriter = new DexRewriter(testTarget);
     }
 
     @Test
@@ -52,10 +52,10 @@ public class DexOpenerRewriterModuleTest {
                                             Collections.<Annotation>emptySet(),
                                             Collections.<Field>emptySet(),
                                             Collections.<Method>emptySet());
-        ClassDef out = rewriter.getClassDefRewriter().rewrite(in);
+        ClassDef out = dexRewriter.getClassDefRewriter().rewrite(in);
         assertEquals(0, out.getAccessFlags());
         out.getType();
-        then(testTarget).should().getTypeRewriter(rewriter);
+        then(testTarget).should().getTypeRewriter(dexRewriter);
     }
 
     @Test
@@ -67,10 +67,10 @@ public class DexOpenerRewriterModuleTest {
                                         Modifier.FINAL,
                                         Collections.<Annotation>emptySet(),
                                         null);
-        Method out = rewriter.getMethodRewriter().rewrite(in);
+        Method out = dexRewriter.getMethodRewriter().rewrite(in);
         assertEquals(0, out.getAccessFlags());
         out.getName();
-        then(testTarget).should().getMethodReferenceRewriter(rewriter);
+        then(testTarget).should().getMethodReferenceRewriter(dexRewriter);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class DexOpenerRewriterModuleTest {
         elements.add(new ImmutableAnnotationElement("name", new ImmutableStringEncodedValue("Lfoo/Bar;")));
         elements.add(new ImmutableAnnotationElement("accessFlags", new ImmutableIntEncodedValue(Modifier.FINAL)));
         Annotation in = new ImmutableAnnotation(0, "Ldalvik/annotation/InnerClass;", elements);
-        Annotation out = rewriter.getAnnotationRewriter().rewrite(in);
+        Annotation out = dexRewriter.getAnnotationRewriter().rewrite(in);
         int accessFlags = -1;
         for (AnnotationElement e : out.getElements()) {
             if (e.getName().equals("accessFlags")) {

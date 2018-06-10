@@ -19,7 +19,7 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.Rewrite
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
-final class DexOpenerRewriterModule extends RewriterModule {
+final class FinalModifierRemoverModule extends RewriterModule {
 
     @Override
     public Rewriter<Annotation> getAnnotationRewriter(Rewriters rewriters) {

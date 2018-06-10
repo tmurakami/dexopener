@@ -9,7 +9,7 @@ import java.util.concurrent.FutureTask;
 final class DexFileTaskFactory {
 
     private final File cacheDir;
-    private final DexRewriter dexRewriter = new DexRewriter(new DexOpenerRewriterModule());
+    private final DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
     private final DexFileLoader dexFileLoader = new DexFileLoader();
 
     DexFileTaskFactory(File cacheDir) {
