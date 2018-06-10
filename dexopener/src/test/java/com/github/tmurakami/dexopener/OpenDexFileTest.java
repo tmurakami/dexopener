@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class DexFileTaskTest {
+public class OpenDexFileTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -58,7 +58,7 @@ public class DexFileTaskTest {
         dalvik.system.DexFile file = new dalvik.system.DexFile("test");
         given(dexFileLoader.loadDex(tmpPathCaptor.capture(), dexPathCaptor.capture(), eq(0))).willReturn(file);
         File cacheDir = folder.newFolder();
-        assertSame(file, new DexFileTask(dexFile, dexRewriter, cacheDir, dexFileLoader).call());
+        assertSame(file, new OpenDexFile(dexFile, dexRewriter, cacheDir, dexFileLoader).call());
         File dex = new File(dexPathCaptor.getValue());
         assertEquals(cacheDir, dex.getParentFile());
         assertTrue(dex.getName().startsWith("classes"));
@@ -79,7 +79,7 @@ public class DexFileTaskTest {
                                              null);
         DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
         given(dexRewriter.rewriteDexFile(dexFile)).willReturn(dexFile);
-        new DexFileTask(dexFile, dexRewriter, folder.newFile(), dexFileLoader).call();
+        new OpenDexFile(dexFile, dexRewriter, folder.newFile(), dexFileLoader).call();
     }
 
 }

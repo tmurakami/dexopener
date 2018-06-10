@@ -12,14 +12,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings("deprecation")
-final class DexFileTask implements Callable<dalvik.system.DexFile> {
+final class OpenDexFile implements Callable<dalvik.system.DexFile> {
 
     private DexFile dexFile;
     private final DexRewriter dexRewriter;
     private final File cacheDir;
     private final DexFileLoader dexFileLoader;
 
-    DexFileTask(DexFile dexFile,
+    OpenDexFile(DexFile dexFile,
                 DexRewriter dexRewriter,
                 File cacheDir,
                 DexFileLoader dexFileLoader) {
