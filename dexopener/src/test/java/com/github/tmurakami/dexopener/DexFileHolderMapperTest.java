@@ -19,14 +19,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
 
 @SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -38,9 +35,7 @@ public class DexFileHolderMapperTest {
     @Mock
     private ClassNameFilter classNameFilter;
     @Mock
-    private Executor executor;
-    @Mock
-    private DexFileTaskFactory dexFileTaskFactory;
+    private DexFileGenerator dexFileGenerator;
     @Mock
     private FutureTask<dalvik.system.DexFile> dexFileTask;
 
@@ -64,7 +59,7 @@ public class DexFileHolderMapperTest {
         }
         byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(), classes));
         given(classNameFilter.accept(anyString())).willReturn(true);
-        given(dexFileTaskFactory.newDexFileTask(dexFileCaptor.capture())).willReturn(dexFileTask);
+        given(dexFileGenerator.generateDexFile(dexFileCaptor.capture())).willReturn(dexFileTask);
         Map<String, DexFileHolder> holderMap = new HashMap<>();
         testTarget.map(bytecode, holderMap);
         assertEquals(classCount, holderMap.size());
@@ -73,7 +68,6 @@ public class DexFileHolderMapperTest {
         assertEquals(2, dexFiles.size());
         assertEquals(100 /* = DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE */, dexFiles.get(0).getClasses().size());
         assertEquals(1, dexFiles.get(1).getClasses().size());
-        then(executor).should(times(2)).execute(dexFileTask);
     }
 
 }

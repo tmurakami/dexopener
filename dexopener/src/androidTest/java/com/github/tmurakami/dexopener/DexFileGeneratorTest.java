@@ -1,5 +1,6 @@
 package com.github.tmurakami.dexopener;
 
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
@@ -15,25 +16,33 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 
-public class OpenDexFileTest {
+@SuppressWarnings("deprecation")
+public class DexFileGeneratorTest {
 
     @Rule
     public TemporaryFolder folder =
             new TemporaryFolder(InstrumentationRegistry.getTargetContext().getCacheDir());
 
-    @SuppressWarnings("deprecation")
+    private final Executor executor = new Executor() {
+        @Override
+        public void execute(@NonNull Runnable runnable) {
+            runnable.run();
+        }
+    };
+
     @Test
-    public void call_should_generate_the_dex_file() throws Exception {
+    public void task_should_generate_a_DexFile_of_which_final_modifiers_are_removed()
+            throws Exception {
         ClassDef def = new ImmutableClassDef("Lfoo/Bar;",
-                                             Modifier.FINAL,
+                                             0,
                                              "Ljava/lang/Object;",
                                              null,
                                              null,
@@ -41,17 +50,16 @@ public class OpenDexFileTest {
                                              Collections.<Field>emptySet(),
                                              Collections.<Method>emptySet());
         DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
-        File cacheDir = folder.newFolder();
         ClassLoader classLoader = new ClassLoader() {
         };
-        Class<?> c = new OpenDexFile(dexFile, cacheDir).call().loadClass("foo.Bar", classLoader);
+        DexFileGenerator generator = new DexFileGenerator(executor, folder.newFolder());
+        Class<?> c = generator.generateDexFile(dexFile).get().loadClass("foo.Bar", classLoader);
         assertSame(classLoader, c.getClassLoader());
-        assertFalse(Modifier.isFinal(c.getModifiers()));
     }
 
     @Test(expected = IOException.class)
-    public void call_should_throw_IOException_if_the_cache_directory_cannot_be_created()
-            throws Exception {
+    public void getting_a_DexFile_should_cause_IOException_if_the_cache_directory_cannot_be_created()
+            throws Throwable {
         ClassDef def = new ImmutableClassDef("Lfoo/Bar;",
                                              0,
                                              null,
@@ -61,7 +69,13 @@ public class OpenDexFileTest {
                                              null,
                                              null);
         DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
-        new OpenDexFile(dexFile, folder.newFile()).call();
+        DexFileGenerator generator = new DexFileGenerator(executor, folder.newFile());
+        FutureTask<dalvik.system.DexFile> task = generator.generateDexFile(dexFile);
+        try {
+            task.get();
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
     }
 
 }
