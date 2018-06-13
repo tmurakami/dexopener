@@ -133,11 +133,9 @@ And then, add this library as `androidTestCompile` dependency.
 
 ```groovy
 dependencies {
-    androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
+    androidTestCompile 'com.github.tmurakami:dexopener:0.13.1'
 }
 ```
-
-[![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
 
 > **Note:** If you are using
 [Multidex](https://developer.android.com/studio/build/multidex.html?hl=en),
