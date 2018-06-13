@@ -19,8 +19,6 @@ apply from: "$rootDir/gradle/android.gradle"
 
 group = 'com.github.tmurakami'
 
-ext.repackaged = "$buildDir/libs/repackaged.jar"
-
 android {
     defaultConfig {
         minSdkVersion 16
@@ -36,36 +34,60 @@ android {
 }
 
 configurations {
+    retrolambda
+    backport
     jarjar
     repackage
 }
 
+def backportDir = "$buildDir/tmp/backport"
+def repackagedJar = "$buildDir/libs/repackaged.jar"
+
 dependencies {
-    jarjar deps.jarjar
-    repackage deps.classinjector
-    repackage deps.dexlib2, {
+    retrolambda deps.retrolambda
+    backport deps.dexlib2, {
         exclude group: 'com.beust', module: 'jcommander'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'com.google.guava', module: 'guava'
     }
+    jarjar deps.jarjar
+    repackage deps.classinjector
+    repackage deps.guava
+    repackage files(backportDir) { builtBy 'backportDependencies' }
     api deps.runner
-    implementation files(repackaged) { builtBy 'repackageDependencies' }
+    implementation files(repackagedJar) { builtBy 'repackageDependencies' }
     testImplementation deps.junit
     testImplementation deps.mockito
 }
 
+task backportDependencies(type: JavaExec) {
+    def jars = configurations.backport.files
+    inputs.files jars
+    outputs.dir backportDir
+    doFirst {
+        copy {
+            jars.each { from zipTree(it) }
+            into backportDir
+        }
+    }
+    classpath = configurations.retrolambda
+    main = 'net.orfjackal.retrolambda.Main'
+    jvmArgs = ["-Dretrolambda.inputDir=$backportDir", "-Dretrolambda.classpath=$backportDir"]
+}
+
 task repackageDependencies(type: ProGuardTask) {
-    outputs.file repackaged
+    outputs.file repackagedJar
     injars filter: '!AndroidManifest.xml,!META-INF/**', configurations.repackage
     outjars "$buildDir/tmp/repackage.tmp.jar"
     configuration 'proguard-rules-repackage.pro'
-    doFirst { libraryjars android.bootClasspath }
+    doFirst { libraryjars project.android.bootClasspath }
     doLast {
         def rootPackage = "${project.group}.${project.name}.repackaged"
         ant {
             taskdef name: 'jarjar',
-                    classname: 'com.tonicsystems.jarjar.JarJarTask',
+                    classname: 'org.pantsbuild.jarjar.JarJarTask',
                     classpath: configurations.jarjar.asPath
-            jarjar(jarfile: repackaged) {
+            jarjar(jarfile: repackagedJar) {
                 outJarFiles.each { zipfileset src: it }
                 rule pattern: 'com.github.tmurakami.classinjector.**', result: "$rootPackage.@0"
                 rule pattern: 'com.google.common.**', result: "$rootPackage.@0"
