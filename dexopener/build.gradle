@@ -57,7 +57,7 @@ dependencies {
     api deps.runner
     implementation files(repackagedJar) { builtBy 'repackageDependencies' }
     testImplementation deps.junit
-    testImplementation deps.mockito
+    testImplementation deps.mockito.inline
 }
 
 task backportDependencies(type: JavaExec) {

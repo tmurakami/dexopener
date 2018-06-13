@@ -39,15 +39,15 @@ dependencyUpdates.resolutionStrategy {
 ext {
     def testVersion = '1.0.2'
     def mockitoVersion = '2.18.3'
-    deps = [dexopener     : project(':dexopener'),
-            retrolambda   : 'net.orfjackal.retrolambda:retrolambda:2.5.4',
-            jarjar        : 'org.pantsbuild:jarjar:1.6.5',
-            classinjector : 'com.github.tmurakami.classinjector:classinjector-android:0.4.2',
-            guava         : 'com.google.guava:guava:18.0',
-            dexlib2       : 'org.smali:dexlib2:2.2.4',
-            junit         : 'junit:junit:4.12',
-            runner        : "com.android.support.test:runner:$testVersion",
-            rules         : "com.android.support.test:rules:$testVersion",
-            mockito       : "org.mockito:mockito-inline:$mockitoVersion",
-            mockitoAndroid: "org.mockito:mockito-android:$mockitoVersion",]
+    deps = [dexopener    : project(':dexopener'),
+            retrolambda  : 'net.orfjackal.retrolambda:retrolambda:2.5.4',
+            jarjar       : 'org.pantsbuild:jarjar:1.6.5',
+            classinjector: 'com.github.tmurakami.classinjector:classinjector-android:0.4.2',
+            guava        : 'com.google.guava:guava:18.0',
+            dexlib2      : 'org.smali:dexlib2:2.2.4',
+            junit        : 'junit:junit:4.12',
+            runner       : "com.android.support.test:runner:$testVersion",
+            rules        : "com.android.support.test:rules:$testVersion",
+            mockito      : [inline : "org.mockito:mockito-inline:$mockitoVersion",
+                            android: "org.mockito:mockito-android:$mockitoVersion",]]
 }
