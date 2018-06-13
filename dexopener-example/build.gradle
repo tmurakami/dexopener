@@ -31,6 +31,6 @@ android {
 
 dependencies {
     androidTestImplementation deps.dexopener
-    androidTestImplementation deps.rules
+    androidTestImplementation deps.test.rules
     androidTestImplementation deps.mockito.android
 }
