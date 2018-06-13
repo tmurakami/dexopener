@@ -8,7 +8,7 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.Immuta
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,11 +19,11 @@ final class DexFileHolderMapper {
     private static final int MAX_CLASSES_PER_DEX_FILE = 100;
 
     private final ClassNameFilter classNameFilter;
-    private final DexFileGenerator dexFileGenerator;
+    private final DexFileOpener dexFileOpener;
 
-    DexFileHolderMapper(ClassNameFilter classNameFilter, DexFileGenerator dexFileGenerator) {
+    DexFileHolderMapper(ClassNameFilter classNameFilter, DexFileOpener dexFileOpener) {
         this.classNameFilter = classNameFilter;
-        this.dexFileGenerator = dexFileGenerator;
+        this.dexFileOpener = dexFileOpener;
     }
 
     void map(byte[] bytecode, Map<String, DexFileHolder> holderMap) {
@@ -41,20 +41,20 @@ final class DexFileHolderMapper {
                 // It is faster to generate a DEX file for multiple classes at once than for one
                 // class.
                 if (classesToBeOpened.size() == MAX_CLASSES_PER_DEX_FILE) {
-                    holder.setDexFileTask(generateDexFile(classesToBeOpened));
+                    holder.setDexFileFuture(openClasses(classesToBeOpened));
                     classesToBeOpened = new HashSet<>();
                     holder = new DexFileHolderImpl();
                 }
             }
         }
         if (!classesToBeOpened.isEmpty()) {
-            holder.setDexFileTask(generateDexFile(classesToBeOpened));
+            holder.setDexFileFuture(openClasses(classesToBeOpened));
         }
     }
 
     @SuppressWarnings("deprecation")
-    private FutureTask<dalvik.system.DexFile> generateDexFile(Set<ClassDef> classesToBeOpened) {
-        return dexFileGenerator.generateDexFile(new ImmutableDexFile(OPCODES, classesToBeOpened));
+    private RunnableFuture<dalvik.system.DexFile> openClasses(Set<ClassDef> classesToBeOpened) {
+        return dexFileOpener.openDexFile(new ImmutableDexFile(OPCODES, classesToBeOpened));
     }
 
     private static String dexToJavaName(String dexName) {

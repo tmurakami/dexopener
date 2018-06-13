@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,9 +35,9 @@ public class DexFileHolderMapperTest {
     @Mock
     private ClassNameFilter classNameFilter;
     @Mock
-    private DexFileGenerator dexFileGenerator;
+    private DexFileOpener dexFileOpener;
     @Mock
-    private FutureTask<dalvik.system.DexFile> dexFileTask;
+    private RunnableFuture<dalvik.system.DexFile> dexFileFuture;
 
     @Captor
     private ArgumentCaptor<DexFile> dexFileCaptor;
@@ -59,7 +59,7 @@ public class DexFileHolderMapperTest {
         }
         byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(), classes));
         given(classNameFilter.accept(anyString())).willReturn(true);
-        given(dexFileGenerator.generateDexFile(dexFileCaptor.capture())).willReturn(dexFileTask);
+        given(dexFileOpener.openDexFile(dexFileCaptor.capture())).willReturn(dexFileFuture);
         Map<String, DexFileHolder> holderMap = new HashMap<>();
         testTarget.map(bytecode, holderMap);
         assertEquals(classCount, holderMap.size());

@@ -17,15 +17,17 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 
 @SuppressWarnings("deprecation")
-public class DexFileGeneratorTest {
+public class DexFileOpenerTest {
 
     @Rule
     public TemporaryFolder folder =
@@ -39,10 +41,10 @@ public class DexFileGeneratorTest {
     };
 
     @Test
-    public void task_should_generate_a_DexFile_of_which_final_modifiers_are_removed()
+    public void future_should_generate_a_DexFile_of_which_final_modifiers_are_removed()
             throws Exception {
         ClassDef def = new ImmutableClassDef("Lfoo/Bar;",
-                                             0,
+                                             Modifier.FINAL,
                                              "Ljava/lang/Object;",
                                              null,
                                              null,
@@ -52,9 +54,10 @@ public class DexFileGeneratorTest {
         DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
         ClassLoader classLoader = new ClassLoader() {
         };
-        DexFileGenerator generator = new DexFileGenerator(executor, folder.newFolder());
-        Class<?> c = generator.generateDexFile(dexFile).get().loadClass("foo.Bar", classLoader);
+        DexFileOpener dexFileOpener = new DexFileOpener(executor, folder.newFolder());
+        Class<?> c = dexFileOpener.openDexFile(dexFile).get().loadClass("foo.Bar", classLoader);
         assertSame(classLoader, c.getClassLoader());
+        assertFalse(Modifier.isFinal(c.getModifiers()));
     }
 
     @Test(expected = IOException.class)
@@ -69,10 +72,10 @@ public class DexFileGeneratorTest {
                                              null,
                                              null);
         DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.singleton(def));
-        DexFileGenerator generator = new DexFileGenerator(executor, folder.newFile());
-        FutureTask<dalvik.system.DexFile> task = generator.generateDexFile(dexFile);
+        DexFileOpener dexFileOpener = new DexFileOpener(executor, folder.newFile());
+        RunnableFuture<dalvik.system.DexFile> future = dexFileOpener.openDexFile(dexFile);
         try {
-            task.get();
+            future.get();
         } catch (ExecutionException e) {
             throw e.getCause();
         }

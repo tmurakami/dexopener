@@ -4,13 +4,11 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -32,12 +30,8 @@ public class DexOpenerImplTest {
 
     @Mock
     private Context context;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private AndroidClassSourceFactory androidClassSourceFactory;
-    @Mock
-    private ClassSource classSource;
-    @Mock
-    private ClassFile classFile;
 
     @Test
     public void installTo_should_inject_the_class_source_into_the_given_class_loader()
@@ -48,11 +42,11 @@ public class DexOpenerImplTest {
         String dataDir = folder.newFolder().getCanonicalPath();
         applicationInfo.dataDir = dataDir;
         File cacheDir = new File(dataDir, "code_cache/dexopener");
-        given(androidClassSourceFactory.newClassSource("test", cacheDir)).willReturn(classSource);
-        given(classSource.getClassFile("foo.Bar")).willReturn(classFile);
         ClassLoader classLoader = new ClassLoader() {
         };
-        given(classFile.toClass(classLoader)).willReturn(getClass());
+        given(androidClassSourceFactory.newClassSource("test", cacheDir)
+                                       .getClassFile("foo.Bar")
+                                       .toClass(classLoader)).willReturn(getClass());
         testTarget.installTo(classLoader);
         assertSame(getClass(), classLoader.loadClass("foo.Bar"));
     }

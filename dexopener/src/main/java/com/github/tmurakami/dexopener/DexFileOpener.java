@@ -10,35 +10,36 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final class DexFileGenerator {
+final class DexFileOpener {
 
     private final Executor executor;
     private final File cacheDir;
 
-    DexFileGenerator(Executor executor, File cacheDir) {
+    DexFileOpener(Executor executor, File cacheDir) {
         this.executor = executor;
         this.cacheDir = cacheDir;
     }
 
     @SuppressWarnings("deprecation")
-    FutureTask<dalvik.system.DexFile> generateDexFile(DexFile dexFile) {
-        FutureTask<dalvik.system.DexFile> task =
-                new FutureTask<>(new GenerateDexFile(dexFile, cacheDir));
-        // Run the task in the background in order to improve performance.
-        executor.execute(task);
-        return task;
+    RunnableFuture<dalvik.system.DexFile> openDexFile(DexFile dexFile) {
+        OpenDexFile openDexFile = new OpenDexFile(dexFile, cacheDir);
+        RunnableFuture<dalvik.system.DexFile> future = new FutureTask<>(openDexFile);
+        // Run the future in the background in order to improve performance.
+        executor.execute(future);
+        return future;
     }
 
     @SuppressWarnings("deprecation")
-    private static class GenerateDexFile implements Callable<dalvik.system.DexFile> {
+    private static class OpenDexFile implements Callable<dalvik.system.DexFile> {
 
         private DexFile dexFile;
         private final File cacheDir;
 
-        GenerateDexFile(DexFile dexFile, File cacheDir) {
+        OpenDexFile(DexFile dexFile, File cacheDir) {
             this.dexFile = dexFile;
             this.cacheDir = cacheDir;
         }

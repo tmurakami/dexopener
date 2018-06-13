@@ -40,7 +40,7 @@ final class AndroidClassSourceFactory {
     }
 
     private DexFileHolderMapper newDexFileHolderMapper(File cacheDir) {
-        return new DexFileHolderMapper(classNameFilter, new DexFileGenerator(EXECUTOR, cacheDir));
+        return new DexFileHolderMapper(classNameFilter, new DexFileOpener(EXECUTOR, cacheDir));
     }
 
 }

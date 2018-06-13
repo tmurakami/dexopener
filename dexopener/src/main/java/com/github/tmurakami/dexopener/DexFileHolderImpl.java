@@ -3,26 +3,26 @@ package com.github.tmurakami.dexopener;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
 @SuppressWarnings("deprecation")
 final class DexFileHolderImpl implements DexFileHolder {
 
-    private FutureTask<dalvik.system.DexFile> dexFileTask;
+    private RunnableFuture<dalvik.system.DexFile> dexFileFuture;
 
-    void setDexFileTask(FutureTask<dalvik.system.DexFile> dexFileTask) {
-        this.dexFileTask = dexFileTask;
+    void setDexFileFuture(RunnableFuture<dalvik.system.DexFile> dexFileFuture) {
+        this.dexFileFuture = dexFileFuture;
     }
 
     @Override
     public dalvik.system.DexFile get() throws IOException {
-        // The task might not be completed, so we do it here first.
-        dexFileTask.run();
+        // The future might not be completed, so we do it here first.
+        dexFileFuture.run();
         boolean interrupted = false;
         try {
             while (true) {
                 try {
-                    return dexFileTask.get();
+                    return dexFileFuture.get();
                 } catch (InterruptedException e) {
                     // Refuse to be interrupted
                     interrupted = true;
