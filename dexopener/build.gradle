@@ -126,3 +126,29 @@ artifacts {
     archives sourcesJar
     archives javadocJar
 }
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            url 'https://github.com/tmurakami/dexopener'
+            inceptionYear '2016'
+            licenses {
+                license {
+                    name 'MIT License'
+                    url 'https://raw.githubusercontent.com/tmurakami/dexopener/master/LICENSE'
+                    distribution 'repo'
+                }
+            }
+            developers {
+                developer {
+                    id 'tmurakami'
+                    name 'Tsuyoshi Murakami'
+                }
+            }
+            scm {
+                url 'https://github.com/tmurakami/dexopener'
+                connection 'scm:git:git://github.com/tmurakami/dexopener.git'
+            }
+        }
+    }
+}
