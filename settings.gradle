@@ -1,1 +1,2 @@
-include ':dexopener', ':dexopener-example'
+include ':dexopener'
+include ':dexopener-example'

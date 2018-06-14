@@ -46,16 +46,17 @@ dependencyUpdates.resolutionStrategy {
 }
 
 ext {
-    deps = [dexopener    : project(':dexopener'),
-            retrolambda  : 'net.orfjackal.retrolambda:retrolambda:2.5.4',
+    deps = [retrolambda  : 'net.orfjackal.retrolambda:retrolambda:2.5.4',
             jarjar       : 'org.pantsbuild:jarjar:1.6.5',
             classinjector: 'com.github.tmurakami.classinjector:classinjector-android:0.4.2',
             dexlib2      : 'org.smali:dexlib2:2.2.4',
             guava        : 'com.google.guava:guava:18.0',
             junit        : 'junit:junit:4.12',]
+
     def testVersion = '1.0.2'
-    deps.test = [rules : "com.android.support.test:rules:$testVersion",
-                 runner: "com.android.support.test:runner:$testVersion",]
+    deps.android = [test: [rules : "com.android.support.test:rules:$testVersion",
+                           runner: "com.android.support.test:runner:$testVersion",],]
+
     def mockitoVersion = '2.18.3'
     deps.mockito = [android: "org.mockito:mockito-android:$mockitoVersion",
                     inline : "org.mockito:mockito-inline:$mockitoVersion",]
