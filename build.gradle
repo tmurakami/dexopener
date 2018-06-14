@@ -36,6 +36,7 @@ allprojects {
 
 subprojects {
     version = scmVersion.version
+    group = 'com.github.tmurakami.dexopener'
 }
 
 task clean(type: Delete) {

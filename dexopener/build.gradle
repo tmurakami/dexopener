@@ -17,8 +17,6 @@ apply plugin: 'com.getkeepsafe.dexcount'
 
 apply from: "$rootDir/gradle/android.gradle"
 
-group = 'com.github.tmurakami'
-
 android {
     defaultConfig {
         minSdkVersion 16
@@ -82,7 +80,7 @@ task repackageDependencies(type: ProGuardTask) {
     configuration 'proguard-rules-repackage.pro'
     doFirst { libraryjars project.android.bootClasspath }
     doLast {
-        def rootPackage = "${project.group}.${project.name}.repackaged"
+        def rootPackage = "${project.group}.repackaged"
         ant {
             taskdef name: 'jarjar',
                     classname: 'org.pantsbuild.jarjar.JarJarTask',
