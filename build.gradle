@@ -61,7 +61,7 @@ ext {
     deps.android = [test: [rules : "com.android.support.test:rules:$testVersion",
                            runner: "com.android.support.test:runner:$testVersion",],]
 
-    def mockitoVersion = '2.18.3'
+    def mockitoVersion = '2.19.0'
     deps.mockito = [android: "org.mockito:mockito-android:$mockitoVersion",
                     inline : "org.mockito:mockito-inline:$mockitoVersion",]
 }
