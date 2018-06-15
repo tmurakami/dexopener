@@ -2,15 +2,12 @@
 
 [![CircleCI](https://circleci.com/gh/tmurakami/dexopener.svg?style=shield)](https://circleci.com/gh/tmurakami/dexopener)
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
-[![Javadoc](https://img.shields.io/badge/Javadoc-1.0.0-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/dexopener/1.0.0/javadoc/)<br>
+[![Javadoc](https://img.shields.io/badge/Javadoc-1.0.0-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/1.0.0/javadoc/)<br>
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
 A library that provides the ability to mock
 [your final classes/methods](#limitations_final_you_can_mock) on
 Android.
-
-> **Note:** Since version 1.0.0, the group id is changed from
-`com.github.tmurakami` to `com.github.tmurakami.dexopener`.
 
 ## Example
 
@@ -134,7 +131,7 @@ And then, add this library as `androidTestCompile` dependency.
 
 ```groovy
 dependencies {
-    androidTestCompile 'com.github.tmurakami.dexopener:dexopener:1.0.0'
+    androidTestCompile 'com.github.tmurakami:dexopener:1.0.0'
 }
 ```
 
