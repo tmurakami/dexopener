@@ -80,7 +80,7 @@ task repackageDependencies(type: ProGuardTask) {
     configuration 'proguard-rules-repackage.pro'
     doFirst { libraryjars project.android.bootClasspath }
     doLast {
-        def rootPackage = "${project.group}.repackaged"
+        def rootPackage = "${project.group}.${project.name}.repackaged"
         ant {
             taskdef name: 'jarjar',
                     classname: 'org.pantsbuild.jarjar.JarJarTask',
