@@ -127,11 +127,11 @@ repositories {
 }
 ```
 
-And then, add this library as `androidTestCompile` dependency.
+And then, add this library as `androidTestImplementation` dependency.
 
 ```groovy
 dependencies {
-    androidTestCompile 'com.github.tmurakami:dexopener:1.0.1'
+    androidTestImplementation 'com.github.tmurakami:dexopener:1.0.1'
 }
 ```
 
