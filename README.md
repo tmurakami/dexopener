@@ -9,6 +9,9 @@ A library that provides the ability to mock
 [your final classes/methods](#limitations_final_you_can_mock) on
 Android.
 
+> **Note:** Since version 1.0.0, the group id is changed from
+`com.github.tmurakami` to `com.github.tmurakami.dexopener`.
+
 ## Example
 
 See the [example application](dexopener-example).
@@ -19,7 +22,8 @@ There are two ways to use this library.
 
 > **Note:** Starting at version 0.13.0, DexOpener automatically detects
 the BuildConfig class of the target application. Therefore, you no
-longer need to use `DexOpener.Builder`.
+longer need to use `DexOpener.Builder`. `DexOpener.Builder` will be
+deleted in the next major version.
 
 ### DexOpenerAndroidJUnitRunner
 
@@ -133,7 +137,7 @@ And then, add this library as `androidTestCompile` dependency.
 
 ```groovy
 dependencies {
-    androidTestCompile 'com.github.tmurakami:dexopener:0.13.1'
+    androidTestCompile 'com.github.tmurakami.dexopener:dexopener:0.13.1'
 }
 ```
 
@@ -153,4 +157,24 @@ This library contains the classes of the following libraries:
 
 They have been minified with
 [ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with
-[Jar Jar Links](https://code.google.com/archive/p/jarjar/).
+[Jar Jar Links](https://code.google.com/archive/p/jarjar/). In addition,
+dexlib2 has been backported to Java 7 with
+[Retrolambda](https://github.com/orfjackal/retrolambda).
+
+## License
+
+```
+Copyright 2016 Tsuyoshi Murakami
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
