@@ -151,7 +151,7 @@ This library contains the classes of the following libraries:
 
 They have been minified with
 [ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with
-[Jar Jar Links](https://code.google.com/archive/p/jarjar/). In addition,
+[Jar Jar Links](https://github.com/pantsbuild/jarjar). In addition,
 dexlib2 has been backported to Java 7 with
 [Retrolambda](https://github.com/orfjackal/retrolambda).
 
