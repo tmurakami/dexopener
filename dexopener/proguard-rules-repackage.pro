@@ -4,7 +4,6 @@
 -dontnote org.jf.util.jcommander.**
 -dontnote sun.misc.Unsafe
 
--dontwarn android.support.annotation.**
 -dontwarn com.beust.jcommander.**
 -dontwarn javax.annotation.**
 -dontwarn sun.misc.Unsafe
