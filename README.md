@@ -34,7 +34,7 @@ instrumentation runner.
 ```groovy
 android {
     defaultConfig {
-        minSdkVersion 16 // 16 to 25
+        minSdkVersion 16 // 16 or higher
         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
     }
 }
@@ -76,7 +76,7 @@ build.gradle.
 ```groovy
 android {
     defaultConfig {
-        minSdkVersion 16 // 16 to 25
+        minSdkVersion 16 // 16 or higher
         testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
     }
 }
@@ -118,9 +118,6 @@ example, if the FQCN of your BuildConfig is `foo.bar.BuildConfig`,
 you can mock only the final classes belonging to `foo.bar.**`.
 Therefore, you cannot mock final classes/methods of both Android system
 classes and third-party libraries.
-- `minSdkVersion` cannot be set to more than `26` because
-[dexlib2](https://github.com/JesusFreke/smali) version 2.2.2 does not
-support version `038` of the DEX format.
 
 ## Installation
 
