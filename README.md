@@ -6,8 +6,7 @@
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
 A library that provides the ability to mock
-[your final classes/methods](#limitations_final_you_can_mock) on
-Android.
+[your final classes](#limitations_final_you_can_mock) on Android.
 
 ## Example
 
@@ -113,8 +112,8 @@ return super.newApplication(cl, YourTestApplication.class.getName(), context);
 mock are only those under the package of your app's BuildConfig. For
 example, if the FQCN of your BuildConfig is `foo.bar.BuildConfig`,
 you can mock only the final classes belonging to `foo.bar.**`.
-Therefore, you cannot mock final classes/methods of both Android system
-classes and third-party libraries.
+Therefore, you cannot mock final classes of both Android system classes
+and third-party libraries.
 
 ## Installation
 
