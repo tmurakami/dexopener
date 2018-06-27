@@ -6,11 +6,11 @@
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
 A library that provides the ability to mock
-[your final classes](#limitations_final_you_can_mock) on Android.
+[your final classes](#limitations) on Android.
 
 ## Example
 
-See the [example application](dexopener-example).
+See the [dexopener-example](dexopener-example) directory.
 
 ## Usage
 
@@ -18,8 +18,8 @@ There are two ways to use this library.
 
 > **Note:** Starting at version 0.13.0, DexOpener automatically detects
 the BuildConfig class of the target application. Therefore, you no
-longer need to use `DexOpener.Builder`. `DexOpener.Builder` will be
-deleted in the next major version.
+longer need to use `DexOpener.Builder`. It will be deleted in the next
+major version.
 
 ### DexOpenerAndroidJUnitRunner
 
@@ -43,7 +43,7 @@ public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner { ... }
 ```
 
 If you want to replace the application instance for testing, extend this
-class and implement `newApplication()` method as shown in
+class and implement `newApplication()` method as shown in the
 [Tips](#replacing-the-application-instance-for-testing).
 
 ### DexOpener
@@ -64,7 +64,7 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 
 > **Note:** If you are using a class literal to replace the
 Application instance, you will need to use a string literal instead.
-See [Tips](#replacing-the-application-instance-for-testing).
+See the [Tips](#replacing-the-application-instance-for-testing).
 
 And make sure your test instrumentation runner is specified in your
 build.gradle.
@@ -108,12 +108,13 @@ return super.newApplication(cl, YourTestApplication.class.getName(), context);
 
 ## Limitations
 
-- <a name="limitations_final_you_can_mock"></a>The final classes you can
-mock are only those under the package of your app's BuildConfig. For
-example, if the FQCN of your BuildConfig is `foo.bar.BuildConfig`,
-you can mock only the final classes belonging to `foo.bar.**`.
-Therefore, you cannot mock final classes of both Android system classes
-and third-party libraries.
+The final classes you can mock on instrumentation tests are only those
+under the package indicated by the `applicationId` in your build.gradle.
+For example, if it is `foo.bar`, you can mock only the final classes
+belonging in `foo.bar.**`, such as `foo.bar.Baz` and `foo.bar.qux.Quux`.
+Therefore, you cannot mock the final classes of both Android system
+classes and third-party libraries, and cannot mock the final classes not
+belonging in that package, even if they are yours.
 
 ## Installation
 
@@ -136,7 +137,7 @@ dependencies {
 
 > **Note:** If you are using
 [Multidex](https://developer.android.com/studio/build/multidex.html?hl=en),
-you need to specify your app's BuildConfig
+you need to specify your BuildConfig
 [in the primary DEX file](https://developer.android.com/studio/build/multidex.html?hl=en#keep),
 otherwise, you will get the NoClassDefFoundError.
 
