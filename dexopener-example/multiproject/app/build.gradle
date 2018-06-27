@@ -7,7 +7,7 @@ apply from: "$rootDir/gradle/android.gradle"
 android {
     defaultConfig {
         applicationId 'com.example.dexopener.multiproject'
-        minSdkVersion 28
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName version
