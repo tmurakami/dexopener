@@ -1,0 +1,26 @@
+import com.android.ddmlib.DdmPreferences
+
+apply plugin: 'com.android.application'
+
+apply from: "$rootDir/gradle/android.gradle"
+
+android {
+    defaultConfig {
+        applicationId 'com.example.dexopener.multiproject'
+        minSdkVersion 28
+        targetSdkVersion 28
+        versionCode 1
+        versionName version
+        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+    }
+    buildTypes.debug.testCoverageEnabled true
+    DdmPreferences.setTimeOut 60000
+}
+
+dependencies {
+    implementation deps.android.annotations
+    implementation project(':dexopener-example:multiproject:lib')
+    androidTestImplementation project(':dexopener')
+    androidTestImplementation deps.android.test.rules
+    androidTestImplementation deps.mockito.android
+}

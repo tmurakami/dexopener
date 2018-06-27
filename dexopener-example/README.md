@@ -1,11 +1,15 @@
 # Example
 
-This application contains the following examples as product flavors:
+This directory contains the following examples:
 
-### usingDexOpenerAndroidJUnitRunner
+### [basic](basic)
 
 An example using `DexOpenerAndroidJUnitRunner`.
 
-### usingDexOpener
+### [custom](custom)
 
 An example using `DexOpener`.
+
+### [multiproject](multiproject)
+
+An example of an application containing two projects, `app` and `lib`.
