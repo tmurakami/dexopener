@@ -1,0 +1,63 @@
+version: 2
+
+references:
+  cache_key: &cache_key
+    jars-{{ checksum "build.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+
+jobs:
+  build:
+    docker:
+      - image: circleci/android:api-27-alpha
+    environment:
+      TERM: dumb
+      GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cache_key
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          key: *cache_key
+          paths:
+            - ~/.gradle
+      - run:
+          name: Assemble
+          command: ./gradlew -p dexopener assembleDebug assembleAndroidTest
+      - run:
+          name: Run Lint and Tests
+          command: ./gradlew -p dexopener lintDebug jacocoTestDebugUnitTestReport
+      - store_artifacts:
+          path: dexopener/build/reports
+      - store_test_results:
+          path: dexopener/build/test-results
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dexopener/build
+            - dexopener/firebase
+  instrumentation_tests:
+    docker:
+      - image: google/cloud-sdk:latest
+    environment:
+      TERM: dumb
+    steps:
+      - attach_workspace:
+          at: $CIRCLE_WORKING_DIRECTORY
+      - run:
+          name: Run tests on Firebase Test Lab
+          command: dexopener/firebase/test.sh
+      - store_artifacts:
+          path: dexopener/build/test-results/firebase
+      - store_test_results:
+          path: dexopener/build/test-results/firebase
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - instrumentation_tests:
+          requires:
+            - build
