@@ -19,18 +19,16 @@ jobs:
       - restore_cache:
           key: *cache_key
       - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - save_cache:
-          key: *cache_key
-          paths:
-            - ~/.gradle
-      - run:
           name: Assemble
           command: ./gradlew -p dexopener assembleDebug assembleAndroidTest
       - run:
           name: Run Lint and Tests
           command: ./gradlew -p dexopener lintDebug jacocoTestDebugUnitTestReport
+      - save_cache:
+          key: *cache_key
+          paths:
+            - ~/.gradle/caches
+            - ~/.gradle/wrapper
       - store_artifacts:
           path: dexopener/build/reports
       - store_test_results:
@@ -41,6 +39,7 @@ jobs:
             - dexopener/build
             - dexopener/firebase
   instrumentation_tests:
+    working_directory: *workspace
     docker:
       - image: google/cloud-sdk:latest
     environment:
