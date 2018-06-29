@@ -1,11 +1,14 @@
 version: 2
 
 references:
+  workspace: &workspace
+    ~/project
   cache_key: &cache_key
     jars-{{ checksum "build.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
 
 jobs:
   build:
+    working_directory: *workspace
     docker:
       - image: circleci/android:api-27-alpha
     environment:
@@ -44,7 +47,7 @@ jobs:
       TERM: dumb
     steps:
       - attach_workspace:
-          at: $CIRCLE_WORKING_DIRECTORY
+          at: *workspace
       - run:
           name: Run tests on Firebase Test Lab
           command: dexopener/firebase/test.sh
