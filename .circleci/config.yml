@@ -2,13 +2,12 @@ version: 2
 
 references:
   workspace: &workspace
-    ~/project
+    /tmp/workspace
   cache_key: &cache_key
     jars-{{ checksum "build.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
 
 jobs:
   build:
-    working_directory: *workspace
     docker:
       - image: circleci/android:api-27-alpha
     environment:
@@ -36,7 +35,7 @@ jobs:
       - store_test_results:
           path: dexopener/build/test-results
       - persist_to_workspace:
-          root: .
+          root: *workspace
           paths:
             - dexopener/build
             - dexopener/firebase
