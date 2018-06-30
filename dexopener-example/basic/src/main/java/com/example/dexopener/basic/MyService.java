@@ -16,11 +16,11 @@
 
 package com.example.dexopener.basic;
 
-// The final classes you can mock on instrumentation tests are only those under the package
+// The final classes you can mock on instrumented unit tests are only those under the package
 // indicated by the `applicationId` in the `defaultConfig` section of the build.gradle. In this
 // example, it is `com.example.dexopener.basic` as specified in the build.gradle.
 // The package name of this class is `com.example.dexopener.basic` as above and therefore this class
-// can be mocked on instrumentation tests.
+// can be mocked on instrumented unit tests.
 final class MyService {
     void doIt() {
     }

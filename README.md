@@ -108,7 +108,7 @@ return super.newApplication(cl, YourTestApplication.class.getName(), context);
 
 ## Limitations
 
-The final classes you can mock on instrumentation tests are only those
+The final classes you can mock on instrumented unit tests are only those
 under the package indicated by the `applicationId` in your build.gradle.
 For example, if it is `foo.bar`, you can mock only the final classes
 belonging in `foo.bar.**`, such as `foo.bar.Baz` and `foo.bar.qux.Quux`.
