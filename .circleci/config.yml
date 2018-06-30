@@ -20,7 +20,7 @@ jobs:
           key: *cache_key
       - run:
           name: Assemble
-          command: ./gradlew -p dexopener assembleDebug assembleAndroidTest
+          command: ./gradlew -p dexopener assembleAndroidTest
       - run:
           name: Run Lint and Tests
           command: ./gradlew -p dexopener lintDebug jacocoTestDebugUnitTestReport
@@ -38,7 +38,7 @@ jobs:
           paths:
             - dexopener/build
             - dexopener/firebase
-  instrumentation_tests:
+  test_instrumented:
     working_directory: *workspace
     docker:
       - image: google/cloud-sdk:latest
@@ -48,8 +48,14 @@ jobs:
       - attach_workspace:
           at: *workspace
       - run:
+          name: Authenticate to GCP
+          command: dexopener/firebase/auth.sh
+      - run:
           name: Run tests on Firebase Test Lab
-          command: dexopener/firebase/test.sh
+          command: dexopener/firebase/test.sh dexopener
+      - run:
+          name: Fetch test results
+          command: dexopener/firebase/fetch_results.sh test-lab-52rkbqmf6t0pc-itz864dzcxk5x
       - store_artifacts:
           path: dexopener/build/test-results/firebase
       - store_test_results:
@@ -60,6 +66,6 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - instrumentation_tests:
+      - test_instrumented:
           requires:
             - build
