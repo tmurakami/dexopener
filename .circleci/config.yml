@@ -49,17 +49,17 @@ jobs:
           at: *workspace
       - run:
           name: Authenticate to GCP
-          command: dexopener/firebase/auth.sh
+          command: ftl/auth.sh dexopener
       - run:
           name: Run tests on Firebase Test Lab
-          command: dexopener/firebase/test.sh dexopener
+          command: ftl/test.sh dexopener/build/outputs/apk/androidTest/debug/dexopener-debug-androidTest.apk
       - run:
           name: Fetch test results
-          command: dexopener/firebase/fetch_results.sh test-lab-52rkbqmf6t0pc-itz864dzcxk5x
+          command: ftl/fetch_results.sh test-lab-52rkbqmf6t0pc-itz864dzcxk5x dexopener/build/test-results/ftl
       - store_artifacts:
-          path: dexopener/build/test-results/firebase
+          path: dexopener/build/test-results/ftl
       - store_test_results:
-          path: dexopener/build/test-results/firebase
+          path: dexopener/build/test-results/ftl
 
 workflows:
   version: 2
