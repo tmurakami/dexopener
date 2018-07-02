@@ -36,8 +36,8 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
+            - ftl
             - dexopener/build
-            - dexopener/firebase
   test_instrumented:
     working_directory: *workspace
     docker:
