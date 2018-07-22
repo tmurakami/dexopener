@@ -25,6 +25,7 @@ android {
         consumerProguardFile 'proguard-rules.pro'
     }
     lintOptions.disable 'InvalidPackage'
+    testOptions.animationsDisabled true
     DdmPreferences.setTimeOut 60000
     libraryVariants.all {
         it.generateBuildConfig.enabled = false
@@ -62,23 +63,23 @@ task backportDependencies(type: JavaExec) {
     def jars = configurations.backport.files
     inputs.files jars
     outputs.dir backportDir
+    classpath = configurations.retrolambda
+    main = 'net.orfjackal.retrolambda.Main'
+    jvmArgs = ["-Dretrolambda.inputDir=$backportDir", "-Dretrolambda.classpath=$backportDir"]
     doFirst {
         copy {
             jars.each { from zipTree(it) }
             into backportDir
         }
     }
-    classpath = configurations.retrolambda
-    main = 'net.orfjackal.retrolambda.Main'
-    jvmArgs = ["-Dretrolambda.inputDir=$backportDir", "-Dretrolambda.classpath=$backportDir"]
 }
 
 task repackageDependencies(type: ProGuardTask) {
     outputs.file repackagedJar
     injars filter: '!AndroidManifest.xml,!META-INF/**', configurations.repackage
     outjars "$buildDir/tmp/repackage.tmp.jar"
+    libraryjars project.android.bootClasspath
     configuration 'proguard-rules-repackage.pro'
-    doFirst { libraryjars project.android.bootClasspath }
     doLast {
         def rootPackage = "${project.group}.${project.name}.repackaged"
         ant {
