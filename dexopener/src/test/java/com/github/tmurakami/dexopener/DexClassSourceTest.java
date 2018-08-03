@@ -34,11 +34,11 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class DexClassSourceTest {
 
-    @Mock
+    @Mock(stubOnly = true)
     private DexClassFileFactory dexClassFileFactory;
-    @Mock
+    @Mock(stubOnly = true)
     private DexFileHolder dexFileHolder;
-    @Mock
+    @Mock(stubOnly = true)
     private ClassFile classFile;
 
     @SuppressWarnings("deprecation")

@@ -44,7 +44,7 @@ public class DexOpenerImplTest {
     @InjectMocks
     private DexOpenerImpl testTarget;
 
-    @Mock
+    @Mock(stubOnly = true)
     private Context context;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private AndroidClassSourceFactory androidClassSourceFactory;

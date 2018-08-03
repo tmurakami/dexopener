@@ -48,11 +48,11 @@ public class DexFileHolderMapperTest {
     @InjectMocks
     private DexFileHolderMapper testTarget;
 
-    @Mock
+    @Mock(stubOnly = true)
     private ClassNameFilter classNameFilter;
-    @Mock
+    @Mock(stubOnly = true)
     private DexFileOpener dexFileOpener;
-    @Mock
+    @Mock(stubOnly = true)
     private RunnableFuture<dalvik.system.DexFile> dexFileFuture;
 
     @Captor

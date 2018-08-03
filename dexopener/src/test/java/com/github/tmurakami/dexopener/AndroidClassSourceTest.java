@@ -58,15 +58,15 @@ public class AndroidClassSourceTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock
+    @Mock(stubOnly = true)
     private ClassNameFilter classNameFilter;
-    @Mock
+    @Mock(stubOnly = true)
     private DexFileHolderMapper dexFileMapper;
-    @Mock
+    @Mock(stubOnly = true)
     private DexFileHolder dexFileHolder;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(stubOnly = true, answer = Answers.RETURNS_DEEP_STUBS)
     private DexClassSourceFactory dexClassSourceFactory;
-    @Mock
+    @Mock(stubOnly = true)
     private ClassFile classFile;
 
     @Captor
