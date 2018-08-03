@@ -42,9 +42,9 @@ You can extend this class to create your custom `AndroidJUnitRunner`.
 public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner { ... }
 ```
 
-If you want to replace the application instance for testing, extend this
-class and implement `newApplication()` method as shown in the
-[Tips](#replacing-the-application-instance-for-testing).
+If you want to replace the `android.app.Application` instance for
+testing, extend this class and implement `newApplication()` method as
+shown in the [Tips](#replacing-the-application-instance-for-testing).
 
 ### DexOpener
 
@@ -63,8 +63,9 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 ```
 
 > **Note:** If you are using a class literal to replace the
-Application instance, you will need to use a string literal instead.
-See the [Tips](#replacing-the-application-instance-for-testing).
+`android.app.Application` instance, you will need to use a string
+literal instead. See the
+[Tips](#replacing-the-application-instance-for-testing).
 
 And make sure your test instrumentation runner is specified in your
 build.gradle.
@@ -98,8 +99,8 @@ public Application newApplication(ClassLoader cl, String className, Context cont
 }
 ```
 
-**Do not call `Class#getName()` to get the Application class name**. The
-following code may cause a class inconsistency error.
+**Do not call `Class#getName()` to get your Application class name**.
+The following code may cause a class inconsistency error.
 
 ```java
 // This code may cause a class inconsistency error.
