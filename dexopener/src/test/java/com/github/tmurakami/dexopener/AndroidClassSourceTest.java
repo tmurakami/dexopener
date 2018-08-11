@@ -61,7 +61,7 @@ public class AndroidClassSourceTest {
     @Mock(stubOnly = true)
     private ClassNameFilter classNameFilter;
     @Mock(stubOnly = true)
-    private DexFileHolderMapper dexFileMapper;
+    private DexFileHolderMapper dexFileHolderMapper;
     @Mock(stubOnly = true)
     private DexFileHolder dexFileHolder;
     @Mock(stubOnly = true, answer = Answers.RETURNS_DEEP_STUBS)
@@ -82,7 +82,7 @@ public class AndroidClassSourceTest {
             public void answer(byte[] bytecode, Map<String, DexFileHolder> holderMap) {
                 holderMap.put(className, dexFileHolder);
             }
-        })).given(dexFileMapper).map(bytecodeCaptor.capture(), ArgumentMatchers.<String, DexFileHolder>anyMap());
+        })).given(dexFileHolderMapper).map(bytecodeCaptor.capture(), ArgumentMatchers.<String, DexFileHolder>anyMap());
         given(dexClassSourceFactory
                       .newClassSource(argThat(new ArgumentMatcher<Map<String, DexFileHolder>>() {
                           @Override
@@ -93,7 +93,6 @@ public class AndroidClassSourceTest {
                           }
                       }))
                       .getClassFile(className)).willReturn(classFile);
-        // The `javaName` must be neither a primitive type nor an array type.
         ClassDef def = new ImmutableClassDef("Lfoo/Bar;",
                                              0,
                                              null,
@@ -107,7 +106,7 @@ public class AndroidClassSourceTest {
         File apk = generateZip(bytecode);
         assertSame(classFile, new AndroidClassSource(apk.getCanonicalPath(),
                                                      classNameFilter,
-                                                     dexFileMapper,
+                                                     dexFileHolderMapper,
                                                      dexClassSourceFactory).getClassFile(className));
         assertArrayEquals(bytecode, bytecodeCaptor.getValue());
     }
@@ -117,7 +116,7 @@ public class AndroidClassSourceTest {
             throws Exception {
         AndroidClassSource classSource = new AndroidClassSource("",
                                                                 classNameFilter,
-                                                                dexFileMapper,
+                                                                dexFileHolderMapper,
                                                                 dexClassSourceFactory);
         assertNull(classSource.getClassFile("foo.Bar"));
     }
@@ -132,7 +131,7 @@ public class AndroidClassSourceTest {
         File apk = generateZip(bytecode);
         new AndroidClassSource(apk.getCanonicalPath(),
                                classNameFilter,
-                               dexFileMapper,
+                               dexFileHolderMapper,
                                dexClassSourceFactory).getClassFile(className);
     }
 
