@@ -20,12 +20,18 @@ import android.support.annotation.NonNull;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -33,20 +39,23 @@ import java.util.zip.ZipInputStream;
 
 final class AndroidClassSource implements ClassSource {
 
+    // Empirically determined value. Increasing this will slow DEX file generation.
+    private static final int MAX_CLASSES_PER_DEX_FILE = 100;
+
+    private final Opcodes opcodes;
     private final String sourceDir;
     private final ClassNameFilter classNameFilter;
-    private final DexFileHolderMapper dexFileHolderMapper;
-    private final DexClassSourceFactory dexClassSourceFactory;
+    private final ClassOpener classOpener;
     private ClassSource delegate;
 
-    AndroidClassSource(String sourceDir,
+    AndroidClassSource(Opcodes opcodes,
+                       String sourceDir,
                        ClassNameFilter classNameFilter,
-                       DexFileHolderMapper dexFileHolderMapper,
-                       DexClassSourceFactory dexClassSourceFactory) {
+                       ClassOpener classOpener) {
+        this.opcodes = opcodes;
         this.sourceDir = sourceDir;
         this.classNameFilter = classNameFilter;
-        this.dexFileHolderMapper = dexFileHolderMapper;
-        this.dexClassSourceFactory = dexClassSourceFactory;
+        this.classOpener = classOpener;
     }
 
     @Override
@@ -54,40 +63,68 @@ final class AndroidClassSource implements ClassSource {
         return classNameFilter.accept(className) ? getDelegate().getClassFile(className) : null;
     }
 
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private ClassSource getDelegate() throws IOException {
         ClassSource source = delegate;
-        if (source == null) {
-            source = delegate = newDelegate();
+        if (source != null) {
+            return source;
         }
-        return source;
-    }
-
-    @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    private ClassSource newDelegate() throws IOException {
         Map<String, DexFileHolder> holderMap = new HashMap<>();
-        Logger logger = Loggers.get();
         ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
         try {
-            for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
-                String name = e.getName();
-                if (!name.startsWith("classes") || !name.endsWith(".dex")) {
-                    continue;
-                }
-                if (logger.isLoggable(Level.FINEST)) {
-                    logger.finest("Reading the entry " + name + " from " + sourceDir);
-                }
-                dexFileHolderMapper.map(IOUtils.readBytes(in), holderMap);
-            }
+            map(in, holderMap);
         } finally {
             in.close();
         }
         if (holderMap.isEmpty()) {
             throw new IllegalStateException("There are no classes to be opened");
         }
-        if (logger.isLoggable(Level.FINEST)) {
-            logger.finest(holderMap.size() + " classes will be opened");
+        return delegate = new DexClassSource(holderMap);
+    }
+
+    private void map(ZipInputStream in, Map<String, DexFileHolder> holderMap) throws IOException {
+        Logger logger = Loggers.get();
+        Set<ClassDef> classesToBeOpened = new HashSet<>();
+        DexFileHolderImpl holder = new DexFileHolderImpl();
+        for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
+            String name = e.getName();
+            if (!name.startsWith("classes") || !name.endsWith(".dex")) {
+                continue;
+            }
+            if (logger.isLoggable(Level.FINEST)) {
+                logger.finest("Reading the entry " + name + " from " + sourceDir);
+            }
+            DexFile dexFile = new DexBackedDexFile(opcodes, IOUtils.readBytes(in));
+            for (ClassDef def : dexFile.getClasses()) {
+                String dexName = def.getType();
+                // `dexName` should be neither a primitive type nor an array type.
+                String className = dexName.substring(1, dexName.length() - 1).replace('/', '.');
+                if (!classNameFilter.accept(className)) {
+                    continue;
+                }
+                if (logger.isLoggable(Level.FINEST)) {
+                    logger.finest("Class to be opened: " + className);
+                }
+                classesToBeOpened.add(def);
+                holderMap.put(className, holder);
+                // It is faster to generate a DEX file for multiple classes at once than for a
+                // single class.
+                if (classesToBeOpened.size() < MAX_CLASSES_PER_DEX_FILE) {
+                    continue;
+                }
+                holder.setDexFileFuture(openClasses(classesToBeOpened));
+                classesToBeOpened = new HashSet<>();
+                holder = new DexFileHolderImpl();
+            }
         }
-        return dexClassSourceFactory.newClassSource(Collections.unmodifiableMap(holderMap));
+        if (!classesToBeOpened.isEmpty()) {
+            holder.setDexFileFuture(openClasses(classesToBeOpened));
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private RunnableFuture<? extends dalvik.system.DexFile> openClasses(Set<? extends ClassDef> classes) {
+        return classOpener.openClasses(opcodes, classes);
     }
 
 }

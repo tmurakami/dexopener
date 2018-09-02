@@ -24,9 +24,9 @@ import java.util.concurrent.RunnableFuture;
 @SuppressWarnings("deprecation")
 final class DexFileHolderImpl implements DexFileHolder {
 
-    private RunnableFuture<dalvik.system.DexFile> dexFileFuture;
+    private RunnableFuture<? extends dalvik.system.DexFile> dexFileFuture;
 
-    void setDexFileFuture(RunnableFuture<dalvik.system.DexFile> dexFileFuture) {
+    void setDexFileFuture(RunnableFuture<? extends dalvik.system.DexFile> dexFileFuture) {
         this.dexFileFuture = dexFileFuture;
     }
 

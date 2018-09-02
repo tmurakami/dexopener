@@ -16,13 +16,17 @@
 
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexRewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.io.FileDataStore;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.pool.DexPool;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
@@ -30,19 +34,20 @@ import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final class DexFileOpener {
+final class ClassOpener {
 
     private final Executor executor;
     private final File cacheDir;
 
-    DexFileOpener(Executor executor, File cacheDir) {
+    ClassOpener(Executor executor, File cacheDir) {
         this.executor = executor;
         this.cacheDir = cacheDir;
     }
 
     @SuppressWarnings("deprecation")
-    RunnableFuture<dalvik.system.DexFile> openDexFile(DexFile dexFile) {
-        OpenDexFile openDexFile = new OpenDexFile(dexFile, cacheDir);
+    RunnableFuture<? extends dalvik.system.DexFile> openClasses(Opcodes opcodes,
+                                                                Set<? extends ClassDef> classes) {
+        OpenDexFile openDexFile = new OpenDexFile(opcodes, classes, cacheDir);
         RunnableFuture<dalvik.system.DexFile> future = new FutureTask<>(openDexFile);
         // Run the future in the background in order to improve performance.
         executor.execute(future);
@@ -52,22 +57,25 @@ final class DexFileOpener {
     @SuppressWarnings("deprecation")
     private static class OpenDexFile implements Callable<dalvik.system.DexFile> {
 
-        private DexFile dexFile;
+        private final Opcodes opcodes;
+        private Set<? extends ClassDef> classes;
         private final File cacheDir;
 
-        OpenDexFile(DexFile dexFile, File cacheDir) {
-            this.dexFile = dexFile;
+        OpenDexFile(Opcodes opcodes, Set<? extends ClassDef> classes, File cacheDir) {
+            this.opcodes = opcodes;
+            this.classes = classes;
             this.cacheDir = cacheDir;
         }
 
         @Override
         public dalvik.system.DexFile call() throws IOException {
+            DexFile dexFile = new ImmutableDexFile(opcodes, classes);
             DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
             try {
                 return generateDexFile(dexRewriter.rewriteDexFile(dexFile), cacheDir);
             } finally {
-                // The `dexFile` may have bytecode to eat a lot of memory, so we release it here.
-                dexFile = null;
+                // The `classes` may have bytecode to eat a lot of memory, so we release it here.
+                classes = null;
             }
         }
 

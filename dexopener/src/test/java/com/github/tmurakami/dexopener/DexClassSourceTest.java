@@ -16,49 +16,51 @@
 
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 
+@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class DexClassSourceTest {
 
     @Mock(stubOnly = true)
-    private DexClassFileFactory dexClassFileFactory;
-    @Mock(stubOnly = true)
     private DexFileHolder dexFileHolder;
     @Mock(stubOnly = true)
-    private ClassFile classFile;
+    private dalvik.system.DexFile dexFile;
 
-    @SuppressWarnings("deprecation")
     @Test
     public void getClassFile_should_return_the_ClassFile_if_the_given_name_is_in_the_map_of_holders()
             throws Exception {
-        dalvik.system.DexFile dexFile = new dalvik.system.DexFile("test");
         given(dexFileHolder.get()).willReturn(dexFile);
-        String className = "foo.Bar";
-        given(dexClassFileFactory.newClassFile(className, dexFile)).willReturn(classFile);
+        final String className = "foo.Bar";
+        given(dexFile.entries()).willAnswer(new Answer<Enumeration<String>>() {
+            @Override
+            public Enumeration<String> answer(InvocationOnMock invocation) {
+                return Collections.enumeration(Collections.singletonList(className));
+            }
+        });
         Map<String, DexFileHolder> holderMap = new HashMap<>();
         holderMap.put(className, dexFileHolder);
-        assertSame(classFile, new DexClassSource(holderMap, dexClassFileFactory).getClassFile(className));
+        assertNotNull(new DexClassSource(holderMap).getClassFile(className));
     }
 
     @Test
     public void getClassFile_should_return_null_if_the_given_name_is_not_in_the_map_of_holders()
             throws Exception {
-        assertNull(new DexClassSource(Collections.<String, DexFileHolder>emptyMap(),
-                                      dexClassFileFactory).getClassFile("foo.Bar"));
+        assertNull(new DexClassSource(Collections.<String, DexFileHolder>emptyMap()).getClassFile("foo.Bar"));
     }
 
 }

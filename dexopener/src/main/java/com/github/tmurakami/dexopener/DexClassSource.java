@@ -18,25 +18,23 @@ package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.android.DexClassFile;
 
 import java.io.IOException;
 import java.util.Map;
 
 final class DexClassSource implements ClassSource {
 
-    private final Map<String, DexFileHolder> holderMap;
-    private final DexClassFileFactory dexClassFileFactory;
+    private final Map<? extends String, ? extends DexFileHolder> holderMap;
 
-    DexClassSource(Map<String, DexFileHolder> holderMap,
-                   DexClassFileFactory dexClassFileFactory) {
+    DexClassSource(Map<? extends String, ? extends DexFileHolder> holderMap) {
         this.holderMap = holderMap;
-        this.dexClassFileFactory = dexClassFileFactory;
     }
 
     @Override
     public ClassFile getClassFile(String className) throws IOException {
         DexFileHolder holder = holderMap.get(className);
-        return holder == null ? null : dexClassFileFactory.newClassFile(className, holder.get());
+        return holder == null ? null : new DexClassFile(className, holder.get());
     }
 
 }
