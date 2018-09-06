@@ -6,7 +6,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
-        classpath 'pl.allegro.tech.build:axion-release-plugin:1.9.2'
+        classpath 'pl.allegro.tech.build:axion-release-plugin:1.9.3'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.3'
     }
 }
@@ -50,10 +50,10 @@ dependencyUpdates.resolutionStrategy {
 }
 
 ext {
-    deps = [retrolambda  : 'net.orfjackal.retrolambda:retrolambda:2.5.4',
+    deps = [retrolambda  : 'net.orfjackal.retrolambda:retrolambda:2.5.5',
             jarjar       : 'org.pantsbuild:jarjar:1.6.6',
             classinjector: 'com.github.tmurakami.classinjector:classinjector-android:1.0.0',
-            dexlib2      : 'org.smali:dexlib2:2.2.4',
+            dexlib2      : 'org.smali:dexlib2:2.2.5',
             guava        : 'com.google.guava:guava:18.0',
             junit        : 'junit:junit:4.12',]
 
