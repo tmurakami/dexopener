@@ -19,27 +19,29 @@ package com.github.tmurakami.dexopener;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.AccessFlags;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Annotation;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Field;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Method;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RunnableFuture;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("deprecation")
 public class ClassOpenerTest {
@@ -58,18 +60,11 @@ public class ClassOpenerTest {
     @Test
     public void future_should_generate_a_DexFile_of_which_final_modifiers_are_removed()
             throws Exception {
+        ClassDef def = readFooBarClassDef();
+        assertTrue(AccessFlags.FINAL.isSet(def.getAccessFlags()));
         ClassOpener classOpener = new ClassOpener(executor, folder.newFolder());
-        Opcodes opcodes = Opcodes.getDefault();
-        ClassDef def = new ImmutableClassDef("Lfoo/Bar;",
-                                             Modifier.FINAL,
-                                             "Ljava/lang/Object;",
-                                             null,
-                                             null,
-                                             Collections.<Annotation>emptySet(),
-                                             Collections.<Field>emptySet(),
-                                             Collections.<Method>emptySet());
-        Set<ClassDef> classes = Collections.singleton(def);
-        RunnableFuture<? extends dalvik.system.DexFile> future = classOpener.openClasses(opcodes, classes);
+        RunnableFuture<? extends dalvik.system.DexFile> future =
+                classOpener.openClasses(Opcodes.getDefault(), Collections.singleton(def));
         ClassLoader classLoader = new ClassLoader() {
         };
         Class<?> c = future.get().loadClass("foo.Bar", classLoader);
@@ -81,22 +76,36 @@ public class ClassOpenerTest {
     public void getting_a_DexFile_should_cause_IOException_if_the_cache_directory_cannot_be_created()
             throws Throwable {
         ClassOpener classOpener = new ClassOpener(executor, folder.newFile());
-        Opcodes opcodes = Opcodes.getDefault();
-        ClassDef def = new ImmutableClassDef("Lfoo/Bar;",
-                                             0,
-                                             null,
-                                             null,
-                                             null,
-                                             null,
-                                             null,
-                                             null);
-        Set<ClassDef> classes = Collections.singleton(def);
-        RunnableFuture<? extends dalvik.system.DexFile> future = classOpener.openClasses(opcodes, classes);
+        RunnableFuture<? extends dalvik.system.DexFile> future =
+                classOpener.openClasses(Opcodes.getDefault(), Collections.<ClassDef>emptySet());
         try {
             future.get();
         } catch (ExecutionException e) {
             throw e.getCause();
         }
+    }
+
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
+    private static ClassDef readFooBarClassDef() throws IOException {
+        String sourceDir = InstrumentationRegistry.getContext().getApplicationInfo().sourceDir;
+        ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
+        try {
+            for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
+                String name = e.getName();
+                if (!name.startsWith("classes") || !name.endsWith(".dex")) {
+                    continue;
+                }
+                DexFile dexFile = new DexBackedDexFile(Opcodes.getDefault(), IOUtils.readBytes(in));
+                for (ClassDef def : dexFile.getClasses()) {
+                    if (def.getType().equals("Lfoo/Bar;")) {
+                        return def;
+                    }
+                }
+            }
+        } finally {
+            in.close();
+        }
+        throw new IllegalStateException("Cannot read foo.Bar");
     }
 
 }

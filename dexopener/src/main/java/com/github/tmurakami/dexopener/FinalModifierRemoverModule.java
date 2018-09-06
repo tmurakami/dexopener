@@ -16,10 +16,12 @@
 
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.AccessFlags;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Annotation;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.AnnotationElement;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Method;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.value.EncodedValue;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.value.IntEncodedValue;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableAnnotationElement;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.value.ImmutableIntEncodedValue;
@@ -32,7 +34,6 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.Rewrite
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.RewriterUtils;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.Rewriters;
 
-import java.lang.reflect.Modifier;
 import java.util.Set;
 
 final class FinalModifierRemoverModule extends RewriterModule {
@@ -55,12 +56,14 @@ final class FinalModifierRemoverModule extends RewriterModule {
                                 if (!name.equals("accessFlags")) {
                                     return annotationElement;
                                 }
-                                int accessFlags = ((IntEncodedValue) annotationElement.getValue()).getValue();
-                                int nonFinal = accessFlags & ~Modifier.FINAL;
-                                if (nonFinal == accessFlags) {
+                                EncodedValue value = annotationElement.getValue();
+                                int accessFlags = ((IntEncodedValue) value).getValue();
+                                if (!AccessFlags.FINAL.isSet(accessFlags)) {
                                     return annotationElement;
                                 }
-                                return new ImmutableAnnotationElement(name, new ImmutableIntEncodedValue(nonFinal));
+                                int nonFinal = accessFlags & ~AccessFlags.FINAL.getValue();
+                                EncodedValue newValue = new ImmutableIntEncodedValue(nonFinal);
+                                return new ImmutableAnnotationElement(name, newValue);
                             }
                         }, annotation.getElements());
                     }
@@ -77,7 +80,7 @@ final class FinalModifierRemoverModule extends RewriterModule {
                 return new RewrittenClassDef(classDef) {
                     @Override
                     public int getAccessFlags() {
-                        return super.getAccessFlags() & ~Modifier.FINAL;
+                        return super.getAccessFlags() & ~AccessFlags.FINAL.getValue();
                     }
                 };
             }
@@ -92,7 +95,7 @@ final class FinalModifierRemoverModule extends RewriterModule {
                 return new RewrittenMethod(method) {
                     @Override
                     public int getAccessFlags() {
-                        return super.getAccessFlags() & ~Modifier.FINAL;
+                        return super.getAccessFlags() & ~AccessFlags.FINAL.getValue();
                     }
                 };
             }

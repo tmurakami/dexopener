@@ -27,16 +27,6 @@
 -keep class org.jf.dexlib2.dexbacked.DexBackedDexFile {
     public <init>(org.jf.dexlib2.Opcodes, byte[]);
 }
--keep class org.jf.dexlib2.iface.ClassDef {
-    public java.lang.Iterable getMethods();
-}
--keep class org.jf.dexlib2.iface.DexFile
--keep class org.jf.dexlib2.immutable.ImmutableClassDef {
-    public <init>(java.lang.String, int, java.lang.String, java.util.Collection, java.lang.String, java.util.Collection, java.lang.Iterable, java.lang.Iterable);
-}
--keep class org.jf.dexlib2.immutable.ImmutableDexFile {
-    public <init>(org.jf.dexlib2.Opcodes, java.util.Collection);
-}
 -keep class org.jf.dexlib2.rewriter.DexRewriter {
     public <init>(org.jf.dexlib2.rewriter.RewriterModule);
     public org.jf.dexlib2.iface.DexFile rewriteDexFile(org.jf.dexlib2.iface.DexFile);

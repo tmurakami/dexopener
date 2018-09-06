@@ -19,7 +19,6 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexRewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.io.FileDataStore;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.pool.DexPool;
@@ -55,7 +54,7 @@ final class ClassOpener {
     }
 
     @SuppressWarnings("deprecation")
-    private static class OpenDexFile implements Callable<dalvik.system.DexFile> {
+    private static class OpenDexFile implements Callable<dalvik.system.DexFile>, DexFile {
 
         private final Opcodes opcodes;
         private Set<? extends ClassDef> classes;
@@ -68,11 +67,20 @@ final class ClassOpener {
         }
 
         @Override
+        public Opcodes getOpcodes() {
+            return opcodes;
+        }
+
+        @Override
+        public Set<? extends ClassDef> getClasses() {
+            return classes;
+        }
+
+        @Override
         public dalvik.system.DexFile call() throws IOException {
-            DexFile dexFile = new ImmutableDexFile(opcodes, classes);
             DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
             try {
-                return generateDexFile(dexRewriter.rewriteDexFile(dexFile), cacheDir);
+                return generateDexFile(dexRewriter.rewriteDexFile(this), cacheDir);
             } finally {
                 // The `classes` may have bytecode to eat a lot of memory, so we release it here.
                 classes = null;

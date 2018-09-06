@@ -16,76 +16,128 @@
 
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.AccessFlags;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Annotation;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.AnnotationElement;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Field;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Method;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.MethodParameter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.value.IntEncodedValue;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableAnnotation;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableAnnotationElement;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableMethod;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.value.ImmutableIntEncodedValue;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.value.ImmutableStringEncodedValue;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexRewriter;
 
+import org.jf.dexlib2.immutable.ImmutableAnnotation;
+import org.jf.dexlib2.immutable.ImmutableAnnotationElement;
+import org.jf.dexlib2.immutable.ImmutableClassDef;
+import org.jf.dexlib2.immutable.ImmutableDexFile;
+import org.jf.dexlib2.immutable.ImmutableField;
+import org.jf.dexlib2.immutable.ImmutableMethod;
+import org.jf.dexlib2.immutable.ImmutableMethodParameter;
+import org.jf.dexlib2.immutable.value.ImmutableIntEncodedValue;
+import org.jf.dexlib2.immutable.value.ImmutableStringEncodedValue;
 import org.junit.Test;
 
-import java.lang.reflect.Modifier;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 
 public class FinalModifierRemoverModuleTest {
 
+    private static final int ACCESS_FLAGS_FINAL = org.jf.dexlib2.AccessFlags.FINAL.getValue();
+
     @Test
-    public void classDefRewriter_should_remove_final_modifier_from_the_given_class() {
-        ClassDef in = new ImmutableClassDef("Lfoo/Bar;",
-                                            Modifier.FINAL,
-                                            "Ljava/lang/Object;",
-                                            null,
-                                            null,
-                                            Collections.<Annotation>emptySet(),
-                                            Collections.<Field>emptySet(),
-                                            Collections.<Method>emptySet());
+    public void classDefRewriter_should_remove_final_modifier_from_the_given_class()
+            throws IOException {
+        ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
+                                                      ACCESS_FLAGS_FINAL,
+                                                      "Ljava/lang/Object;",
+                                                      null,
+                                                      null,
+                                                      Collections.<ImmutableAnnotation>emptySet(),
+                                                      Collections.<ImmutableField>emptySet(),
+                                                      Collections.<ImmutableMethod>emptySet());
+        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+                                                                       Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
-        ClassDef out = rewriter.getClassDefRewriter().rewrite(in);
-        assertEquals(0, out.getAccessFlags());
+        ClassDef out = rewriter.getClassDefRewriter()
+                               .rewrite(new DexBackedDexFile(Opcodes.getDefault(), bytecode)
+                                                .getClasses()
+                                                .iterator()
+                                                .next());
+        assertFalse(AccessFlags.FINAL.isSet(out.getAccessFlags()));
     }
 
     @Test
-    public void methodRewriter_should_remove_final_modifier_from_the_given_method() {
-        Method in = new ImmutableMethod("Lfoo/Bar;",
-                                        "f",
-                                        Collections.<MethodParameter>emptySet(),
-                                        "V",
-                                        Modifier.FINAL,
-                                        Collections.<Annotation>emptySet(),
-                                        null);
+    public void methodRewriter_should_remove_final_modifier_from_the_given_method()
+            throws IOException {
+        ImmutableMethod method = new ImmutableMethod("Lfoo/Bar;",
+                                                     "f",
+                                                     Collections.<ImmutableMethodParameter>emptySet(),
+                                                     "V",
+                                                     ACCESS_FLAGS_FINAL,
+                                                     Collections.<ImmutableAnnotation>emptySet(),
+                                                     null);
+        ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
+                                                      0,
+                                                      "Ljava/lang/Object;",
+                                                      null,
+                                                      null,
+                                                      Collections.<ImmutableAnnotation>emptySet(),
+                                                      Collections.<ImmutableField>emptySet(),
+                                                      Collections.singleton(method));
+        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+                                                                       Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
-        Method out = rewriter.getMethodRewriter().rewrite(in);
-        assertEquals(0, out.getAccessFlags());
+        Method out = rewriter.getMethodRewriter()
+                             .rewrite(new DexBackedDexFile(Opcodes.getDefault(), bytecode)
+                                              .getClasses()
+                                              .iterator()
+                                              .next()
+                                              .getVirtualMethods()
+                                              .iterator()
+                                              .next());
+        assertFalse(AccessFlags.FINAL.isSet(out.getAccessFlags()));
     }
 
     @Test
-    public void annotationRewriter_should_remove_final_modifier_from_the_given_inner_class_annotation() {
-        Set<AnnotationElement> elements = new HashSet<>();
+    public void annotationRewriter_should_remove_final_modifier_from_the_given_inner_class_annotation()
+            throws IOException {
+        Set<ImmutableAnnotationElement> elements = new HashSet<>();
         elements.add(new ImmutableAnnotationElement("name", new ImmutableStringEncodedValue("Lfoo/Bar;")));
-        elements.add(new ImmutableAnnotationElement("accessFlags", new ImmutableIntEncodedValue(Modifier.FINAL)));
-        Annotation in = new ImmutableAnnotation(0, "Ldalvik/annotation/InnerClass;", elements);
+        elements.add(new ImmutableAnnotationElement("accessFlags", new ImmutableIntEncodedValue(ACCESS_FLAGS_FINAL)));
+        ImmutableAnnotation annotation = new ImmutableAnnotation(0, "Ldalvik/annotation/InnerClass;", elements);
+        ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
+                                                      0,
+                                                      "Ljava/lang/Object;",
+                                                      null,
+                                                      null,
+                                                      Collections.singleton(annotation),
+                                                      Collections.<ImmutableField>emptySet(),
+                                                      Collections.<ImmutableMethod>emptySet());
+        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+                                                                       Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
-        Annotation out = rewriter.getAnnotationRewriter().rewrite(in);
+        Annotation out = rewriter.getAnnotationRewriter()
+                                 .rewrite(new DexBackedDexFile(Opcodes.getDefault(), bytecode)
+                                                  .getClasses()
+                                                  .iterator()
+                                                  .next()
+                                                  .getAnnotations()
+                                                  .iterator()
+                                                  .next());
         int accessFlags = -1;
         for (AnnotationElement e : out.getElements()) {
             if (e.getName().equals("accessFlags")) {
                 accessFlags = ((IntEncodedValue) e.getValue()).getValue();
+                break;
             }
         }
-        assertEquals(0, accessFlags);
+        assertNotSame(-1, accessFlags);
+        assertFalse(AccessFlags.FINAL.isSet(accessFlags));
     }
 
 }

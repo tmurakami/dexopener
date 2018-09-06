@@ -18,10 +18,9 @@ package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.immutable.ImmutableDexFile;
 
+import org.jf.dexlib2.immutable.ImmutableClassDef;
+import org.jf.dexlib2.immutable.ImmutableDexFile;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -91,7 +90,7 @@ public class AndroidClassSourceTest {
         for (int i = 0; i < classCount; i++) {
             classNames.add("foo.Bar" + i);
         }
-        Set<ClassDef> classes = new HashSet<>();
+        Set<ImmutableClassDef> classes = new HashSet<>();
         for (String className : classNames) {
             classes.add(new ImmutableClassDef('L' + className.replace('.', '/') + ';',
                                               0,
@@ -102,7 +101,7 @@ public class AndroidClassSourceTest {
                                               null,
                                               null));
         }
-        DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), classes);
+        ImmutableDexFile dexFile = new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(), classes);
         byte[] bytecode = DexPoolUtils.toBytecode(dexFile);
         File apk = generateZip(bytecode);
         AndroidClassSource classSource = new AndroidClassSource(opcodes,
@@ -133,7 +132,8 @@ public class AndroidClassSourceTest {
             throws Exception {
         String className = "foo.Bar";
         given(classNameFilter.accept(className)).willReturn(true);
-        DexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), Collections.<ClassDef>emptySet());
+        ImmutableDexFile dexFile = new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+                                                        Collections.<org.jf.dexlib2.iface.ClassDef>emptySet());
         byte[] bytecode = DexPoolUtils.toBytecode(dexFile);
         File apk = generateZip(bytecode);
         new AndroidClassSource(Opcodes.getDefault(),
