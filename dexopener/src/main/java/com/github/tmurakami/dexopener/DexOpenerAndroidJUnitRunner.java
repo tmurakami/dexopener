@@ -27,7 +27,7 @@ import android.support.test.runner.AndroidJUnitRunner;
  * <pre><code>
  * android {
  *   defaultConfig {
- *     minSdkVersion 16 // 16 to 25
+ *     minSdkVersion 16 // 16 or higher
  *     testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
  *   }
  * }
