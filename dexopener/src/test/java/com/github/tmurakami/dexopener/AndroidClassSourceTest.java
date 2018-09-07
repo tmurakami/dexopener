@@ -18,6 +18,9 @@ package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 import org.jf.dexlib2.immutable.ImmutableClassDef;
 import org.jf.dexlib2.immutable.ImmutableDexFile;
@@ -31,7 +34,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.Answer2;
+import org.mockito.stubbing.Answer1;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,21 +44,26 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Nullable;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalAnswers.answer;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.withSettings;
 
 @SuppressWarnings("deprecation")
@@ -68,21 +76,39 @@ public class AndroidClassSourceTest {
     @Mock(stubOnly = true)
     private ClassNameFilter classNameFilter;
     @Mock(stubOnly = true)
-    private ClassOpener classOpener;
+    private DexFileGenerator dexFileGenerator;
+    @Mock
+    private Executor executor;
 
     @Captor
-    private ArgumentCaptor<Set<? extends ClassDef>> classesCaptor;
+    private ArgumentCaptor<DexFile> dexFileCaptor;
 
     @Test
-    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws Exception {
+    public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws IOException {
         Opcodes opcodes = Opcodes.getDefault();
         given(classNameFilter.accept(matches("foo[.]Bar[\\d]{1,3}"))).willReturn(true);
-        given(classOpener.openClasses(eq(opcodes), classesCaptor.capture()))
-                .willAnswer(answer(new Answer2<RunnableFuture<? extends dalvik.system.DexFile>, Opcodes, Set<? extends ClassDef>>() {
+        final List<Set<? extends ClassDef>> classesValues = new ArrayList<>();
+        given(dexFileGenerator.generateDexFile(dexFileCaptor.capture()))
+                .will(answer(new Answer1<dalvik.system.DexFile, DexFile>() {
                     @Override
-                    public RunnableFuture<? extends dalvik.system.DexFile> answer(Opcodes ops,
-                                                                                  final Set<? extends ClassDef> classes) {
-                        return new FutureTask<>(new MockDexFileFactory(classes));
+                    public dalvik.system.DexFile answer(DexFile file) {
+                        final Set<? extends ClassDef> classes = file.getClasses();
+                        classesValues.add(classes);
+                        dalvik.system.DexFile dexFile = mock(dalvik.system.DexFile.class,
+                                                             withSettings().stubOnly());
+                        given(dexFile.entries()).willAnswer(new Answer<Enumeration<String>>() {
+                            @Override
+                            public Enumeration<String> answer(InvocationOnMock invocation) {
+                                return Collections.enumeration(Collections2.transform(classes, new Function<ClassDef, String>() {
+                                    @Override
+                                    public String apply(@Nullable ClassDef input) {
+                                        String dexName = Objects.requireNonNull(input).getType();
+                                        return dexName.substring(1, dexName.length() - 1).replace('/', '.');
+                                    }
+                                }));
+                            }
+                        });
+                        return dexFile;
                     }
                 }));
         int classCount = 101; // DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE + 1
@@ -102,44 +128,51 @@ public class AndroidClassSourceTest {
                                               null));
         }
         ImmutableDexFile dexFile = new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(), classes);
-        byte[] bytecode = DexPoolUtils.toBytecode(dexFile);
-        File apk = generateZip(bytecode);
+        File apk = generateZip(DexPoolUtils.toBytecode(dexFile));
         AndroidClassSource classSource = new AndroidClassSource(opcodes,
                                                                 apk.getCanonicalPath(),
                                                                 classNameFilter,
-                                                                classOpener);
+                                                                dexFileGenerator,
+                                                                executor);
         for (String className : classNames) {
             assertNotNull(classSource.getClassFile(className));
         }
-        List<Set<? extends ClassDef>> classesValues = classesCaptor.getAllValues();
+        List<DexFile> dexFileValues = dexFileCaptor.getAllValues();
+        assertSame(2, dexFileValues.size());
+        for (DexFile f : dexFileValues) {
+            assertSame(opcodes, f.getOpcodes());
+            assertTrue(f.getClasses().isEmpty());
+        }
         assertSame(2, classesValues.size());
         assertSame(100, classesValues.get(0).size());
         assertSame(1, classesValues.get(1).size());
+        then(executor).should(times(2)).execute(any(FutureTask.class));
     }
 
     @Test
     public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter()
-            throws Exception {
+            throws IOException {
         AndroidClassSource classSource = new AndroidClassSource(Opcodes.getDefault(),
                                                                 "",
                                                                 classNameFilter,
-                                                                classOpener);
+                                                                dexFileGenerator,
+                                                                executor);
         assertNull(classSource.getClassFile("foo.Bar"));
     }
 
     @Test(expected = IllegalStateException.class)
     public void getClassFile_should_throw_IllegalStateException_if_no_class_to_be_opened_was_found()
-            throws Exception {
+            throws IOException {
         String className = "foo.Bar";
         given(classNameFilter.accept(className)).willReturn(true);
         ImmutableDexFile dexFile = new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
                                                         Collections.<org.jf.dexlib2.iface.ClassDef>emptySet());
-        byte[] bytecode = DexPoolUtils.toBytecode(dexFile);
-        File apk = generateZip(bytecode);
+        File apk = generateZip(DexPoolUtils.toBytecode(dexFile));
         new AndroidClassSource(Opcodes.getDefault(),
                                apk.getCanonicalPath(),
                                classNameFilter,
-                               classOpener).getClassFile(className);
+                               dexFileGenerator,
+                               executor).getClassFile(className);
     }
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
@@ -153,33 +186,6 @@ public class AndroidClassSourceTest {
             out.close();
         }
         return zip;
-    }
-
-    private static class MockDexFileFactory implements Callable<dalvik.system.DexFile> {
-
-        private final Set<? extends ClassDef> classes;
-
-        MockDexFileFactory(Set<? extends ClassDef> classes) {
-            this.classes = classes;
-        }
-
-        @Override
-        public dalvik.system.DexFile call() {
-            final List<String> classNames = new ArrayList<>(classes.size());
-            for (ClassDef def : classes) {
-                String dexName = def.getType();
-                classNames.add(dexName.substring(1, dexName.length() - 1).replace('/', '.'));
-            }
-            dalvik.system.DexFile dexFile = mock(dalvik.system.DexFile.class, withSettings().stubOnly());
-            given(dexFile.entries()).willAnswer(new Answer<Enumeration<String>>() {
-                @Override
-                public Enumeration<String> answer(InvocationOnMock invocation) {
-                    return Collections.enumeration(classNames);
-                }
-            });
-            return dexFile;
-        }
-
     }
 
 }

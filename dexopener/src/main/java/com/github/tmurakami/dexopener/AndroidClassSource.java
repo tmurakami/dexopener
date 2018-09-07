@@ -24,13 +24,18 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexRewriter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,17 +50,20 @@ final class AndroidClassSource implements ClassSource {
     private final Opcodes opcodes;
     private final String sourceDir;
     private final ClassNameFilter classNameFilter;
-    private final ClassOpener classOpener;
+    private final DexFileGenerator dexFileGenerator;
+    private final Executor executor;
     private ClassSource delegate;
 
     AndroidClassSource(Opcodes opcodes,
                        String sourceDir,
                        ClassNameFilter classNameFilter,
-                       ClassOpener classOpener) {
+                       DexFileGenerator dexFileGenerator,
+                       Executor executor) {
         this.opcodes = opcodes;
         this.sourceDir = sourceDir;
         this.classNameFilter = classNameFilter;
-        this.classOpener = classOpener;
+        this.dexFileGenerator = dexFileGenerator;
+        this.executor = executor;
     }
 
     @Override
@@ -124,7 +132,49 @@ final class AndroidClassSource implements ClassSource {
 
     @SuppressWarnings("deprecation")
     private RunnableFuture<? extends dalvik.system.DexFile> openClasses(Set<? extends ClassDef> classes) {
-        return classOpener.openClasses(opcodes, classes);
+        DexFileTask dexFileTask = new DexFileTask(opcodes, classes, dexFileGenerator);
+        RunnableFuture<dalvik.system.DexFile> future = new FutureTask<>(dexFileTask);
+        // Run the future in the background in order to improve performance.
+        executor.execute(future);
+        return future;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static class DexFileTask implements Callable<dalvik.system.DexFile>, DexFile {
+
+        private final Opcodes opcodes;
+        private Set<? extends ClassDef> classes;
+        private final DexFileGenerator dexFileGenerator;
+
+        DexFileTask(Opcodes opcodes,
+                    Set<? extends ClassDef> classes,
+                    DexFileGenerator dexFileGenerator) {
+            this.opcodes = opcodes;
+            this.classes = classes;
+            this.dexFileGenerator = dexFileGenerator;
+        }
+
+        @Override
+        public Opcodes getOpcodes() {
+            return opcodes;
+        }
+
+        @Override
+        public Set<? extends ClassDef> getClasses() {
+            return classes;
+        }
+
+        @Override
+        public dalvik.system.DexFile call() throws IOException {
+            DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
+            try {
+                return dexFileGenerator.generateDexFile(dexRewriter.rewriteDexFile(this));
+            } finally {
+                // The `classes` has bytecode to eat a lot of memory, so we release it here.
+                classes = Collections.emptySet();
+            }
+        }
+
     }
 
 }

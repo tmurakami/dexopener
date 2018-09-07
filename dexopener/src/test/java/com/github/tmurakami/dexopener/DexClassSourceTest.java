@@ -23,6 +23,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class DexClassSourceTest {
 
     @Test
     public void getClassFile_should_return_the_ClassFile_if_the_given_name_is_in_the_map_of_holders()
-            throws Exception {
+            throws IOException {
         given(dexFileHolder.get()).willReturn(dexFile);
         final String className = "foo.Bar";
         given(dexFile.entries()).willAnswer(new Answer<Enumeration<String>>() {
@@ -59,7 +60,7 @@ public class DexClassSourceTest {
 
     @Test
     public void getClassFile_should_return_null_if_the_given_name_is_not_in_the_map_of_holders()
-            throws Exception {
+            throws IOException {
         assertNull(new DexClassSource(Collections.<String, DexFileHolder>emptyMap()).getClassFile("foo.Bar"));
     }
 

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertFalse;
 public class FinalClassTest {
 
     @Test
-    public void runner_should_remove_all_final_modifiers() throws Exception {
+    public void runner_should_remove_all_final_modifiers() throws NoSuchMethodException {
         assertFalse(isFinal(FinalClass.class.getModifiers()));
         assertFalse(isFinal(FinalClass.class.getDeclaredMethod("doIt").getModifiers()));
     }

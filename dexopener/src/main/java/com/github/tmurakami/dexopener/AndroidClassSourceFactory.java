@@ -50,9 +50,11 @@ final class AndroidClassSourceFactory {
     }
 
     ClassSource newClassSource(String sourceDir, File cacheDir) {
-        Opcodes opcodes = Opcodes.getDefault();
-        ClassOpener classOpener = new ClassOpener(EXECUTOR, cacheDir);
-        return new AndroidClassSource(opcodes, sourceDir, classNameFilter, classOpener);
+        return new AndroidClassSource(Opcodes.getDefault(),
+                                      sourceDir,
+                                      classNameFilter,
+                                      new DexFileGenerator(cacheDir),
+                                      EXECUTOR);
     }
 
 }
