@@ -22,32 +22,39 @@ import android.support.annotation.CallSuper;
 import android.support.test.runner.AndroidJUnitRunner;
 
 /**
- * An {@link AndroidJUnitRunner} that provides the ability to mock your final classes/methods. To
- * use this, add the following into your build.gradle:
+ * An {@link AndroidJUnitRunner} that provides the ability to mock your final classes. To use this,
+ * add the following into your build.gradle:
  * <pre><code>
  * android {
- *   defaultConfig {
- *     minSdkVersion 16 // 16 or higher
- *     testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
- *   }
+ *     defaultConfig {
+ *         minSdkVersion 16 // 16 or higher
+ *         testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
+ *     }
  * }
  *
  * repositories {
- *   maven { url 'https://jitpack.io' }
+ *     maven { url 'https://jitpack.io' }
  * }
  *
  * dependencies {
- *   androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
+ *     androidTestCompile 'com.github.tmurakami:dexopener:x.y.z'
  * }
  * </code></pre>
  * <a href="https://jitpack.io/#tmurakami/dexopener"><img alt="release" src="https://jitpack.io/v/tmurakami/dexopener.svg"></a>
  * <p>
  * If you have your own {@link AndroidJUnitRunner}, you can use {@link DexOpener} instead.
+ * <p>
+ * Be aware that the final classes you can mock are limited. See the documentation of
+ * {@link DexOpener} for details.
  *
  * @see AndroidJUnitRunner
  * @see DexOpener
  */
+@SuppressWarnings("unused")
 public class DexOpenerAndroidJUnitRunner extends AndroidJUnitRunner {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @CallSuper
     public Application newApplication(ClassLoader cl, String className, Context context)

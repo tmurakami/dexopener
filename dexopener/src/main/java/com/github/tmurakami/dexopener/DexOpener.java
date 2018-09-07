@@ -22,7 +22,14 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 
 /**
- * This is an object that provides the ability to mock your final classes/methods.
+ * This is an object that provides the ability to mock your final classes.
+ * <p>
+ * Note that the final classes you can mock are only those under the package indicated by
+ * android.defaultConfig.applicationId in your build.gradle. For example, if it is foo.bar, you can
+ * mock only the final classes belonging in foo.bar.**, such as foo.bar.Baz and foo.bar.qux.Quux.
+ * Therefore, you cannot mock the final classes of both Android system classes and third-party
+ * libraries, and cannot mock the final classes not belonging in that package, even if they are
+ * yours.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class DexOpener {
@@ -31,7 +38,7 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provides the ability to mock your final classes/methods.
+     * Provides the ability to mock your final classes.
      * <p>
      * Note that this method must be called before calling
      * {@link Instrumentation#newApplication(ClassLoader, String, Context)
@@ -50,8 +57,8 @@ public abstract class DexOpener {
     }
 
     /**
-     * Provides the ability to mock your final classes/methods. After calling this method, you can
-     * mock classes loaded by the given class loader.
+     * Provides the ability to mock your final classes. After calling this method, you can mock
+     * classes loaded by the given class loader.
      * <p>
      * Note that this method must be called before calling
      * {@link Instrumentation#newApplication(ClassLoader, String, Context)
