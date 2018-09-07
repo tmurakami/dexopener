@@ -139,9 +139,9 @@ dependencies {
 
 > **Note:** If you are using
 [Multidex](https://developer.android.com/studio/build/multidex.html?hl=en),
-you need to specify your BuildConfig
+you need to specify your BuildConfig class
 [in the primary DEX file](https://developer.android.com/studio/build/multidex.html?hl=en#keep),
-otherwise, you will get the NoClassDefFoundError.
+otherwise, you will get a NoClassDefFoundError.
 
 ## Notice
 
