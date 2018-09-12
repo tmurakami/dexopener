@@ -27,9 +27,8 @@ android {
     lintOptions.disable 'InvalidPackage'
     testOptions.animationsDisabled true
     DdmPreferences.setTimeOut 60000
-    libraryVariants.all {
-        it.generateBuildConfig.enabled = false
-    }
+    // TODO replace with https://issuetracker.google.com/issues/72050365
+    libraryVariants.all { it.generateBuildConfig.enabled = false }
 }
 
 configurations {
