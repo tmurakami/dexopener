@@ -17,8 +17,8 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
@@ -34,7 +34,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.Answer1;
+import org.mockito.stubbing.Answer2;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,9 +56,9 @@ import javax.annotation.Nullable;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -66,7 +66,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.withSettings;
 
-@SuppressWarnings("deprecation")
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class AndroidClassSourceTest {
 
@@ -76,22 +75,25 @@ public class AndroidClassSourceTest {
     @Mock(stubOnly = true)
     private ClassNameFilter classNameFilter;
     @Mock(stubOnly = true)
-    private DexFileGenerator dexFileGenerator;
+    private DexFileLoader dexFileLoader;
     @Mock
     private Executor executor;
 
     @Captor
-    private ArgumentCaptor<DexFile> dexFileCaptor;
+    private ArgumentCaptor<String> dexFileCaptor;
 
+    @SuppressWarnings("deprecation")
     @Test
     public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws IOException {
-        Opcodes opcodes = Opcodes.getDefault();
+        final Opcodes opcodes = Opcodes.getDefault();
         given(classNameFilter.accept(matches("foo[.]Bar[\\d]{1,3}"))).willReturn(true);
         final List<Set<? extends ClassDef>> classesValues = new ArrayList<>();
-        given(dexFileGenerator.generateDexFile(dexFileCaptor.capture()))
-                .will(answer(new Answer1<dalvik.system.DexFile, DexFile>() {
+        given(dexFileLoader.loadDex(dexFileCaptor.capture(), anyString()))
+                .will(answer(new Answer2<dalvik.system.DexFile, String, String>() {
+                    @SuppressWarnings("TryFinallyCanBeTryWithResources")
                     @Override
-                    public dalvik.system.DexFile answer(DexFile file) {
+                    public dalvik.system.DexFile answer(String src, String out) throws IOException {
+                        DexBackedDexFile file = DexBackedDexFileUtils.loadDexFile(opcodes, src);
                         final Set<? extends ClassDef> classes = file.getClasses();
                         classesValues.add(classes);
                         dalvik.system.DexFile dexFile = mock(dalvik.system.DexFile.class,
@@ -129,20 +131,15 @@ public class AndroidClassSourceTest {
         }
         ImmutableDexFile dexFile = new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(), classes);
         File apk = generateZip(DexPoolUtils.toBytecode(dexFile));
-        AndroidClassSource classSource = new AndroidClassSource(opcodes,
-                                                                apk.getCanonicalPath(),
+        AndroidClassSource classSource = new AndroidClassSource(apk.getCanonicalPath(),
                                                                 classNameFilter,
-                                                                dexFileGenerator,
+                                                                folder.newFolder(),
+                                                                dexFileLoader,
                                                                 executor);
         for (String className : classNames) {
             assertNotNull(classSource.getClassFile(className));
         }
-        List<DexFile> dexFileValues = dexFileCaptor.getAllValues();
-        assertSame(2, dexFileValues.size());
-        for (DexFile f : dexFileValues) {
-            assertSame(opcodes, f.getOpcodes());
-            assertTrue(f.getClasses().isEmpty());
-        }
+        assertSame(2, dexFileCaptor.getAllValues().size());
         assertSame(2, classesValues.size());
         assertSame(100, classesValues.get(0).size());
         assertSame(1, classesValues.get(1).size());
@@ -152,10 +149,10 @@ public class AndroidClassSourceTest {
     @Test
     public void getClassFile_should_return_null_if_the_given_name_does_not_pass_through_the_filter()
             throws IOException {
-        AndroidClassSource classSource = new AndroidClassSource(Opcodes.getDefault(),
-                                                                "",
+        AndroidClassSource classSource = new AndroidClassSource("",
                                                                 classNameFilter,
-                                                                dexFileGenerator,
+                                                                folder.newFolder(),
+                                                                dexFileLoader,
                                                                 executor);
         assertNull(classSource.getClassFile("foo.Bar"));
     }
@@ -168,10 +165,10 @@ public class AndroidClassSourceTest {
         ImmutableDexFile dexFile = new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
                                                         Collections.<org.jf.dexlib2.iface.ClassDef>emptySet());
         File apk = generateZip(DexPoolUtils.toBytecode(dexFile));
-        new AndroidClassSource(Opcodes.getDefault(),
-                               apk.getCanonicalPath(),
+        new AndroidClassSource(apk.getCanonicalPath(),
                                classNameFilter,
-                               dexFileGenerator,
+                               folder.newFolder(),
+                               dexFileLoader,
                                executor).getClassFile(className);
     }
 
