@@ -101,7 +101,7 @@ public class DexClassSourceTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void getClassFile_should_throw_IOException_if_a_runtime_error_occurs_during_future_execution()
+    public void getClassFile_should_throw_RuntimeException_if_a_runtime_error_occurs_during_future_execution()
             throws Exception {
         given(future.get()).willThrow(new ExecutionException(new RuntimeException()));
         Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap = new HashMap<>();
@@ -111,7 +111,7 @@ public class DexClassSourceTest {
     }
 
     @Test(expected = Error.class)
-    public void getClassFile_should_throw_IOException_if_an_error_occurs_during_future_execution()
+    public void getClassFile_should_throw_Error_if_an_error_occurs_during_future_execution()
             throws Exception {
         given(future.get()).willThrow(new ExecutionException(new Error()));
         Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap = new HashMap<>();
@@ -121,7 +121,7 @@ public class DexClassSourceTest {
     }
 
     @Test(expected = UndeclaredThrowableException.class)
-    public void getClassFile_should_throw_IOException_if_an_unexpected_error_occurs_during_future_execution()
+    public void getClassFile_should_throw_UndeclaredThrowableException_if_an_unexpected_error_occurs_during_future_execution()
             throws Exception {
         given(future.get()).willThrow(new ExecutionException(new Throwable()));
         Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap = new HashMap<>();
