@@ -16,7 +16,15 @@
 
 package com.example.dexopener.multiproject.lib;
 
+import androidx.annotation.VisibleForTesting;
+
 public final class MyService {
+
+    @VisibleForTesting
+    MyServiceDelegate delegate = new MyServiceDelegate();
+
     public void doIt() {
+        delegate.doIt();
     }
+
 }

@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-package com.example.dexopener.multiproject;
+package com.example.dexopener.replaceapp;
 
-import android.app.Activity;
-import android.os.Bundle;
-
-import com.example.dexopener.multiproject.lib.MyService;
-
-import androidx.annotation.VisibleForTesting;
-
-public final class MainActivity extends Activity {
-
-    @VisibleForTesting
-    MyService myService = new MyService();
-
+public class TestApp extends App {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        myService.doIt();
+    protected void registerInjector() {
+        // Disable injection
     }
-
 }

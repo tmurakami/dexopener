@@ -1,7 +1,21 @@
-apply plugin: 'java'
+import com.android.ddmlib.DdmPreferences
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_7
+apply plugin: 'com.android.library'
 
-javadoc {
-    if (JavaVersion.current() >= JavaVersion.VERSION_1_9) options.addBooleanOption('html5', true)
+apply from: "$rootDir/gradle/android.gradle"
+
+android {
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner 'com.example.dexopener.multiproject.lib.MyAndroidJUnitRunner'
+    }
+    buildTypes.debug.testCoverageEnabled true
+    DdmPreferences.setTimeOut 60000
+}
+
+dependencies {
+    implementation deps.androidx.annotation
+    androidTestImplementation project(':dexopener')
+    androidTestImplementation deps.androidx.test.runner
+    androidTestImplementation deps.mockito.android
 }

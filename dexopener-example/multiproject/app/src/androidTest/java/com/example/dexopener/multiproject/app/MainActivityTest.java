@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.dexopener.multiproject;
+package com.example.dexopener.multiproject.app;
 
 import android.content.Intent;
 
@@ -40,6 +40,8 @@ public class MainActivityTest {
                 @Override
                 protected MainActivity create(Intent intent) {
                     MainActivity testTarget = new MainActivity();
+                    // Although `MyService` is final, it can be mocked because it belongs to the
+                    // package of `MyAndroidJUnitRunner`.
                     testTarget.myService = mock(MyService.class);
                     return testTarget;
                 }
