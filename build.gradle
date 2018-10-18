@@ -4,10 +4,10 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
+        classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
         classpath 'pl.allegro.tech.build:axion-release-plugin:1.9.3'
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.3'
+        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.4'
     }
 }
 
@@ -63,7 +63,7 @@ ext {
     deps.android.test = [rules : "com.android.support.test:rules:$testVersion",
                          runner: "com.android.support.test:runner:$testVersion",]
 
-    def mockitoVersion = '2.22.0'
+    def mockitoVersion = '2.23.0'
     deps.mockito = [android: "org.mockito:mockito-android:$mockitoVersion",
                     inline : "org.mockito:mockito-inline:$mockitoVersion",]
 }
