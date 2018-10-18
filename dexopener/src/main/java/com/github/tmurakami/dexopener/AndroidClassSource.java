@@ -112,7 +112,7 @@ final class AndroidClassSource implements ClassSource {
                     continue;
                 }
                 if (logger.isLoggable(Level.FINEST)) {
-                    logger.finest("Class to be opened: " + className);
+                    logger.finest("The class to be opened: " + className);
                 }
                 classesToBeOpened.add(def);
                 futureMap.put(className, future);

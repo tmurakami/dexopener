@@ -79,11 +79,11 @@ final class ClassTransformationTask implements Callable<dalvik.system.DexFile>, 
             }
             Logger logger = Loggers.get();
             if (logger.isLoggable(Level.FINEST)) {
-                logger.finest("DEX file generated: " + dexPath);
+                logger.finest("A dex file generated: " + dexPath);
             }
             return file;
         } finally {
-            // The `classes` has bytecode to eat a lot of memory, so we release it here.
+            // The `classes` may hold bytecode that eats a lot of memory, so we release it here.
             classes = Collections.emptySet();
         }
     }
