@@ -39,26 +39,23 @@ final class DexOpenerImpl extends DexOpener {
     @Override
     public void installTo(@NonNull ClassLoader target) {
         Context context = this.context;
-        ApplicationInfo ai = context.getApplicationInfo();
         if (context.getApplicationContext() != null) {
             throw new IllegalStateException(
                     "This method must be called before the Application instance is created");
         }
-        File cacheDir = new File(getCodeCacheDir(context), "dexopener");
-        if (cacheDir.isDirectory()) {
+        ApplicationInfo ai = context.getApplicationInfo();
+        File parentDir;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            parentDir = new File(ai.dataDir, "code_cache");
+        } else {
+            parentDir = context.getCodeCacheDir();
+        }
+        File cacheDir = new File(parentDir, "dexopener");
+        if (cacheDir.isDirectory() || cacheDir.mkdirs()) {
             FileUtils.delete(cacheDir.listFiles());
         }
         ClassInjector.from(androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir))
                      .into(target);
-    }
-
-    private static File getCodeCacheDir(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return context.getCodeCacheDir();
-        }
-        String parentName = "code_cache";
-        File dir = new File(context.getApplicationInfo().dataDir, parentName);
-        return dir.mkdir() || dir.isDirectory() ? dir : new File(context.getFilesDir(), parentName);
     }
 
 }

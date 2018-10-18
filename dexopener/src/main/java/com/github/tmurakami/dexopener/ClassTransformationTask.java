@@ -63,9 +63,6 @@ final class ClassTransformationTask implements Callable<dalvik.system.DexFile>, 
     public dalvik.system.DexFile call() throws IOException {
         DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
         try {
-            if (!cacheDir.isDirectory() && !cacheDir.mkdirs()) {
-                throw new IOException("Cannot create " + cacheDir);
-            }
             DexFile dexFile = dexRewriter.rewriteDexFile(this);
             File dex = File.createTempFile("classes", ".dex", cacheDir);
             dex.deleteOnExit();

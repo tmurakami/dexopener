@@ -101,10 +101,4 @@ public class ClassTransformationTaskTest {
         assertFalse(new File(srcPathCaptor.getValue()).exists());
     }
 
-    @Test(expected = IOException.class)
-    public void call_should_throw_IOException_if_the_cache_directory_cannot_be_created()
-            throws IOException {
-        new ClassTransformationTask(Opcodes.getDefault(), folder.newFile(), dexFileLoader).call();
-    }
-
 }
