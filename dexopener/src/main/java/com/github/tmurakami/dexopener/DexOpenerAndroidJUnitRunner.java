@@ -17,9 +17,13 @@
 package com.github.tmurakami.dexopener;
 
 import android.app.Application;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.support.test.runner.AndroidJUnitRunner;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An {@link AndroidJUnitRunner} that provides the ability to mock your final classes. To use this,
@@ -49,8 +53,10 @@ import android.support.test.runner.AndroidJUnitRunner;
  *
  * @see AndroidJUnitRunner
  * @see DexOpener
+ * @deprecated use {@link DexOpener#install(Instrumentation)} instead
  */
 @SuppressWarnings("unused")
+@Deprecated
 public class DexOpenerAndroidJUnitRunner extends AndroidJUnitRunner {
     /**
      * {@inheritDoc}
@@ -59,6 +65,11 @@ public class DexOpenerAndroidJUnitRunner extends AndroidJUnitRunner {
     @CallSuper
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        Logger logger = Loggers.get();
+        if (logger.isLoggable(Level.WARNING)) {
+            logger.warning("DexOpenerAndroidJUnitRunner has been deprecated. Use " +
+                           "DexOpener#install(Instrumentation) instead.");
+        }
         DexOpener.install(this);
         return super.newApplication(cl, className, context);
     }

@@ -14,61 +14,22 @@ See the [dexopener-example](dexopener-example) directory.
 
 ## Usage
 
-There are two ways to use this library.
-
-> **Note:** Starting at version 0.13.0, DexOpener automatically detects
-the BuildConfig class of the target application. Therefore, you no
-longer need to use `DexOpener.Builder`. It will be deleted in the next
-major version.
-
-### DexOpenerAndroidJUnitRunner
-
-If you do not have your own test instrumentation runner, all you need to
-do is specify `DexOpenerAndroidJUnitRunner` as the default test
-instrumentation runner.
-
-```groovy
-android {
-    defaultConfig {
-        minSdkVersion 16 // 16 or higher
-        testInstrumentationRunner 'com.github.tmurakami.dexopener.DexOpenerAndroidJUnitRunner'
-    }
-}
-```
-
-You can extend this class to create your custom `AndroidJUnitRunner`.
-
-```java
-public class YourAndroidJUnitRunner extends DexOpenerAndroidJUnitRunner { ... }
-```
-
-If you want to replace the `android.app.Application` instance for
-testing, extend this class and implement `newApplication()` method as
-shown in the [Tips](#replacing-the-application-instance-for-testing).
-
-### DexOpener
-
-If you already have your own test instrumentation runner, you can use
-`DexOpener` instead of `DexOpenerAndroidJUnitRunner`.
+Add an AndroidJUnitRunner subclass into your app's **androidTest**
+directory.
 
 ```java
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DexOpener.install(this);
+        DexOpener.install(this); // Call me first!
         return super.newApplication(cl, className, context);
     }
 }
 ```
 
-> **Note:** If you are using a class literal to replace the
-`android.app.Application` instance, you will need to use a string
-literal instead. See the
-[Tips](#replacing-the-application-instance-for-testing).
-
-And make sure your test instrumentation runner is specified in your
-build.gradle.
+Then specify your AndroidJUnitRunner as the default test instrumentation
+runner in your app's build.gradle.
 
 ```groovy
 android {

@@ -1,6 +1,5 @@
 include ':dexopener'
 
-include ':dexopener-example:basic'
-include ':dexopener-example:custom'
+include ':dexopener-example:simple'
 include ':dexopener-example:multiproject:app'
 include ':dexopener-example:multiproject:lib'

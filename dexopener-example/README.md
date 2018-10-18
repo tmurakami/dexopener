@@ -2,13 +2,9 @@
 
 This directory contains the following examples:
 
-### [basic](basic)
+### [simple](simple)
 
-An example using `DexOpenerAndroidJUnitRunner`.
-
-### [custom](custom)
-
-An example using `DexOpener`.
+A simple example using DexOpener.
 
 ### [multiproject](multiproject)
 
