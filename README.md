@@ -12,6 +12,25 @@ A library that provides the ability to mock
 
 See the [dexopener-example](dexopener-example) directory.
 
+## Installation
+
+```groovy
+repositories {
+    google()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    androidTestImplementation 'com.github.tmurakami:dexopener:1.0.5'
+}
+```
+
+> **Note:** If you are using
+[Multidex](https://developer.android.com/studio/build/multidex.html?hl=en),
+you need to specify your BuildConfig class
+[in the primary DEX file](https://developer.android.com/studio/build/multidex.html?hl=en#keep),
+otherwise, you will get a NoClassDefFoundError.
+
 ## Usage
 
 Add an AndroidJUnitRunner subclass into your app's **androidTest**
@@ -21,7 +40,7 @@ directory.
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         DexOpener.install(this); // Call me first!
         return super.newApplication(cl, className, context);
     }
@@ -52,10 +71,8 @@ runner.
 ```java
 @Override
 public Application newApplication(ClassLoader cl, String className, Context context)
-        throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-
-    ...
-
+        throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    DexOpener.install(this); // Call me first!
     return super.newApplication(cl, "your.app.YourTestApplication", context);
 }
 ```
@@ -79,30 +96,33 @@ you cannot mock the final classes of both Android system classes and
 third-party libraries, and cannot mock the final classes not belonging
 in that package, even if they are yours.
 
-## Installation
+## Alternatives
 
-First, add the [JitPack](https://jitpack.io/) repository to your
-build.gradle.
+### [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 
-```groovy
-repositories {
-    maven { url 'https://jitpack.io' }
-}
-```
+DexOpener removes the final modifier from all the final classes
+belonging to the specified root package and creates dex files to make
+the application class loader load the classes. However, they are not so
+lightweight. If you want to save even a little testing time of your
+Kotlin app, you can introduce [the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
+instead of DexOpener.
 
-And then, add this library as `androidTestImplementation` dependency.
+[This comment](https://github.com/mockito/mockito/issues/1082#issuecomment-301646307)
+will help you to open your classes only for testing. You can also find
+out how to use the `OpenForTesting` annotation in [Google's samples for Android Architecture Components](googlesamples/android-architecture-components).
 
-```groovy
-dependencies {
-    androidTestImplementation 'com.github.tmurakami:dexopener:1.0.5'
-}
-```
+### [DexMaker-Mockito inline mocking](linkedin/dexmaker)
 
-> **Note:** If you are using
-[Multidex](https://developer.android.com/studio/build/multidex.html?hl=en),
-you need to specify your BuildConfig class
-[in the primary DEX file](https://developer.android.com/studio/build/multidex.html?hl=en#keep),
-otherwise, you will get a NoClassDefFoundError.
+You can now even stub the final methods of the Android API using the
+`dexmaker-mockito-inline` library. In addition, the
+`dexmaker-mockito-inline-extended` library supports for stubbing static
+methods and spying on an object created by the Android system such as
+Activity. [Here](https://medium.com/androiddevelopers/mock-final-and-static-methods-on-android-devices-b383da1363ad)
+is an introduction article.
+
+Note that these features only work on Android 9 Pie or higher devices
+despite the fact that they can be introduced even into a project the
+`minSdkVersion` of which is '1'.
 
 ## Notice
 
