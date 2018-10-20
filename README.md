@@ -109,7 +109,7 @@ instead of DexOpener.
 
 [This comment](https://github.com/mockito/mockito/issues/1082#issuecomment-301646307)
 will help you to open your classes only for testing. You can also find
-out how to use the `OpenForTesting` annotation in [Google's samples for Android Architecture Components](googlesamples/android-architecture-components).
+out how to use the `OpenForTesting` annotation in [Google's samples for Android Architecture Components](https://github.com/googlesamples/android-architecture-components).
 
 ### [DexMaker-Mockito inline mocking](https://github.com/linkedin/dexmaker)
 
