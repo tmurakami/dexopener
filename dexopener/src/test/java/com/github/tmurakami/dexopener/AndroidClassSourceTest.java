@@ -113,7 +113,7 @@ public class AndroidClassSourceTest {
                         return dexFile;
                     }
                 }));
-        int classCount = 101; // DexFileHolderMapper#MAX_CLASSES_PER_DEX_FILE + 1
+        int classCount = 101; // MAX_CLASSES_PER_DEX_FILE + 1
         List<String> classNames = new ArrayList<>(classCount);
         for (int i = 0; i < classCount; i++) {
             classNames.add("foo.Bar" + i);
