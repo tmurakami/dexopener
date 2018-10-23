@@ -1,3 +1,7 @@
 apply plugin: 'java'
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_7
+
+javadoc {
+    if (JavaVersion.current() >= JavaVersion.VERSION_1_9) options.addBooleanOption('html5', true)
+}

@@ -5,6 +5,7 @@ task javadoc(type: Javadoc) {
     }
     excludes = ['**/BuildConfig.java', '**/R.java']
     options.links 'https://developer.android.com/reference/'
+    if (JavaVersion.current() >= JavaVersion.VERSION_1_9) options.addBooleanOption('html5', true)
 }
 
 apply from: "$rootDir/gradle/javadoc-common.gradle"
