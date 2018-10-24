@@ -116,13 +116,12 @@ out how to use the `OpenForTesting` annotation in [Google's samples for Android 
 You can now even stub the final methods of the Android API using the
 `dexmaker-mockito-inline` library. In addition, the
 `dexmaker-mockito-inline-extended` library supports for stubbing static
-methods and spying on an object created by the Android system such as
+methods and spying on the objects created by the Android system such as
 Activity. [Here](https://medium.com/androiddevelopers/mock-final-and-static-methods-on-android-devices-b383da1363ad)
 is an introduction article.
 
-Note that these features only work on Android 9 Pie or higher devices
-despite the fact that they can be introduced even into a project the
-`minSdkVersion` of which is '1'.
+Note that these libraries will only work on Android 9 Pie (API 28) or
+higher devices.
 
 ## Notice
 
