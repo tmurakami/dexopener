@@ -8,10 +8,6 @@
 A library that provides the ability to mock
 [your final classes](#limitations) on Android.
 
-## Example
-
-See the [dexopener-example](dexopener-example) directory.
-
 ## Installation
 
 ```groovy
@@ -59,6 +55,8 @@ android {
 }
 ```
 
+You can see some examples in the [dexopener-example](dexopener-example) directory.
+
 ## Tips
 
 ### Replacing the Application instance for testing
@@ -100,11 +98,10 @@ in that package, even if they are yours.
 
 ### [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 
-DexOpener removes the final modifier from all the final classes
-belonging to the specified root package and creates dex files to make
-the application class loader load the classes. However, they are not so
-lightweight. If you want to save even a little testing time of your
-Kotlin app, you can introduce [the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
+DexOpener removes the final modifier from your final classes and creates
+dex files to make the application class loader load the classes.
+However, they are not so lightweight. If you want to save even a little
+testing time of your Kotlin app, you can introduce [the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 instead of DexOpener.
 
 [This comment](https://github.com/mockito/mockito/issues/1082#issuecomment-301646307)
@@ -116,7 +113,7 @@ out how to use the `OpenForTesting` annotation in [Google's samples for Android 
 You can now even stub the final methods of the Android API using the
 `dexmaker-mockito-inline` library. In addition, the
 `dexmaker-mockito-inline-extended` library supports for stubbing static
-methods and spying on the objects created by the Android system such as
+methods and spying on an object created by the Android system such as
 Activity. [Here](https://medium.com/androiddevelopers/mock-final-and-static-methods-on-android-devices-b383da1363ad)
 is an introduction article.
 
