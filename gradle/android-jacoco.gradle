@@ -1,5 +1,8 @@
 apply plugin: 'jacoco'
 
+jacoco.toolVersion = versions.jacoco
+android.jacoco.version = versions.jacoco
+
 def jacocoReportTask = tasks.create('jacocoTestReport')
 androidVariants.all {
     def variantName = name
