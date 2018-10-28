@@ -16,8 +16,6 @@
 
 package com.github.tmurakami.dexopener;
 
-import android.support.annotation.NonNull;
-
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 
 import java.io.File;
@@ -25,6 +23,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import androidx.annotation.NonNull;
 
 final class AndroidClassSourceFactory {
 

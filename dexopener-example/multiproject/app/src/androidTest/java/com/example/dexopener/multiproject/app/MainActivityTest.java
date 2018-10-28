@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.dexopener.multiproject;
+package com.example.dexopener.multiproject.app;
 
 import android.content.Intent;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.intercepting.SingleActivityFactory;
 
 import com.example.dexopener.multiproject.lib.MyService;
 
@@ -27,6 +25,9 @@ import org.junit.Test;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
+
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.intercepting.SingleActivityFactory;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,6 +40,8 @@ public class MainActivityTest {
                 @Override
                 protected MainActivity create(Intent intent) {
                     MainActivity testTarget = new MainActivity();
+                    // Although `MyService` is final, it can be mocked because it belongs to the
+                    // package of `MyAndroidJUnitRunner`.
                     testTarget.myService = mock(MyService.class);
                     return testTarget;
                 }

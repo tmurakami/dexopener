@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
+// You can mock only the final classes in this package and its subpackages.
 package com.example.dexopener.simple;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.test.runner.AndroidJUnitRunner;
 
 import com.github.tmurakami.dexopener.DexOpener;
+
+import androidx.test.runner.AndroidJUnitRunner;
 
 public class MyAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         DexOpener.install(this); // Call me first!
+        // TODO https://github.com/mockito/mockito/issues/1472
+        System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
         return super.newApplication(cl, className, context);
     }
 }

@@ -16,11 +16,6 @@
 
 package com.example.dexopener.simple;
 
-// The final classes you can mock on instrumented unit tests are only those under the package
-// indicated by the `applicationId` in the `android.defaultConfig` section of the build.gradle. In
-// this example, it is `com.example.dexopener.simple` as specified in the build.gradle.
-// The package name of this class is `com.example.dexopener.simple` as above and therefore this
-// class can be mocked on instrumented unit tests.
 final class MyService {
     void doIt() {
     }

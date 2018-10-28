@@ -5,8 +5,8 @@
 [![Javadoc](https://img.shields.io/badge/Javadoc-1.0.5-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/1.0.5/javadoc/)<br>
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
-A library that provides the ability to mock
-[your final classes](#limitations) on Android.
+A library that provides the ability to mock your final classes on
+Android.
 
 ## Installation
 
@@ -18,14 +18,12 @@ repositories {
 
 dependencies {
     androidTestImplementation 'com.github.tmurakami:dexopener:1.0.5'
+
+    androidTestImplementation 'androidx.test:runner:x.y.z
+    // DexOpener is also usable together with the support test runner.
+    // androidTestImplementation 'com.android.support.test:runner:x.y.z'
 }
 ```
-
-> **Note:** If you are using
-[Multidex](https://developer.android.com/studio/build/multidex.html?hl=en),
-you need to specify your BuildConfig class
-[in the primary DEX file](https://developer.android.com/studio/build/multidex.html?hl=en#keep),
-otherwise, you will get a NoClassDefFoundError.
 
 ## Usage
 
@@ -33,6 +31,10 @@ Add an AndroidJUnitRunner subclass into your app's **androidTest**
 directory.
 
 ```java
+// Specify your root package as `package` statement.
+// The final classes you can mock are only in the package and its subpackages.
+package your.root.pkg;
+
 public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
@@ -50,7 +52,7 @@ runner in your app's build.gradle.
 android {
     defaultConfig {
         minSdkVersion 16 // 16 or higher
-        testInstrumentationRunner 'your.app.YourAndroidJUnitRunner'
+        testInstrumentationRunner 'your.root.pkg.YourAndroidJUnitRunner'
     }
 }
 ```
@@ -82,17 +84,6 @@ The following code may cause a class inconsistency error.
 // This code may cause a class inconsistency error.
 return super.newApplication(cl, YourTestApplication.class.getName(), context);
 ````
-
-## Limitations
-
-The final classes you can mock on instrumented unit tests are only those
-under the package indicated by the `applicationId` in the
-`android.defaultConfig` section of your build.gradle. For example, if it
-is `foo.bar`, you can mock only the final classes belonging in
-`foo.bar.**`, such as `foo.bar.Baz` and `foo.bar.qux.Quux`. Therefore,
-you cannot mock the final classes of both Android system classes and
-third-party libraries, and cannot mock the final classes not belonging
-in that package, even if they are yours.
 
 ## Alternatives
 

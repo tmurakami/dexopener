@@ -16,6 +16,9 @@
 
 package com.github.tmurakami.dexopener;
 
+import java.util.HashSet;
+import java.util.Set;
+
 final class ClassNameFilter {
 
     private static final String[] INCLUDED_PACKAGES = {
@@ -31,9 +34,19 @@ final class ClassNameFilter {
     };
 
     private final String packagePrefix;
+    private final Set<String> excludedClasses = new HashSet<>();
 
     ClassNameFilter(String packagePrefix) {
         this.packagePrefix = packagePrefix;
+    }
+
+    ClassNameFilter excludeClasses(String... classNames) {
+        for (String className : classNames) {
+            if (className.startsWith(packagePrefix)) {
+                excludedClasses.add(className);
+            }
+        }
+        return this;
     }
 
     boolean accept(String className) {
@@ -47,11 +60,12 @@ final class ClassNameFilter {
                 return true;
             }
         }
-        return !className.endsWith(".BR") &&
+        return className.startsWith(packagePrefix) &&
+               !className.endsWith(".BR") &&
                !className.endsWith(".BuildConfig") &&
                !className.endsWith(".R") &&
                !className.contains(".R$") &&
-               className.startsWith(packagePrefix);
+               !excludedClasses.contains(className);
     }
 
 }

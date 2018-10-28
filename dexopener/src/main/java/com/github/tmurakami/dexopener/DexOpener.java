@@ -18,205 +18,159 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.support.annotation.CheckResult;
-import android.support.annotation.NonNull;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
+
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
+import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
+
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
+
+import static com.github.tmurakami.dexopener.Constants.MY_PACKAGE;
 
 /**
- * This is an object that provides the ability to mock your final classes.
+ * This is a utility that provides the ability to mock your final classes. To use this, first add an
+ * AndroidJUnitRunner subclass into your app's <strong>androidTest</strong> directory.
+ *
+ * <pre><code>
+ * // Specify your root package as `package` statement.
+ * // The final classes you can mock are only in the package and its subpackages.
+ * package your.root.pkg;
+ *
+ * public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
+ *     &#64;Override
+ *     public Application newApplication(ClassLoader cl, String className, Context context)
+ *             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+ *         DexOpener.install(this); // Call me first!
+ *         return super.newApplication(cl, className, context);
+ *     }
+ * }
+ * </code></pre>
  * <p>
- * Note that the final classes you can mock are only those under the package indicated by
- * android.defaultConfig.applicationId in your build.gradle. For example, if it is foo.bar, you can
- * mock only the final classes belonging in foo.bar.**, such as foo.bar.Baz and foo.bar.qux.Quux.
- * Therefore, you cannot mock the final classes of both Android system classes and third-party
- * libraries, and cannot mock the final classes not belonging in that package, even if they are
- * yours.
+ * Then specify your AndroidJUnitRunner as the default test instrumentation runner in your app's
+ * build.gradle.
+ *
+ * <pre><code>
+ * android {
+ *     defaultConfig {
+ *         minSdkVersion 16 // 16 or higher
+ *         testInstrumentationRunner 'your.root.pkg.YourAndroidJUnitRunner'
+ *     }
+ * }
+ * </code></pre>
  */
-@SuppressWarnings("WeakerAccess")
-public abstract class DexOpener {
+public final class DexOpener {
 
-    DexOpener() {
+    private static final String[] REFUSED_PACKAGES = {
+            MY_PACKAGE + '.',
+            // Android
+            "android.",
+            "androidx.",
+            "com.android.",
+            "com.google.android.",
+            "com.sun.",
+            "dalvik.",
+            "java.",
+            "javax.",
+            "libcore.",
+            "org.apache.commons.logging.",
+            "org.apache.harmony.",
+            "org.apache.http.",
+            "org.ccil.cowan.tagsoup.",
+            "org.json.",
+            "org.kxml2.io.",
+            "org.w3c.dom.",
+            "org.xml.sax.",
+            "org.xmlpull.v1.",
+            "sun.",
+            // JUnit 4
+            "junit.",
+            "org.hamcrest.",
+            "org.junit.",
+    };
+
+    private DexOpener() {
+        throw new AssertionError("Do not instantiate");
     }
 
     /**
      * Provides the ability to mock your final classes.
-     * <p>
-     * Note that this method must be called before calling
-     * {@link Instrumentation#newApplication(ClassLoader, String, Context)
-     * super.newApplication(ClassLoader, String, Context)}.
      *
-     * @param instrumentation the instrumentation
+     * @param instrumentation the {@link Instrumentation} instance of your AndroidJUnitRunner
+     *                        subclass
+     * @throws IllegalArgumentException      if there is no '.' separator in the package of the
+     *                                       given {@link Instrumentation} instance
+     * @throws IllegalStateException         if the given {@link Instrumentation} instance has not
+     *                                       yet been initialized, or if an
+     *                                       {@link android.app.Application} instance has already
+     *                                       been created
+     * @throws UnsupportedOperationException if an {@link Instrumentation} instance belonging to
+     *                                       a special package such as 'android' or 'androidx' is
+     *                                       specified
+     * @apiNote This method must be called first on the
+     * {@link Instrumentation#newApplication(ClassLoader, String, Context)
+     * newApplication(ClassLoader, String, Context)} method overridden in your AndroidJUnitRunner
+     * subclass.
      */
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("JavaDoc")
     public static void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
         if (context == null) {
-            throw new IllegalArgumentException("'instrumentation' has not yet been initialized");
+            throw new IllegalStateException(
+                    "The Instrumentation instance has not yet been initialized");
         }
-        Class<?> buildConfigClass = findBuildConfigClass(context);
-        builder(context).buildConfig(buildConfigClass).build().installTo(context.getClassLoader());
+        if (context.getApplicationContext() != null) {
+            throw new IllegalStateException("An Application instance has already been created");
+        }
+        String rootPackage = null;
+        String instrumentationName = instrumentation.getClass().getName();
+        int lastDotPos = instrumentationName.lastIndexOf('.');
+        if (lastDotPos != -1) {
+            String pkg = instrumentationName.substring(0, lastDotPos);
+            if (pkg.indexOf('.') != -1) {
+                rootPackage = pkg;
+            }
+        }
+        if (rootPackage == null) {
+            throw new IllegalArgumentException(
+                    "The package of the given Instrumentation instance must have at least one " +
+                    "'.' separator: " + instrumentationName);
+        }
+        for (String pkg : REFUSED_PACKAGES) {
+            if (rootPackage.startsWith(pkg)) {
+                throw new UnsupportedOperationException(
+                        "Manipulating an Instrumentation instance belonging to the '" +
+                        rootPackage + "' package is not supported");
+            }
+        }
+        Logger logger = Loggers.get();
+        if (logger.isLoggable(Level.FINEST)) {
+            logger.finest("The package to be opened: " + rootPackage + ".**");
+        }
+        install(context, new AndroidClassSourceFactory(
+                new ClassNameFilter(rootPackage + '.').excludeClasses(instrumentationName)));
     }
 
-    /**
-     * Provides the ability to mock your final classes. After calling this method, you can mock
-     * classes loaded by the given class loader.
-     * <p>
-     * Note that this method must be called before calling
-     * {@link Instrumentation#newApplication(ClassLoader, String, Context)
-     * super.newApplication(ClassLoader, String, Context)}.
-     *
-     * @param target the class loader
-     * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
-     * of the target application. Therefore, you no longer need to use {@link Builder} to create a
-     * {@link DexOpener} instance.
-     */
-    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
-    @Deprecated
-    public abstract void installTo(@NonNull ClassLoader target);
-
-    /**
-     * Instantiates a new {@link Builder} instance.
-     *
-     * @param context the context
-     * @return the {@link Builder}
-     * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
-     * of the target application. Therefore, you no longer need to use {@link Builder} to create a
-     * {@link DexOpener} instance.
-     */
-    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
-    @Deprecated
-    @NonNull
-    @CheckResult
-    public static Builder builder(@NonNull Context context) {
-        return new Builder(context);
-    }
-
-    private static Class<?> findBuildConfigClass(Context context) {
-        String packageName = context.getPackageName();
-        while (true) {
-            try {
-                return Class.forName(packageName + ".BuildConfig");
-            } catch (ClassNotFoundException e) {
-                int lastDotPos = packageName.lastIndexOf('.');
-                if (lastDotPos == -1) {
-                    break;
-                }
-                packageName = packageName.substring(0, lastDotPos);
-            }
+    @VisibleForTesting
+    static void install(Context context, AndroidClassSourceFactory androidClassSourceFactory) {
+        ApplicationInfo ai = context.getApplicationInfo();
+        File parentDir;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            parentDir = new File(ai.dataDir, "code_cache");
+        } else {
+            parentDir = context.getCodeCacheDir();
         }
-        throw new IllegalStateException(
-                "The BuildConfig class of the target application could not be found.");
-    }
-
-    /**
-     * The builder for {@link DexOpener}.
-     *
-     * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig class
-     * of the target application. Therefore, you no longer need to use {@link Builder} to create a
-     * {@link DexOpener} instance.
-     */
-    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
-    @Deprecated
-    public static final class Builder {
-
-        private final Context context;
-        private String packageToBeOpened;
-
-        private Builder(Context context) {
-            this.context = context;
+        File cacheDir = new File(parentDir, "dexopener");
+        if (cacheDir.isDirectory() || cacheDir.mkdirs()) {
+            FileUtils.delete(cacheDir.listFiles());
         }
-
-        /**
-         * Sets the app's BuildConfig class. Only those final classes which is under the package of
-         * the given class can be mocked. If not set, DexOpener will try to find the class which
-         * name is {@link Context#getPackageName()} + ".BuildConfig".
-         * <p>
-         * If the package name of the BuildConfig is not equal to your app's applicationId
-         * (e.g. you are using applicationIdSuffix in your build.gradle), DexOpener cannot find the
-         * BuildConfig class. In such case, you should set your app's BuildConfig class using this
-         * method.
-         *
-         * @param buildConfigClass the app's BuildConfig class
-         * @return this builder
-         * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig
-         * class of the target application. Therefore, you no longer need to use {@link Builder} to
-         * create a {@link DexOpener} instance.
-         */
-        @Deprecated
-        @NonNull
-        @CheckResult
-        public Builder buildConfig(@NonNull Class<?> buildConfigClass) {
-            String applicationId = null;
-            if (buildConfigClass.getSimpleName().equals("BuildConfig")) {
-                try {
-                    applicationId = (String) buildConfigClass.getField("APPLICATION_ID").get(null);
-                } catch (NoSuchFieldException ignored) {
-                } catch (IllegalAccessException ignored) {
-                }
-            }
-            String packageToBeOpened = null;
-            if (context.getPackageName().equals(applicationId)) {
-                packageToBeOpened = retrievePackageName(buildConfigClass);
-            }
-            if (packageToBeOpened == null || packageToBeOpened.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "'buildConfigClass' must be the BuildConfig class of the target application");
-            }
-            this.packageToBeOpened = packageToBeOpened;
-            return this;
-        }
-
-        /**
-         * Instantiates a new {@link DexOpener} instance.
-         *
-         * @return the {@link DexOpener}
-         * @deprecated Starting at version 0.13.0, DexOpener automatically detects the BuildConfig
-         * class of the target application. Therefore, you no longer need to use {@link Builder} to
-         * create a {@link DexOpener} instance.
-         */
-        @Deprecated
-        @NonNull
-        @CheckResult
-        public DexOpener build() {
-            String packageToBeOpened = this.packageToBeOpened;
-            if (packageToBeOpened == null) {
-                Class<?> buildConfigClass = loadBuildConfigClass(context);
-                packageToBeOpened = this.packageToBeOpened = retrievePackageName(buildConfigClass);
-            }
-            ClassNameFilter filter = new ClassNameFilter(packageToBeOpened + '.');
-            return new DexOpenerImpl(context, new AndroidClassSourceFactory(filter));
-        }
-
-        private static String retrievePackageName(Class<?> c) {
-            String className = c.getName();
-            return className.substring(0, className.lastIndexOf('.'));
-        }
-
-        private static Class<?> loadBuildConfigClass(Context context) {
-            ClassLoader loader = context.getClassLoader();
-            String name = context.getPackageName() + ".BuildConfig";
-            try {
-                return loader.loadClass(name);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException(
-                        "The BuildConfig of the target application could not be found.\n" +
-                        "You need to put an AndroidJUnitRunner subclass like below " +
-                        "in the instrumented tests directory and specify it as the " +
-                        "default test instrumentation runner in the project's " +
-                        "build.gradle.\n\n" +
-                        "public class YourAndroidJUnitRunner extends AndroidJUnitRunner {\n" +
-                        "    @Override\n" +
-                        "    public Application newApplication(ClassLoader cl, String className, Context context)\n" +
-                        "            throws InstantiationException, IllegalAccessException, ClassNotFoundException {\n" +
-                        "        DexOpener.builder(context)\n" +
-                        "                 .buildConfig(target.application.BuildConfig.class) // Set the BuildConfig class\n" +
-                        "                 .build()\n" +
-                        "                 .installTo(cl);\n" +
-                        "        return super.newApplication(cl, className, context);\n" +
-                        "    }\n" +
-                        "}");
-            }
-        }
-
+        ClassSource classSource = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
+        ClassInjector.from(classSource).into(context.getClassLoader());
     }
 
 }
