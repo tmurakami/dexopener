@@ -21,9 +21,6 @@
 -keep class com.github.tmurakami.classinjector.android.DexClassFile {
     public <init>(java.lang.String, dalvik.system.DexFile);
 }
--keep class org.jf.dexlib2.Opcodes {
-    public static org.jf.dexlib2.Opcodes getDefault();
-}
 -keep class org.jf.dexlib2.dexbacked.DexBackedDexFile {
     public <init>(org.jf.dexlib2.Opcodes, byte[]);
 }

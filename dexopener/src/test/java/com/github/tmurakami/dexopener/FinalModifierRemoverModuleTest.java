@@ -17,7 +17,6 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.AccessFlags;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Annotation;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.AnnotationElement;
@@ -64,7 +63,7 @@ public class FinalModifierRemoverModuleTest {
                                                                        Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
         ClassDef out = rewriter.getClassDefRewriter()
-                               .rewrite(new DexBackedDexFile(Opcodes.getDefault(), bytecode)
+                               .rewrite(new DexBackedDexFile(null, bytecode)
                                                 .getClasses()
                                                 .iterator()
                                                 .next());
@@ -93,7 +92,7 @@ public class FinalModifierRemoverModuleTest {
                                                                        Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
         Method out = rewriter.getMethodRewriter()
-                             .rewrite(new DexBackedDexFile(Opcodes.getDefault(), bytecode)
+                             .rewrite(new DexBackedDexFile(null, bytecode)
                                               .getClasses()
                                               .iterator()
                                               .next()
@@ -122,7 +121,7 @@ public class FinalModifierRemoverModuleTest {
                                                                        Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
         Annotation out = rewriter.getAnnotationRewriter()
-                                 .rewrite(new DexBackedDexFile(Opcodes.getDefault(), bytecode)
+                                 .rewrite(new DexBackedDexFile(null, bytecode)
                                                   .getClasses()
                                                   .iterator()
                                                   .next()

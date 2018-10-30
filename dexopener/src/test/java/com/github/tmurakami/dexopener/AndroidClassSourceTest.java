@@ -16,7 +16,6 @@
 
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.google.common.base.Function;
@@ -85,7 +84,6 @@ public class AndroidClassSourceTest {
     @SuppressWarnings("deprecation")
     @Test
     public void getClassFile_should_return_the_ClassFile_with_the_given_name() throws IOException {
-        final Opcodes opcodes = Opcodes.getDefault();
         given(classNameFilter.accept(matches("foo[.]Bar[\\d]{1,3}"))).willReturn(true);
         final List<Set<? extends ClassDef>> classesValues = new ArrayList<>();
         given(dexFileLoader.loadDex(dexFileCaptor.capture(), anyString()))
@@ -93,7 +91,7 @@ public class AndroidClassSourceTest {
                     @SuppressWarnings("TryFinallyCanBeTryWithResources")
                     @Override
                     public dalvik.system.DexFile answer(String src, String out) throws IOException {
-                        DexBackedDexFile file = DexBackedDexFileUtils.loadDexFile(opcodes, src);
+                        DexBackedDexFile file = DexBackedDexFileUtils.loadDexFile(src);
                         final Set<? extends ClassDef> classes = file.getClasses();
                         classesValues.add(classes);
                         dalvik.system.DexFile dexFile = mock(dalvik.system.DexFile.class,

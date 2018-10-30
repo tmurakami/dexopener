@@ -17,9 +17,9 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.AccessFlags;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 
 import org.jf.dexlib2.immutable.ImmutableAnnotation;
 import org.jf.dexlib2.immutable.ImmutableClassDef;
@@ -77,7 +77,6 @@ public class ClassTransformationTaskTest {
                                                       Collections.<ImmutableMethod>emptySet());
         byte[] bytes = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
                                                                     Collections.singleton(def)));
-        final Opcodes opcodes = Opcodes.getDefault();
         given(dexFileLoader.loadDex(srcPathCaptor.capture(), anyString()))
                 .will(answer(new Answer2<dalvik.system.DexFile, String, String>() {
                     @SuppressWarnings("TryFinallyCanBeTryWithResources")
@@ -85,17 +84,18 @@ public class ClassTransformationTaskTest {
                     public dalvik.system.DexFile answer(String src, String out) throws Throwable {
                         assertTrue(src.endsWith("tmp.dex"));
                         assertTrue(out.endsWith(".dex"));
-                        DexBackedDexFile file = DexBackedDexFileUtils.loadDexFile(opcodes, src);
+                        DexBackedDexFile file = DexBackedDexFileUtils.loadDexFile(src);
                         Set<? extends ClassDef> classes = file.getClasses();
                         assertSame(1, classes.size());
                         assertFalse(AccessFlags.FINAL.isSet(classes.iterator().next().getAccessFlags()));
                         return dexFile;
                     }
                 }));
-        ClassTransformationTask task = new ClassTransformationTask(opcodes,
+        DexFile file = new DexBackedDexFile(null, bytes);
+        ClassTransformationTask task = new ClassTransformationTask(file.getOpcodes(),
                                                                    folder.newFolder(),
                                                                    dexFileLoader);
-        task.setClasses(new DexBackedDexFile(opcodes, bytes).getClasses());
+        task.setClasses(file.getClasses());
         assertSame(dexFile, task.call());
         assertTrue(task.getClasses().isEmpty());
         assertFalse(new File(srcPathCaptor.getValue()).exists());

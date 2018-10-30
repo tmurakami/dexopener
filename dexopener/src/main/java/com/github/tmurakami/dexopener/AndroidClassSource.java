@@ -41,7 +41,6 @@ import java.util.zip.ZipInputStream;
 @SuppressWarnings("deprecation")
 final class AndroidClassSource implements ClassSource {
 
-    private static final Opcodes OPCODES = Opcodes.getDefault();
     // Empirically determined value. Increasing this will slow DEX file generation.
     private static final int MAX_CLASSES_PER_DEX_FILE = 100;
 
@@ -75,10 +74,20 @@ final class AndroidClassSource implements ClassSource {
         if (source != null) {
             return source;
         }
+        Logger logger = Loggers.get();
         Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap = new HashMap<>();
         ZipInputStream in = new ZipInputStream(new FileInputStream(sourceDir));
         try {
-            map(in, futureMap);
+            for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
+                String name = e.getName();
+                if (!name.startsWith("classes") || !name.endsWith(".dex")) {
+                    continue;
+                }
+                if (logger.isLoggable(Level.FINEST)) {
+                    logger.finest("Reading the entry " + name + " from " + sourceDir);
+                }
+                map(new DexBackedDexFile(null, IOUtils.readBytes(in)), futureMap);
+            }
         } finally {
             in.close();
         }
@@ -88,45 +97,35 @@ final class AndroidClassSource implements ClassSource {
         return delegate = new DexClassSource(futureMap);
     }
 
-    private void map(ZipInputStream in,
-                     Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap)
-            throws IOException {
+    private void map(DexFile dexFile,
+                     Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap) {
+        Opcodes opcodes = dexFile.getOpcodes();
         Logger logger = Loggers.get();
         Set<ClassDef> classesToBeOpened = new HashSet<>();
-        ClassTransformationTask task = new ClassTransformationTask(OPCODES, cacheDir, dexFileLoader);
+        ClassTransformationTask task = new ClassTransformationTask(opcodes, cacheDir, dexFileLoader);
         RunnableFuture<dalvik.system.DexFile> future = new FutureTask<>(task);
-        for (ZipEntry e; (e = in.getNextEntry()) != null; ) {
-            String name = e.getName();
-            if (!name.startsWith("classes") || !name.endsWith(".dex")) {
+        for (ClassDef def : dexFile.getClasses()) {
+            String dexName = def.getType();
+            // `dexName` should be neither a primitive type nor an array type.
+            String className = dexName.substring(1, dexName.length() - 1).replace('/', '.');
+            if (!classNameFilter.accept(className)) {
                 continue;
             }
             if (logger.isLoggable(Level.FINEST)) {
-                logger.finest("Reading the entry " + name + " from " + sourceDir);
+                logger.finest("The class to be opened: " + className);
             }
-            DexFile dexFile = new DexBackedDexFile(OPCODES, IOUtils.readBytes(in));
-            for (ClassDef def : dexFile.getClasses()) {
-                String dexName = def.getType();
-                // `dexName` should be neither a primitive type nor an array type.
-                String className = dexName.substring(1, dexName.length() - 1).replace('/', '.');
-                if (!classNameFilter.accept(className)) {
-                    continue;
-                }
-                if (logger.isLoggable(Level.FINEST)) {
-                    logger.finest("The class to be opened: " + className);
-                }
-                classesToBeOpened.add(def);
-                futureMap.put(className, future);
-                // It is faster to generate a DEX file for multiple classes at once than for a
-                // single class.
-                if (classesToBeOpened.size() < MAX_CLASSES_PER_DEX_FILE) {
-                    continue;
-                }
-                task.setClasses(classesToBeOpened);
-                executor.execute(future);
-                classesToBeOpened = new HashSet<>();
-                task = new ClassTransformationTask(OPCODES, cacheDir, dexFileLoader);
-                future = new FutureTask<>(task);
+            classesToBeOpened.add(def);
+            futureMap.put(className, future);
+            // It is faster to generate a DEX file for multiple classes at once than for a
+            // single class.
+            if (classesToBeOpened.size() < MAX_CLASSES_PER_DEX_FILE) {
+                continue;
             }
+            task.setClasses(classesToBeOpened);
+            executor.execute(future);
+            classesToBeOpened = new HashSet<>();
+            task = new ClassTransformationTask(opcodes, cacheDir, dexFileLoader);
+            future = new FutureTask<>(task);
         }
         if (!classesToBeOpened.isEmpty()) {
             task.setClasses(classesToBeOpened);
