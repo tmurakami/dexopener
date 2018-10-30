@@ -52,7 +52,7 @@ dependencyUpdates.resolutionStrategy {
 
 ext {
     deps = [retrolambda  : 'net.orfjackal.retrolambda:retrolambda:2.5.5',
-            jarjar       : 'org.pantsbuild:jarjar:1.6.6',
+            jarjar       : 'org.pantsbuild:jarjar:1.7.2',
             classinjector: 'com.github.tmurakami.classinjector:classinjector-android:1.0.0',
             dexlib2      : 'org.smali:dexlib2:2.2.5',
             guava        : 'com.google.guava:guava:18.0',
