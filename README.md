@@ -57,7 +57,7 @@ android {
 }
 ```
 
-You can see some examples in the [dexopener-example](dexopener-example) directory.
+You can see some examples [here](dexopener-example).
 
 ## Tips
 
@@ -99,7 +99,7 @@ instead of DexOpener.
 will help you to open your classes only for testing. You can also find
 out how to use the `OpenForTesting` annotation in [Google's samples for Android Architecture Components](https://github.com/googlesamples/android-architecture-components).
 
-### [DexMaker-Mockito inline mocking](https://github.com/linkedin/dexmaker)
+### [Dexmaker-Mockito inline mocking](https://github.com/linkedin/dexmaker)
 
 You can now even stub the final methods of the Android API using the
 `dexmaker-mockito-inline` library. In addition, the
