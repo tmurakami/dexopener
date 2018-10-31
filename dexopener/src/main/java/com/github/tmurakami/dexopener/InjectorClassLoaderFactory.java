@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Tsuyoshi Murakami
+ * Copyright 2017 Tsuyoshi Murakami
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 
 package com.github.tmurakami.dexopener;
 
-final class Constants {
+final class InjectorClassLoaderFactory {
 
-    static final String MY_PACKAGE = "com.github.tmurakami.dexopener";
-    static final String MY_PACKAGE_PREFIX = MY_PACKAGE + '.';
+    private final ClassSource source;
 
-    private Constants() {
-        throw new AssertionError("Do not instantiate");
+    InjectorClassLoaderFactory(ClassSource source) {
+        this.source = source;
+    }
+
+    ClassLoader newInjectorClassLoader(ClassLoader parent, ClassLoader injectionTarget) {
+        return new InjectorClassLoader(parent, source, injectionTarget);
     }
 
 }

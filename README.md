@@ -115,7 +115,6 @@ higher devices.
 
 This library contains the classes of the following libraries:
 
-- [ClassInjector](https://github.com/tmurakami/classinjector)
 - [dexlib2 (part of smali/baksmali)](https://github.com/JesusFreke/smali)
 - [Guava (on which dexlib2 relies)](https://github.com/google/guava)
 

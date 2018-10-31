@@ -21,9 +21,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassInjector;
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
-
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +28,7 @@ import java.util.logging.Logger;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
-import static com.github.tmurakami.dexopener.Constants.MY_PACKAGE;
+import static com.github.tmurakami.dexopener.Constants.MY_PACKAGE_PREFIX;
 
 /**
  * This is a utility that provides the ability to mock your final classes. To use this, first add an
@@ -67,7 +64,7 @@ import static com.github.tmurakami.dexopener.Constants.MY_PACKAGE;
 public final class DexOpener {
 
     private static final String[] REFUSED_PACKAGES = {
-            MY_PACKAGE + '.',
+            MY_PACKAGE_PREFIX,
             // Android
             "android.",
             "androidx.",
@@ -169,8 +166,8 @@ public final class DexOpener {
         if (cacheDir.isDirectory() || cacheDir.mkdirs()) {
             FileUtils.delete(cacheDir.listFiles());
         }
-        ClassSource classSource = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
-        ClassInjector.from(classSource).into(context.getClassLoader());
+        ClassSource source = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
+        new ClassInjector(new InjectorClassLoaderFactory(source)).into(context.getClassLoader());
     }
 
 }

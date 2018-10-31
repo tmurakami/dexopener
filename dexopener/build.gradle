@@ -49,7 +49,6 @@ dependencies {
         exclude group: 'com.google.guava', module: 'guava'
     }
     jarjar deps.jarjar
-    repackage deps.classinjector
     repackage deps.guava
     repackage files(backportDir) { builtBy 'backportDependencies' }
     compileOnly deps.androidx.annotation

@@ -16,8 +16,6 @@
 
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
 import com.github.tmurakami.dexopener.repackaged.com.google.common.io.ByteStreams;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;

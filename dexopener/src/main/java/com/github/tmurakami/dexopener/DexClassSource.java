@@ -16,10 +16,6 @@
 
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.android.DexClassFile;
-
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
@@ -47,7 +43,7 @@ final class DexClassSource implements ClassSource {
         try {
             while (true) {
                 try {
-                    return new DexClassFile(className, future.get());
+                    return new ClassFile(className, future.get());
                 } catch (InterruptedException e) {
                     // Refuse to be interrupted
                     interrupted = true;

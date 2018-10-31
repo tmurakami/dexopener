@@ -14,13 +14,6 @@
     *;
 }
 
--keep class com.github.tmurakami.classinjector.ClassInjector {
-    public static com.github.tmurakami.classinjector.ClassInjector from(com.github.tmurakami.classinjector.ClassSource);
-    public void into(java.lang.ClassLoader);
-}
--keep class com.github.tmurakami.classinjector.android.DexClassFile {
-    public <init>(java.lang.String, dalvik.system.DexFile);
-}
 -keep class com.google.common.io.ByteStreams {
     public static byte[] toByteArray(java.io.InputStream);
 }

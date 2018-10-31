@@ -16,8 +16,6 @@
 
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
-
 import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

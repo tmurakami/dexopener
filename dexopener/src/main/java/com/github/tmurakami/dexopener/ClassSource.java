@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Tsuyoshi Murakami
+ * Copyright 2017 Tsuyoshi Murakami
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,20 @@
 
 package com.github.tmurakami.dexopener;
 
-final class Constants {
+import java.io.IOException;
 
-    static final String MY_PACKAGE = "com.github.tmurakami.dexopener";
-    static final String MY_PACKAGE_PREFIX = MY_PACKAGE + '.';
+/**
+ * An object that obtains {@link ClassFile} objects.
+ */
+interface ClassSource {
 
-    private Constants() {
-        throw new AssertionError("Do not instantiate");
-    }
+    /**
+     * Finds the class file with the given name.
+     *
+     * @param className the class name
+     * @return the class file, or null if not found
+     * @throws IOException if an IO error occurred
+     */
+    ClassFile getClassFile(String className) throws IOException;
 
 }
