@@ -18,6 +18,7 @@ package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassFile;
 import com.github.tmurakami.dexopener.repackaged.com.github.tmurakami.classinjector.ClassSource;
+import com.github.tmurakami.dexopener.repackaged.com.google.common.io.ByteStreams;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
@@ -86,7 +87,7 @@ final class AndroidClassSource implements ClassSource {
                 if (logger.isLoggable(Level.FINEST)) {
                     logger.finest("Reading the entry " + name + " from " + sourceDir);
                 }
-                map(new DexBackedDexFile(null, IOUtils.readBytes(in)), futureMap);
+                map(new DexBackedDexFile(null, ByteStreams.toByteArray(in)), futureMap);
             }
         } finally {
             in.close();

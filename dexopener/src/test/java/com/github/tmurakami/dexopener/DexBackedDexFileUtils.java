@@ -17,6 +17,7 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
+import com.google.common.io.ByteStreams;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,7 +33,7 @@ final class DexBackedDexFileUtils {
     static DexBackedDexFile loadDexFile(String path) throws IOException {
         InputStream in = new FileInputStream(path);
         try {
-            return new DexBackedDexFile(null, IOUtils.readBytes(in));
+            return new DexBackedDexFile(null, ByteStreams.toByteArray(in));
         } finally {
             in.close();
         }
