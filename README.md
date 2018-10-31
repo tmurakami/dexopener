@@ -57,7 +57,7 @@ android {
 }
 ```
 
-You can see some examples [here](dexopener-example).
+You can see some examples [here](examples).
 
 ## Tips
 

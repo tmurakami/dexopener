@@ -1,7 +1,7 @@
 include ':dexopener'
 
-include ':dexopener-example:simple'
-include ':dexopener-example:replaceapp'
-include ':dexopener-example:multiproject:app'
-include ':dexopener-example:multiproject:lib'
-include ':dexopener-example:supportlib'
+include ':examples:simple'
+include ':examples:replaceapp'
+include ':examples:multiproject:app'
+include ':examples:multiproject:lib'
+include ':examples:supportlib'

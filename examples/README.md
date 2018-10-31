@@ -1,4 +1,4 @@
-# Example
+# Examples
 
 This directory contains the following examples:
 
