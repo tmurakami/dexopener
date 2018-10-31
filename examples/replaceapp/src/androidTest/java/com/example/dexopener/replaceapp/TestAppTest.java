@@ -18,16 +18,13 @@ package com.example.dexopener.replaceapp;
 
 import org.junit.Test;
 
-import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 
 import static org.junit.Assert.assertSame;
 
 public class TestAppTest {
     @Test
     public void app_should_be_replaced() {
-        assertSame(TestApp.class, InstrumentationRegistry.getInstrumentation()
-                                                         .getTargetContext()
-                                                         .getApplicationContext()
-                                                         .getClass());
+        assertSame(TestApp.class, ApplicationProvider.getApplicationContext().getClass());
     }
 }
