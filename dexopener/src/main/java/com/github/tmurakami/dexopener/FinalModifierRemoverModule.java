@@ -31,10 +31,7 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.ClassDe
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.MethodRewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.Rewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.RewriterModule;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.RewriterUtils;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.Rewriters;
-
-import java.util.Set;
 
 final class FinalModifierRemoverModule extends RewriterModule {
 
@@ -43,31 +40,30 @@ final class FinalModifierRemoverModule extends RewriterModule {
         return new AnnotationRewriter(rewriters) {
             @Override
             public Annotation rewrite(Annotation annotation) {
-                if (!annotation.getType().equals("Ldalvik/annotation/InnerClass;")) {
+                if (annotation.getType().equals("Ldalvik/annotation/InnerClass;")) {
                     return super.rewrite(annotation);
+                } else {
+                    return annotation;
                 }
-                return new RewrittenAnnotation(annotation) {
-                    @Override
-                    public Set<? extends AnnotationElement> getElements() {
-                        return RewriterUtils.rewriteSet(new AnnotationElementRewriter(rewriters) {
-                            @Override
-                            public AnnotationElement rewrite(AnnotationElement annotationElement) {
-                                String name = annotationElement.getName();
-                                if (!name.equals("accessFlags")) {
-                                    return annotationElement;
-                                }
-                                EncodedValue value = annotationElement.getValue();
-                                int accessFlags = ((IntEncodedValue) value).getValue();
-                                if (!AccessFlags.FINAL.isSet(accessFlags)) {
-                                    return annotationElement;
-                                }
-                                int nonFinal = accessFlags & ~AccessFlags.FINAL.getValue();
-                                EncodedValue newValue = new ImmutableIntEncodedValue(nonFinal);
-                                return new ImmutableAnnotationElement(name, newValue);
-                            }
-                        }, annotation.getElements());
-                    }
-                };
+            }
+        };
+    }
+
+    @Override
+    public Rewriter<AnnotationElement> getAnnotationElementRewriter(Rewriters rewriters) {
+        return new AnnotationElementRewriter(rewriters) {
+            @Override
+            public AnnotationElement rewrite(AnnotationElement annotationElement) {
+                String name = annotationElement.getName();
+                if (!name.equals("accessFlags")) {
+                    return annotationElement;
+                }
+                int accessFlags = ((IntEncodedValue) annotationElement.getValue()).getValue();
+                if (!AccessFlags.FINAL.isSet(accessFlags)) {
+                    return annotationElement;
+                }
+                int nonFinal = accessFlags & ~AccessFlags.FINAL.getValue();
+                return new ImmutableAnnotationElement(name, new ImmutableIntEncodedValue(nonFinal));
             }
         };
     }

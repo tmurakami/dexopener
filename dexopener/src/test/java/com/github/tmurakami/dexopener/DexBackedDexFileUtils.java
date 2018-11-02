@@ -17,6 +17,7 @@
 package com.github.tmurakami.dexopener;
 
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 import com.google.common.io.ByteStreams;
 
 import java.io.FileInputStream;
@@ -30,7 +31,7 @@ final class DexBackedDexFileUtils {
     }
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    static DexBackedDexFile loadDexFile(String path) throws IOException {
+    static DexFile loadDexFile(String path) throws IOException {
         InputStream in = new FileInputStream(path);
         try {
             return new DexBackedDexFile(null, ByteStreams.toByteArray(in));

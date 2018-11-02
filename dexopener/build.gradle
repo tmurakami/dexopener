@@ -54,7 +54,7 @@ dependencies {
     compileOnly deps.androidx.annotation
     implementation files(repackagedJar) { builtBy 'repackageDependencies' }
     testImplementation deps.junit
-    testImplementation deps.mockito.inline
+    testImplementation deps.mockito.core
     testImplementation deps.dexlib2
     androidTestImplementation deps.androidx.test.runner
 }

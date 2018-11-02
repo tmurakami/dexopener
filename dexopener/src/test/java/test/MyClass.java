@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Tsuyoshi Murakami
+ * Copyright 2016 Tsuyoshi Murakami
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,5 +16,5 @@
 
 package test;
 
-public class MyTestClass {
+public class MyClass {
 }

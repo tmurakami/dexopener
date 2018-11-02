@@ -15,6 +15,6 @@
  */
 
 /**
- * This package provides the ability to mock your final classes and methods on Android.
+ * This package provides the ability to mock your final classes on Android devices.
  */
 package com.github.tmurakami.dexopener;

@@ -35,18 +35,18 @@ import java.util.logging.Logger;
 final class ClassTransformationTask implements Callable<dalvik.system.DexFile>, DexFile {
 
     private final Opcodes opcodes;
-    private final File cacheDir;
+    private final File codeCacheDir;
     private final DexFileLoader dexFileLoader;
-    private Set<? extends ClassDef> classes = Collections.emptySet();
+    private Set<? extends ClassDef> classes;
 
-    ClassTransformationTask(Opcodes opcodes, File cacheDir, DexFileLoader dexFileLoader) {
+    ClassTransformationTask(Opcodes opcodes,
+                            Set<? extends ClassDef> classes,
+                            File codeCacheDir,
+                            DexFileLoader dexFileLoader) {
         this.opcodes = opcodes;
-        this.cacheDir = cacheDir;
-        this.dexFileLoader = dexFileLoader;
-    }
-
-    void setClasses(Set<? extends ClassDef> classes) {
         this.classes = classes;
+        this.codeCacheDir = codeCacheDir;
+        this.dexFileLoader = dexFileLoader;
     }
 
     @Override
@@ -64,11 +64,11 @@ final class ClassTransformationTask implements Callable<dalvik.system.DexFile>, 
         DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
         try {
             DexFile dexFile = dexRewriter.rewriteDexFile(this);
-            File dex = File.createTempFile("classes", ".dex", cacheDir);
+            File dex = File.createTempFile("classes", ".dex", codeCacheDir);
             dex.deleteOnExit();
             String dexPath = dex.getCanonicalPath();
             // The extension of the source file must be `dex`.
-            File tmp = new File(cacheDir, dex.getName() + ".tmp.dex");
+            File tmp = new File(codeCacheDir, dex.getName() + ".tmp.dex");
             String tmpPath = tmp.getCanonicalPath();
             dalvik.system.DexFile file;
             try {

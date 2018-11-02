@@ -14,6 +14,20 @@
     *;
 }
 
+-keep class com.google.common.base.Functions {
+    public static com.google.common.base.Function constant(java.lang.Object);
+}
+-keep class com.google.common.base.Predicates {
+    public static com.google.common.base.Predicate compose(com.google.common.base.Predicate, com.google.common.base.Function);
+}
+-keep class com.google.common.collect.Iterables {
+    public static java.lang.Iterable filter(java.lang.Iterable, com.google.common.base.Predicate);
+    public static java.lang.Iterable partition(java.lang.Iterable, int);
+}
+-keep class com.google.common.collect.Maps {
+    public static com.google.common.collect.ImmutableMap toMap(java.lang.Iterable, com.google.common.base.Function);
+    public static java.util.Map transformValues(java.util.Map, com.google.common.base.Function);
+}
 -keep class com.google.common.io.ByteStreams {
     public static byte[] toByteArray(java.io.InputStream);
 }

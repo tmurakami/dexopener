@@ -16,16 +16,14 @@
 
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.AccessFlags;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 
-import org.jf.dexlib2.immutable.ImmutableAnnotation;
+import org.jf.dexlib2.AccessFlags;
+import org.jf.dexlib2.Opcodes;
 import org.jf.dexlib2.immutable.ImmutableClassDef;
 import org.jf.dexlib2.immutable.ImmutableDexFile;
-import org.jf.dexlib2.immutable.ImmutableField;
-import org.jf.dexlib2.immutable.ImmutableMethod;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -52,8 +50,6 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class ClassTransformationTaskTest {
 
-    private static final int ACCESS_FLAGS_FINAL = org.jf.dexlib2.AccessFlags.FINAL.getValue();
-
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
 
@@ -66,16 +62,12 @@ public class ClassTransformationTaskTest {
     private ArgumentCaptor<String> srcPathCaptor;
 
     @Test
-    public void call_should_generate_non_final_classes() throws IOException {
+    public void should_generate_non_final_classes() throws IOException {
         ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
-                                                      ACCESS_FLAGS_FINAL,
+                                                      AccessFlags.FINAL.getValue(),
                                                       "Ljava/lang/Object;",
-                                                      null,
-                                                      null,
-                                                      Collections.<ImmutableAnnotation>emptySet(),
-                                                      Collections.<ImmutableField>emptySet(),
-                                                      Collections.<ImmutableMethod>emptySet());
-        byte[] bytes = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+                                                      null, null, null, null, null);
+        byte[] bytes = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(),
                                                                     Collections.singleton(def)));
         given(dexFileLoader.loadDex(srcPathCaptor.capture(), anyString()))
                 .will(answer(new Answer2<dalvik.system.DexFile, String, String>() {
@@ -84,7 +76,7 @@ public class ClassTransformationTaskTest {
                     public dalvik.system.DexFile answer(String src, String out) throws Throwable {
                         assertTrue(src.endsWith("tmp.dex"));
                         assertTrue(out.endsWith(".dex"));
-                        DexBackedDexFile file = DexBackedDexFileUtils.loadDexFile(src);
+                        DexFile file = DexBackedDexFileUtils.loadDexFile(src);
                         Set<? extends ClassDef> classes = file.getClasses();
                         assertSame(1, classes.size());
                         assertFalse(AccessFlags.FINAL.isSet(classes.iterator().next().getAccessFlags()));
@@ -93,9 +85,9 @@ public class ClassTransformationTaskTest {
                 }));
         DexFile file = new DexBackedDexFile(null, bytes);
         ClassTransformationTask task = new ClassTransformationTask(file.getOpcodes(),
+                                                                   file.getClasses(),
                                                                    folder.newFolder(),
                                                                    dexFileLoader);
-        task.setClasses(file.getClasses());
         assertSame(dexFile, task.call());
         assertTrue(task.getClasses().isEmpty());
         assertFalse(new File(srcPathCaptor.getValue()).exists());

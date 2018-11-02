@@ -18,15 +18,15 @@ package com.github.tmurakami.dexopener;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.os.Build;
 
-import java.io.File;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 
 import static com.github.tmurakami.dexopener.Constants.MY_PACKAGE_PREFIX;
 
@@ -91,6 +91,20 @@ public final class DexOpener {
             "org.junit.",
     };
 
+    private static final Executor EXECUTOR;
+
+    static {
+        final AtomicInteger count = new AtomicInteger();
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+        int nThreads = Math.max(1, Math.min(availableProcessors, 4)); // 1 to 4
+        EXECUTOR = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
+            @Override
+            public Thread newThread(@NonNull Runnable r) {
+                return new Thread(r, "DexOpener #" + count.incrementAndGet());
+            }
+        });
+    }
+
     private DexOpener() {
         throw new AssertionError("Do not instantiate");
     }
@@ -100,15 +114,10 @@ public final class DexOpener {
      *
      * @param instrumentation the {@link Instrumentation} instance of your AndroidJUnitRunner
      *                        subclass
-     * @throws IllegalArgumentException      if there is no '.' separator in the package of the
-     *                                       given {@link Instrumentation} instance
-     * @throws IllegalStateException         if the given {@link Instrumentation} instance has not
-     *                                       yet been initialized, or if an
-     *                                       {@link android.app.Application} instance has already
-     *                                       been created
-     * @throws UnsupportedOperationException if an {@link Instrumentation} instance belonging to
-     *                                       a special package such as 'android' or 'androidx' is
-     *                                       specified
+     * @throws IllegalStateException         if this method is called twice or is called in an
+     *                                       inappropriate location
+     * @throws UnsupportedOperationException if the given {@link Instrumentation} instance belongs
+     *                                       to a special package such as 'android'
      * @apiNote This method must be called first on the
      * {@link Instrumentation#newApplication(ClassLoader, String, Context)
      * newApplication(ClassLoader, String, Context)} method overridden in your AndroidJUnitRunner
@@ -124,50 +133,37 @@ public final class DexOpener {
         if (context.getApplicationContext() != null) {
             throw new IllegalStateException("An Application instance has already been created");
         }
-        String rootPackage = null;
-        String instrumentationName = instrumentation.getClass().getName();
-        int lastDotPos = instrumentationName.lastIndexOf('.');
-        if (lastDotPos != -1) {
-            String pkg = instrumentationName.substring(0, lastDotPos);
-            if (pkg.indexOf('.') != -1) {
-                rootPackage = pkg;
-            }
-        }
-        if (rootPackage == null) {
-            throw new IllegalArgumentException(
-                    "The package of the given Instrumentation instance must have at least one " +
-                    "'.' separator: " + instrumentationName);
-        }
-        for (String pkg : REFUSED_PACKAGES) {
-            if (rootPackage.startsWith(pkg)) {
-                throw new UnsupportedOperationException(
-                        "Manipulating an Instrumentation instance belonging to the '" +
-                        rootPackage + "' package is not supported");
-            }
-        }
-        Logger logger = Loggers.get();
-        if (logger.isLoggable(Level.FINEST)) {
-            logger.finest("The package to be opened: " + rootPackage + ".**");
-        }
-        install(context, new AndroidClassSourceFactory(
-                new ClassNameFilter(rootPackage + '.').excludeClasses(instrumentationName)));
+        ClassNameFilter classNameFilter = createClassNameFilter(instrumentation.getClass());
+        ClassPath path = new ClassPath(context, classNameFilter, new DexFileLoader(), EXECUTOR);
+        new Installer(path).installTo(context.getClassLoader());
     }
 
-    @VisibleForTesting
-    static void install(Context context, AndroidClassSourceFactory androidClassSourceFactory) {
-        ApplicationInfo ai = context.getApplicationInfo();
-        File parentDir;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            parentDir = new File(ai.dataDir, "code_cache");
-        } else {
-            parentDir = context.getCodeCacheDir();
+    private static ClassNameFilter createClassNameFilter(Class<?> rootClass) {
+        String className = rootClass.getName();
+        int lastDotPos = className.lastIndexOf('.');
+        String packageName = lastDotPos == -1 ? null : className.substring(0, lastDotPos);
+        if (isSupportedPackage(packageName)) {
+            Logger logger = Loggers.get();
+            if (logger.isLoggable(Level.FINEST)) {
+                logger.finest("The package to be opened: " + packageName + ".**");
+            }
+            return new ClassNameFilter(packageName, rootClass);
         }
-        File cacheDir = new File(parentDir, "dexopener");
-        if (cacheDir.isDirectory() || cacheDir.mkdirs()) {
-            FileUtils.delete(cacheDir.listFiles());
+        throw new UnsupportedOperationException(
+                "Manipulating final classes belonging to the '" + packageName +
+                "' package is not supported");
+    }
+
+    private static boolean isSupportedPackage(String packageName) {
+        if (packageName == null || packageName.indexOf('.') == -1) {
+            return false;
         }
-        ClassSource source = androidClassSourceFactory.newClassSource(ai.sourceDir, cacheDir);
-        new ClassInjector(new InjectorClassLoaderFactory(source)).into(context.getClassLoader());
+        for (String pkg : REFUSED_PACKAGES) {
+            if (packageName.startsWith(pkg)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

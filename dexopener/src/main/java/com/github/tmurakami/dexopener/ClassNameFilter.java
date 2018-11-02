@@ -16,10 +16,12 @@
 
 package com.github.tmurakami.dexopener;
 
+import com.github.tmurakami.dexopener.repackaged.com.google.common.base.Predicate;
+
 import java.util.HashSet;
 import java.util.Set;
 
-final class ClassNameFilter {
+final class ClassNameFilter implements Predicate<String> {
 
     private static final String[] INCLUDED_PACKAGES = {
             "android.databinding.generated.",
@@ -34,22 +36,23 @@ final class ClassNameFilter {
     };
 
     private final String packagePrefix;
-    private final Set<String> excludedClasses = new HashSet<>();
+    private final Set<String> excludedClassNames;
 
-    ClassNameFilter(String packagePrefix) {
+    ClassNameFilter(String rootPackage, Class... excludedClasses) {
+        String packagePrefix = rootPackage + '.';
         this.packagePrefix = packagePrefix;
-    }
-
-    ClassNameFilter excludeClasses(String... classNames) {
-        for (String className : classNames) {
+        Set<String> classes = new HashSet<>();
+        for (Class c : excludedClasses) {
+            String className = c.getName();
             if (className.startsWith(packagePrefix)) {
-                excludedClasses.add(className);
+                classes.add(className);
             }
         }
-        return this;
+        this.excludedClassNames = classes;
     }
 
-    boolean accept(String className) {
+    @Override
+    public boolean apply(String className) {
         for (String pkg : INCLUDED_PACKAGES) {
             if (className.startsWith(pkg)) {
                 return true;
@@ -65,7 +68,7 @@ final class ClassNameFilter {
                !className.endsWith(".BuildConfig") &&
                !className.endsWith(".R") &&
                !className.contains(".R$") &&
-               !excludedClasses.contains(className);
+               !excludedClassNames.contains(className);
     }
 
 }

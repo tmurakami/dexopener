@@ -16,7 +16,6 @@
 
 package com.github.tmurakami.dexopener;
 
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.AccessFlags;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Annotation;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.AnnotationElement;
@@ -25,13 +24,13 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.Method;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.value.IntEncodedValue;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexRewriter;
 
+import org.jf.dexlib2.AccessFlags;
+import org.jf.dexlib2.Opcodes;
 import org.jf.dexlib2.immutable.ImmutableAnnotation;
 import org.jf.dexlib2.immutable.ImmutableAnnotationElement;
 import org.jf.dexlib2.immutable.ImmutableClassDef;
 import org.jf.dexlib2.immutable.ImmutableDexFile;
-import org.jf.dexlib2.immutable.ImmutableField;
 import org.jf.dexlib2.immutable.ImmutableMethod;
-import org.jf.dexlib2.immutable.ImmutableMethodParameter;
 import org.jf.dexlib2.immutable.value.ImmutableIntEncodedValue;
 import org.jf.dexlib2.immutable.value.ImmutableStringEncodedValue;
 import org.junit.Test;
@@ -46,20 +45,13 @@ import static org.junit.Assert.assertNotSame;
 
 public class FinalModifierRemoverModuleTest {
 
-    private static final int ACCESS_FLAGS_FINAL = org.jf.dexlib2.AccessFlags.FINAL.getValue();
-
     @Test
-    public void classDefRewriter_should_remove_final_modifier_from_the_given_class()
-            throws IOException {
+    public void should_remove_final_modifier_from_the_given_class() throws IOException {
         ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
-                                                      ACCESS_FLAGS_FINAL,
+                                                      AccessFlags.FINAL.getValue(),
                                                       "Ljava/lang/Object;",
-                                                      null,
-                                                      null,
-                                                      Collections.<ImmutableAnnotation>emptySet(),
-                                                      Collections.<ImmutableField>emptySet(),
-                                                      Collections.<ImmutableMethod>emptySet());
-        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+                                                      null, null, null, null, null);
+        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(),
                                                                        Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
         ClassDef out = rewriter.getClassDefRewriter()
@@ -71,24 +63,19 @@ public class FinalModifierRemoverModuleTest {
     }
 
     @Test
-    public void methodRewriter_should_remove_final_modifier_from_the_given_method()
-            throws IOException {
+    public void should_remove_final_modifier_from_the_given_method() throws IOException {
         ImmutableMethod method = new ImmutableMethod("Lfoo/Bar;",
                                                      "f",
-                                                     Collections.<ImmutableMethodParameter>emptySet(),
+                                                     null,
                                                      "V",
-                                                     ACCESS_FLAGS_FINAL,
-                                                     Collections.<ImmutableAnnotation>emptySet(),
-                                                     null);
+                                                     AccessFlags.FINAL.getValue(),
+                                                     null, null);
         ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
                                                       0,
                                                       "Ljava/lang/Object;",
-                                                      null,
-                                                      null,
-                                                      Collections.<ImmutableAnnotation>emptySet(),
-                                                      Collections.<ImmutableField>emptySet(),
+                                                      null, null, null, null,
                                                       Collections.singleton(method));
-        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(),
                                                                        Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
         Method out = rewriter.getMethodRewriter()
@@ -103,21 +90,22 @@ public class FinalModifierRemoverModuleTest {
     }
 
     @Test
-    public void annotationRewriter_should_remove_final_modifier_from_the_given_inner_class_annotation()
+    public void should_remove_final_modifier_from_the_given_inner_class_annotation()
             throws IOException {
         Set<ImmutableAnnotationElement> elements = new HashSet<>();
-        elements.add(new ImmutableAnnotationElement("name", new ImmutableStringEncodedValue("Lfoo/Bar;")));
-        elements.add(new ImmutableAnnotationElement("accessFlags", new ImmutableIntEncodedValue(ACCESS_FLAGS_FINAL)));
-        ImmutableAnnotation annotation = new ImmutableAnnotation(0, "Ldalvik/annotation/InnerClass;", elements);
+        elements.add(new ImmutableAnnotationElement("name",
+                                                    new ImmutableStringEncodedValue("Lfoo/Bar;")));
+        elements.add(new ImmutableAnnotationElement("accessFlags",
+                                                    new ImmutableIntEncodedValue(AccessFlags.FINAL.getValue())));
+        ImmutableAnnotation annotation =
+                new ImmutableAnnotation(0, "Ldalvik/annotation/InnerClass;", elements);
         ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
                                                       0,
                                                       "Ljava/lang/Object;",
-                                                      null,
-                                                      null,
+                                                      null, null,
                                                       Collections.singleton(annotation),
-                                                      Collections.<ImmutableField>emptySet(),
-                                                      Collections.<ImmutableMethod>emptySet());
-        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(org.jf.dexlib2.Opcodes.getDefault(),
+                                                      null, null);
+        byte[] bytecode = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(),
                                                                        Collections.singleton(def)));
         DexRewriter rewriter = new DexRewriter(new FinalModifierRemoverModule());
         Annotation out = rewriter.getAnnotationRewriter()

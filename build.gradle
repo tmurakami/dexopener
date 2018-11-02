@@ -68,6 +68,6 @@ ext {
                               test      : [rules: 'com.android.support.test:rules:1.0.2',]]]
 
     def mockitoVersion = '2.23.0'
-    deps.mockito = [android: "org.mockito:mockito-android:$mockitoVersion",
-                    inline : "org.mockito:mockito-inline:$mockitoVersion",]
+    deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
+                    android: "org.mockito:mockito-android:$mockitoVersion",]
 }

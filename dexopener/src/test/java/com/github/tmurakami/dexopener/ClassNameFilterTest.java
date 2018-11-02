@@ -22,6 +22,8 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 
+import test.MyClass;
+
 import static org.junit.Assert.assertSame;
 
 @RunWith(Parameterized.class)
@@ -30,8 +32,7 @@ public class ClassNameFilterTest {
     private static final boolean ALLOW = true;
     private static final boolean DENY = false;
 
-    private final ClassNameFilter testTarget =
-            new ClassNameFilter("foo.").excludeClasses("foo.bar.Baz");
+    private final ClassNameFilter testTarget = new ClassNameFilter("test", MyClass.class);
 
     private final String className;
     private final boolean expected;
@@ -44,25 +45,21 @@ public class ClassNameFilterTest {
     @Parameterized.Parameters(name = "name={0}")
     public static Iterable<Object[]> parameters() {
         return Arrays.asList(new Object[]{"C", DENY},
-                             new Object[]{"foo.BR", DENY},
-                             new Object[]{"foo.BuildConfig", DENY},
-                             new Object[]{"foo.R", DENY},
-                             new Object[]{"foo.R$string", DENY},
-                             new Object[]{"foo.bar.Baz", DENY},
+                             new Object[]{"test.BR", DENY},
+                             new Object[]{"test.BuildConfig", DENY},
+                             new Object[]{"test.R", DENY},
+                             new Object[]{"test.R$string", DENY},
+                             new Object[]{MyClass.class.getName(), DENY},
                              new Object[]{"android.databinding.DataBinderMapper", ALLOW},
                              new Object[]{"android.databinding.DataBindingComponent", ALLOW},
                              new Object[]{"android.databinding.DataBindingUtil", ALLOW},
                              new Object[]{"android.databinding.generated.C", ALLOW},
-                             new Object[]{"foo.Bar", ALLOW},
-                             new Object[]{"foo.Bar$BR", ALLOW},
-                             new Object[]{"foo.Bar$BuildConfig", ALLOW},
-                             new Object[]{"foo.Bar$R", ALLOW},
-                             new Object[]{"foo.Bar$R$string", ALLOW});
+                             new Object[]{"test.Foo", ALLOW});
     }
 
     @Test
-    public void accept_should_return_a_value_equal_to_the_expected_value() {
-        assertSame(expected, testTarget.accept(className));
+    public void should_get_the_same_value_as_the_expected_value() {
+        assertSame(expected, testTarget.apply(className));
     }
 
 }
