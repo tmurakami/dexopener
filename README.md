@@ -5,8 +5,8 @@
 [![Javadoc](https://img.shields.io/badge/Javadoc-2.0.0--alpha02-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/2.0.0-alpha02/javadoc/)<br>
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
-A library that provides the ability to mock your final classes on
-Android.
+A library provides the ability to mock your final classes on Android
+devices.
 
 ## Installation
 
