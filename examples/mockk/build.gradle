@@ -1,0 +1,22 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId 'com.example.dexopener.mockk'
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode 1
+        versionName version
+        testInstrumentationRunner 'com.example.dexopener.mockk.MyAndroidJUnitRunner'
+    }
+}
+
+dependencies {
+    implementation deps.kotlin.stdlib
+    implementation deps.androidx.annotation
+    androidTestImplementation project(':dexopener')
+    androidTestImplementation deps.androidx.test.rules
+    androidTestImplementation deps.mockk.android
+}

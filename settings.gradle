@@ -1,7 +1,9 @@
 include ':dexopener'
 
-include ':examples:simple'
-include ':examples:replaceapp'
+include ':examples:dexmaker'
+include ':examples:mockk'
 include ':examples:multiproject:app'
 include ':examples:multiproject:lib'
+include ':examples:replaceapp'
+include ':examples:simple'
 include ':examples:supportlib'

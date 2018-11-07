@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-// You can mock only the final classes in this package and its subpackages.
-package com.example.dexopener.replaceapp;
+package com.example.dexopener.replaceapp; // specify the root package of your code
 
 import android.app.Application;
 import android.content.Context;
@@ -31,10 +30,8 @@ public class MyAndroidJUnitRunner extends AndroidJUnitRunner {
         DexOpener.install(this); // Call me first!
         // TODO https://github.com/mockito/mockito/issues/1472
         System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
-        // To instantiate your custom `android.app.Application` object other than default
-        // application, pass a string literal of that class name as the second argument to
-        // `super.newApplication()`.
-        // Do not call `Class#getName()` here. Otherwise, a class inconsistency error may occur.
+        // Do not call `Class#getName()` here. Otherwise, an `IllegalAccessError` saying `Class ref
+        // in pre-verified class ...` may occur.
         return super.newApplication(cl, "com.example.dexopener.replaceapp.TestApp", context);
     }
 }

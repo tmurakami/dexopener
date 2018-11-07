@@ -1,0 +1,36 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId 'com.example.dexopener.dexmaker'
+        targetSdkVersion 28
+        versionCode 1
+        versionName version
+    }
+    flavorDimensions 'api'
+    productFlavors {
+        minApi16 {
+            dimension 'api'
+            minSdkVersion 16
+            testInstrumentationRunner 'com.example.dexopener.dexmaker.MyAndroidJUnitRunner'
+        }
+        minApi28 {
+            dimension 'api'
+            minSdkVersion 28
+            testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        }
+    }
+    compileOptions {
+        // The `dexmaker-mockito-extended` library requires Java 8
+        sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation deps.androidx.annotation
+    androidTestImplementation deps.androidx.test.rules
+    androidTestMinApi16Implementation project(':dexopener')
+    androidTestMinApi16Implementation deps.dexmaker.mockito
+    androidTestMinApi28Implementation deps.dexmaker.mockito_inline_extended
+}

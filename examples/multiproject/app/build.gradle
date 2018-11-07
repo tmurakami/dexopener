@@ -1,10 +1,7 @@
-import com.android.ddmlib.DdmPreferences
-
 apply plugin: 'com.android.application'
 
-apply from: "$rootDir/gradle/android.gradle"
-
 android {
+    compileSdkVersion 28
     defaultConfig {
         applicationId 'com.example.dexopener.multiproject.app'
         minSdkVersion 16
@@ -13,8 +10,6 @@ android {
         versionName version
         testInstrumentationRunner 'com.example.dexopener.multiproject.MyAndroidJUnitRunner'
     }
-    buildTypes.debug.testCoverageEnabled true
-    DdmPreferences.setTimeOut 60000
 }
 
 dependencies {

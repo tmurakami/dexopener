@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-// You can mock only the final classes in this package and its subpackages.
-package com.example.dexopener.multiproject.lib;
+package com.example.dexopener.multiproject.lib; // specify the root package of your code
 
 import android.app.Application;
 import android.content.Context;
