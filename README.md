@@ -73,15 +73,15 @@ runner.
 public Application newApplication(ClassLoader cl, String className, Context context)
         throws ClassNotFoundException, IllegalAccessException, InstantiationException {
     DexOpener.install(this); // Call me first!
-    return super.newApplication(cl, "your.app.YourTestApplication", context);
+    return super.newApplication(cl, "your.root.pkg.YourTestApplication", context);
 }
 ```
 
 **Do not call `Class#getName()` to get your Application class name**.
-The following code may cause a class inconsistency error.
+The following code may cause an `IllegalAccessError` saying `Class ref
+in pre-verified class ...`.
 
 ```java
-// This code may cause a class inconsistency error.
 return super.newApplication(cl, YourTestApplication.class.getName(), context);
 ````
 
@@ -95,11 +95,11 @@ However, they are not so lightweight. If you want to save even a little
 testing time of your Kotlin app, you can introduce [the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 instead of DexOpener.
 
-[This comment](https://github.com/mockito/mockito/issues/1082#issuecomment-301646307)
-will help you to open your classes only for testing. You can also find
-out how to use the `OpenForTesting` annotation in [Google's samples for Android Architecture Components](https://github.com/googlesamples/android-architecture-components).
+[This article](https://proandroiddev.com/mocking-androidtest-in-kotlin-51f0a603d500)
+is helpful to know how to open Kotlin classes with that plugin only for
+testing.
 
-### [Dexmaker-Mockito inline mocking](https://github.com/linkedin/dexmaker)
+### [Dexmaker](https://github.com/linkedin/dexmaker)
 
 You can now even stub the final methods of the Android API using the
 `dexmaker-mockito-inline` library. In addition, the
@@ -108,8 +108,17 @@ methods and spying on an object created by the Android system such as
 Activity. [Here](https://medium.com/androiddevelopers/mock-final-and-static-methods-on-android-devices-b383da1363ad)
 is an introduction article.
 
-Note that these libraries will only work on Android 9 Pie (API 28) or
-higher devices.
+Note that these libraries will only work with Android 9+.
+
+### [MockK](https://mockk.io/)
+
+The `mockk-android` library provides inline mocking feature derived from
+Dexmaker. The feature is automatically enabled on a device running
+Android 9+. You can see the supported features [here](https://github.com/mockk/mockk/blob/master/ANDROID.md).
+
+By checking `Build.VERSION.SDK_INT`, you can switch that feature and
+DexOpener according to the OS version of the testing device. See the
+[example](examples/mockk).
 
 ## Notice
 
