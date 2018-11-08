@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/tmurakami/dexopener.svg?style=shield)](https://circleci.com/gh/tmurakami/dexopener)
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
-[![Javadoc](https://img.shields.io/badge/Javadoc-2.0.0--alpha03-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/2.0.0-alpha04/javadoc/)<br>
+[![Javadoc](https://img.shields.io/badge/Javadoc-2.0.0-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/2.0.0-alpha04/javadoc/)<br>
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
 A library provides the ability to mock your final classes on Android
