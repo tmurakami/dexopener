@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.example.dexopener.simple; // specify the root package of your code
+// Specify your root package as `package` statement.
+package com.example.dexopener.simple;
 
 import android.app.Application;
 import android.content.Context;
