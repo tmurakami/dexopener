@@ -1,15 +1,10 @@
 task javadoc(type: Javadoc) {
     androidVariants.matching { it.name == 'release' }.all {
-        def javaCompile = javaCompileProvider.get()
-        source += javaCompile.source
-        classpath += files(android.bootClasspath, javaCompile.classpath)
+        source += sourceSets.javaDirectories
+        classpath += files(android.bootClasspath, javaCompileProvider.get().classpath)
     }
     excludes = ['**/BuildConfig.java', '**/R.java']
     options.links 'https://developer.android.com/reference/'
-    options.tags = ['apiNote:a:API Note:',
-                    'implSpec:a:Implementation Requirements:',
-                    'implNote:a:Implementation Note:',]
-    if (JavaVersion.current() >= JavaVersion.VERSION_1_9) options.addBooleanOption('html5', true)
 }
 
 apply from: "$rootDir/gradle/javadoc-common.gradle"
