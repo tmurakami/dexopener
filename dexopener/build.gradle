@@ -85,15 +85,6 @@ task sourcesJar(type: Jar) {
     from android.sourceSets.main.resources.sourceFiles
 }
 
-javadoc {
-    def missingPackageListDir = "$buildDir/tmp/javadoc/missing-package-list"
-    doFirst {
-        file(missingPackageListDir).mkdirs()
-        file("$missingPackageListDir/package-list").text = 'android.support.test.runner\n'
-    }
-    options.linksOffline 'https://developer.android.com/reference/', missingPackageListDir
-}
-
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir

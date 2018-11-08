@@ -3,8 +3,7 @@ task javadoc(type: Javadoc) {
         source += sourceSets.javaDirectories
         classpath += files(android.bootClasspath, javaCompileProvider.get().classpath)
     }
-    excludes = ['**/BuildConfig.java', '**/R.java']
-    options.links 'https://developer.android.com/reference/'
+    options.linksOffline 'https://developer.android.com/reference/', "${android.sdkDirectory}/docs/reference"
 }
 
 apply from: "$rootDir/gradle/javadoc-common.gradle"
