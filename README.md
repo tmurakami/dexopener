@@ -11,6 +11,13 @@ devices.
 ## Installation
 
 ```groovy
+android {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
 repositories {
     google()
     maven { url 'https://jitpack.io' }
@@ -122,16 +129,13 @@ DexOpener according to the OS version of the testing device. See the
 
 ## Notice
 
-This library contains the classes of the following libraries:
+DexOpener contains the classes of the following libraries:
 
 - [dexlib2 (part of smali/baksmali)](https://github.com/JesusFreke/smali)
 - [Guava (on which dexlib2 relies)](https://github.com/google/guava)
 
-They have been minified with
-[ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with
-[Jar Jar Links](https://github.com/pantsbuild/jarjar). In addition,
-dexlib2 has been backported to Java 7 with
-[Retrolambda](https://github.com/orfjackal/retrolambda).
+They have been minified with [ProGuard](https://www.guardsquare.com/en/proguard)
+and repackaged with [Jar Jar Links](https://github.com/pantsbuild/jarjar).
 
 ## License
 

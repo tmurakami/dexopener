@@ -1,0 +1,9 @@
+## Notice
+
+DexOpener contains the classes of the following libraries:
+
+- [dexlib2 (part of smali/baksmali)](https://github.com/JesusFreke/smali)
+- [Guava (on which dexlib2 relies)](https://github.com/google/guava)
+
+They have been minified with [ProGuard](https://www.guardsquare.com/en/proguard)
+and repackaged with [Jar Jar Links](https://github.com/pantsbuild/jarjar).

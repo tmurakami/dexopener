@@ -30,7 +30,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer2;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -97,37 +96,26 @@ public class ClassPathTest {
                                               null, null, null, null, null, null));
         }
         ImmutableDexFile dexFile = new ImmutableDexFile(Opcodes.getDefault(), classes);
-        ai.sourceDir = generateZip(DexPoolUtils.toBytecode(dexFile)).getCanonicalPath();
-        final ClassLoader loader = new ClassLoader() {
+        File zip = folder.newFile();
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip))) {
+            out.putNextEntry(new ZipEntry("classes.dex"));
+            out.write(DexPoolUtils.toBytecode(dexFile));
+        }
+        ai.sourceDir = zip.getCanonicalPath();
+        ClassLoader loader = new ClassLoader() {
         };
         given(dexFileLoader.loadDex(anyString(), anyString()))
-                .will(answer(new Answer2<dalvik.system.DexFile, String, String>() {
-                    @Override
-                    public dalvik.system.DexFile answer(String src, String out) {
-                        dalvik.system.DexFile dexFile = mock(dalvik.system.DexFile.class,
-                                                             withSettings().stubOnly());
-                        given(dexFile.loadClass(anyString(), eq(loader))).willReturn(MyClass.class);
-                        return dexFile;
-                    }
+                .will(answer((src, out) -> {
+                    dalvik.system.DexFile file = mock(dalvik.system.DexFile.class,
+                                                      withSettings().stubOnly());
+                    given(file.loadClass(anyString(), eq(loader))).willReturn(MyClass.class);
+                    return file;
                 }));
         ClassPath classPath = new ClassPath(context, classNameFilter, dexFileLoader, executor);
         for (String className : classNames) {
             assertSame(MyClass.class, classPath.loadClass(className, loader));
         }
         then(executor).should(times(2)).execute(any(FutureTask.class));
-    }
-
-    @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    private File generateZip(byte[] bytecode) throws IOException {
-        File zip = folder.newFile();
-        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
-        try {
-            out.putNextEntry(new ZipEntry("classes.dex"));
-            out.write(bytecode);
-        } finally {
-            out.close();
-        }
-        return zip;
     }
 
 }

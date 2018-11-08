@@ -8,6 +8,10 @@ android {
         versionCode 1
         versionName version
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     flavorDimensions 'api'
     productFlavors {
         minApi16 {
@@ -20,10 +24,6 @@ android {
             minSdkVersion 28
             testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         }
-    }
-    compileOptions {
-        // The `dexmaker-mockito-extended` library requires Java 8
-        sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 

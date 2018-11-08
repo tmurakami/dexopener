@@ -6,14 +6,14 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'net.sf.proguard:proguard-gradle:6.0.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.getkeepsafe.dexcount'
+// TODO https://github.com/KeepSafe/dexcount-gradle-plugin/issues/222
+//apply plugin: 'com.getkeepsafe.dexcount'
 
 apply from: "$rootDir/gradle/android.gradle"
 
@@ -27,51 +27,28 @@ android {
     lintOptions.disable 'InvalidPackage'
     testOptions.animationsDisabled true
     DdmPreferences.setTimeOut 60000
-    // TODO replace with https://issuetracker.google.com/issues/72050365
-    libraryVariants.all { it.generateBuildConfig.enabled = false }
+    libraryVariants.all { it.generateBuildConfigProvider.get().enabled = false }
 }
 
 configurations {
-    retrolambda
-    backport
     jarjar
     repackage
 }
 
-def backportDir = "$buildDir/tmp/backport"
 def repackagedJar = "$buildDir/libs/repackaged.jar"
 
 dependencies {
-    retrolambda deps.retrolambda
-    backport deps.dexlib2, {
+    jarjar deps.jarjar
+    repackage deps.dexlib2, {
         exclude group: 'com.beust', module: 'jcommander'
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
-        exclude group: 'com.google.guava', module: 'guava'
     }
-    jarjar deps.jarjar
-    repackage deps.guava
-    repackage files(backportDir) { builtBy 'backportDependencies' }
     compileOnly deps.androidx.annotation
     implementation files(repackagedJar) { builtBy 'repackageDependencies' }
     testImplementation deps.junit
     testImplementation deps.mockito.core
     testImplementation deps.dexlib2
     androidTestImplementation deps.androidx.test.runner
-}
-
-task backportDependencies(type: JavaExec) {
-    def jars = configurations.backport.files
-    inputs.files jars
-    outputs.dir backportDir
-    classpath = configurations.retrolambda
-    main = 'net.orfjackal.retrolambda.Main'
-    jvmArgs = ["-Dretrolambda.inputDir=$backportDir", "-Dretrolambda.classpath=$backportDir"]
-    doFirst {
-        copy {
-            jars.each { from zipTree(it) }
-            into backportDir
-        }
-    }
 }
 
 task repackageDependencies(type: ProGuardTask) {
@@ -97,9 +74,10 @@ task repackageDependencies(type: ProGuardTask) {
     }
 }
 
-dexcount {
-    includeClasses = true
-}
+// TODO https://github.com/KeepSafe/dexcount-gradle-plugin/issues/222
+//dexcount {
+//    includeClasses = true
+//}
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'

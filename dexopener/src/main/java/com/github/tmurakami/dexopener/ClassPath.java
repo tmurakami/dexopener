@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static com.github.tmurakami.dexopener.repackaged.com.google.common.base.Functions.constant;
@@ -94,15 +93,13 @@ class ClassPath {
         }
     }
 
-    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private Map<String, dalvik.system.DexFile> collectDexFiles() throws IOException {
         File codeCacheDir = getCodeCacheDir(context);
         Function<ClassDef, String> classDefToClassName = classDefToJavaName();
         Predicate<ClassDef> classFilter = compose(classNameFilter, classDefToClassName);
         Map<String, FutureTask<dalvik.system.DexFile>> taskMap = new HashMap<>();
         String sourceDir = context.getApplicationInfo().sourceDir;
-        ZipFile zipFile = new ZipFile(sourceDir);
-        try {
+        try (ZipFile zipFile = new ZipFile(sourceDir)) {
             for (DexFile dexFile : dexFiles(zipFile)) {
                 Opcodes opcodes = dexFile.getOpcodes();
                 Iterable<? extends ClassDef> classes = filter(dexFile.getClasses(), classFilter);
@@ -115,8 +112,6 @@ class ClassPath {
                     taskMap.putAll(toMap(transform(set, classDefToClassName), constant(future)));
                 }
             }
-        } finally {
-            zipFile.close();
         }
         return transformValues(taskMap, dexFileFutureTaskToDexFile());
     }
@@ -135,72 +130,54 @@ class ClassPath {
         return cacheDir;
     }
 
-    private static Iterable<DexFile> dexFiles(final ZipFile zipFile) {
-        return transform(filter(list(zipFile.entries()), new Predicate<ZipEntry>() {
-            @Override
-            public boolean apply(ZipEntry entry) {
-                String name = entry.getName();
-                return name.startsWith("classes") && name.endsWith(".dex");
-            }
-        }), new Function<ZipEntry, DexFile>() {
-            @SuppressWarnings("TryFinallyCanBeTryWithResources")
-            @Override
-            public DexFile apply(ZipEntry entry) {
-                try {
-                    InputStream in = zipFile.getInputStream(entry);
-                    try {
-                        return new DexBackedDexFile(null, ByteStreams.toByteArray(in));
-                    } finally {
-                        in.close();
-                    }
-                } catch (IOException e) {
-                    throw new IOError(e);
-                }
+    private static Iterable<DexFile> dexFiles(ZipFile zipFile) {
+        return transform(filter(list(zipFile.entries()), entry -> {
+            String name = entry.getName();
+            return name.startsWith("classes") && name.endsWith(".dex");
+        }), entry -> {
+            try (InputStream in = zipFile.getInputStream(entry)) {
+                return new DexBackedDexFile(null, ByteStreams.toByteArray(in));
+            } catch (IOException e) {
+                throw new IOError(e);
             }
         });
     }
 
     private static Function<ClassDef, String> classDefToJavaName() {
-        return new Function<ClassDef, String>() {
-            @Override
-            public String apply(ClassDef classDef) {
-                String type = classDef.getType();
-                // `type` should be neither a primitive type nor an array type.
-                return type.substring(1, type.length() - 1).replace('/', '.');
-            }
+        return classDef -> {
+            String type = classDef.getType();
+            // `type` should be neither a primitive type nor an array type.
+            return type.substring(1, type.length() - 1).replace('/', '.');
         };
     }
 
     private static Function<FutureTask<dalvik.system.DexFile>, dalvik.system.DexFile> dexFileFutureTaskToDexFile() {
-        return new Function<FutureTask<dalvik.system.DexFile>, dalvik.system.DexFile>() {
-            @Override
-            public dalvik.system.DexFile apply(FutureTask<dalvik.system.DexFile> task) {
-                // The task might not be completed, so we do it here first.
-                task.run();
-                boolean interrupted = false;
-                try {
-                    while (true) {
-                        try {
-                            return task.get();
-                        } catch (InterruptedException e) {
-                            // Refuse to be interrupted
-                            interrupted = true;
-                        }
+        return task -> {
+            // The task might not be completed, so we do it here first.
+            task.run();
+            boolean interrupted = false;
+            try {
+                while (true) {
+                    try {
+                        return task.get();
+                    } catch (InterruptedException e) {
+                        // Refuse to be interrupted
+                        interrupted = true;
                     }
-                } catch (ExecutionException e) {
-                    Throwable cause = e.getCause();
-                    if (cause instanceof RuntimeException) {
-                        throw (RuntimeException) cause;
-                    } else if (cause instanceof Error) {
-                        throw (Error) cause;
-                    } else {
-                        throw new IllegalStateException(cause);
-                    }
-                } finally {
-                    if (interrupted) {
-                        // Restore the interrupted status
-                        Thread.currentThread().interrupt();
-                    }
+                }
+            } catch (ExecutionException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else if (cause instanceof Error) {
+                    throw (Error) cause;
+                } else {
+                    throw new IllegalStateException(cause);
+                }
+            } finally {
+                if (interrupted) {
+                    // Restore the interrupted status
+                    Thread.currentThread().interrupt();
                 }
             }
         };

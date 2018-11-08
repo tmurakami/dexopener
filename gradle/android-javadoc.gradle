@@ -1,7 +1,8 @@
 task javadoc(type: Javadoc) {
     androidVariants.matching { it.name == 'release' }.all {
-        source += javaCompiler.source
-        classpath += files(android.bootClasspath, javaCompiler.classpath)
+        def javaCompile = javaCompileProvider.get()
+        source += javaCompile.source
+        classpath += files(android.bootClasspath, javaCompile.classpath)
     }
     excludes = ['**/BuildConfig.java', '**/R.java']
     options.links 'https://developer.android.com/reference/'

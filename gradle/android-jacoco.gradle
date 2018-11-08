@@ -25,7 +25,7 @@ androidVariants.all {
                 android.sourceSets[buildType.name].java.srcDirs,
                 productFlavors.collect { android.sourceSets[it.name].java.srcDirs })
         classDirectories = fileTree(
-                dir: javaCompiler.destinationDir,
+                dir: javaCompileProvider.get().destinationDir,
                 excludes: ['**/BuildConfig.class', '**/R.class', '**/R$*.class'])
         executionData = files("$buildDir/jacoco/${testTaskName}.exec")
     }

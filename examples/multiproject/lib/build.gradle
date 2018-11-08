@@ -6,6 +6,10 @@ android {
         minSdkVersion 16
         testInstrumentationRunner 'com.example.dexopener.multiproject.lib.MyAndroidJUnitRunner'
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {

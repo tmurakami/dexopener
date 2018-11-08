@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.0-beta02'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
         classpath 'pl.allegro.tech.build:axion-release-plugin:1.9.3'
@@ -53,11 +53,9 @@ dependencyUpdates.resolutionStrategy {
 }
 
 ext {
-    deps = [retrolambda: 'net.orfjackal.retrolambda:retrolambda:2.5.5',
-            jarjar     : 'org.pantsbuild:jarjar:1.7.2',
-            dexlib2    : 'org.smali:dexlib2:2.2.5',
-            guava      : 'com.google.guava:guava:18.0',
-            junit      : 'junit:junit:4.12',]
+    deps = [jarjar : 'org.pantsbuild:jarjar:1.7.2',
+            dexlib2: 'org.smali:dexlib2:2.2.5',
+            junit  : 'junit:junit:4.12',]
 
     deps.kotlin = [stdlib: "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",]
 

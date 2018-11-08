@@ -19,6 +19,7 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
+import com.google.common.io.ByteStreams;
 
 import org.jf.dexlib2.AccessFlags;
 import org.jf.dexlib2.Opcodes;
@@ -32,10 +33,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer2;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Set;
 
@@ -70,18 +72,17 @@ public class ClassTransformationTaskTest {
         byte[] bytes = DexPoolUtils.toBytecode(new ImmutableDexFile(Opcodes.getDefault(),
                                                                     Collections.singleton(def)));
         given(dexFileLoader.loadDex(srcPathCaptor.capture(), anyString()))
-                .will(answer(new Answer2<dalvik.system.DexFile, String, String>() {
-                    @SuppressWarnings("TryFinallyCanBeTryWithResources")
-                    @Override
-                    public dalvik.system.DexFile answer(String src, String out) throws Throwable {
-                        assertTrue(src.endsWith("tmp.dex"));
-                        assertTrue(out.endsWith(".dex"));
-                        DexFile file = DexBackedDexFileUtils.loadDexFile(src);
-                        Set<? extends ClassDef> classes = file.getClasses();
-                        assertSame(1, classes.size());
-                        assertFalse(AccessFlags.FINAL.isSet(classes.iterator().next().getAccessFlags()));
-                        return dexFile;
+                .will(answer((String src, String out) -> {
+                    assertTrue(src.endsWith("tmp.dex"));
+                    assertTrue(out.endsWith(".dex"));
+                    DexFile file;
+                    try (InputStream in = new FileInputStream(src)) {
+                        file = new DexBackedDexFile(null, ByteStreams.toByteArray(in));
                     }
+                    Set<? extends ClassDef> classes = file.getClasses();
+                    assertSame(1, classes.size());
+                    assertFalse(AccessFlags.FINAL.isSet(classes.iterator().next().getAccessFlags()));
+                    return dexFile;
                 }));
         DexFile file = new DexBackedDexFile(null, bytes);
         ClassTransformationTask task = new ClassTransformationTask(file.getOpcodes(),
