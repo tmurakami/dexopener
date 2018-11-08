@@ -124,8 +124,7 @@ Dexmaker. The feature is automatically enabled on a device running
 Android 9+. You can see the supported features [here](https://github.com/mockk/mockk/blob/master/ANDROID.md).
 
 By checking `Build.VERSION.SDK_INT`, you can switch that feature and
-DexOpener according to the OS version of the testing device. See the
-[example](examples/mockk).
+DexOpener according to the OS version of the testing device. See [the example](examples/mockk).
 
 ## Notice
 
