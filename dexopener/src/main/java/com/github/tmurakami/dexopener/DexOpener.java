@@ -21,7 +21,6 @@ import android.content.Context;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,12 +96,8 @@ public final class DexOpener {
         final AtomicInteger count = new AtomicInteger();
         int availableProcessors = Runtime.getRuntime().availableProcessors();
         int nThreads = Math.max(1, Math.min(availableProcessors, 4)); // 1 to 4
-        EXECUTOR = Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
-            @Override
-            public Thread newThread(@NonNull Runnable r) {
-                return new Thread(r, "DexOpener #" + count.incrementAndGet());
-            }
-        });
+        EXECUTOR = Executors.newFixedThreadPool(
+                nThreads, r -> new Thread(r, "DexOpener #" + count.incrementAndGet()));
     }
 
     private DexOpener() {
