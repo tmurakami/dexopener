@@ -96,14 +96,14 @@ return super.newApplication(cl, YourTestApplication.class.getName(), context);
 ### [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 
 DexOpener removes the final modifier from your final classes and creates
-dex files to make the application class loader load the classes.
+dex files to make the application class loader load those classes.
 However, they are not so lightweight. If you want to save even a little
 testing time of your Kotlin app, you can introduce [the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 instead of DexOpener.
 
 [This article](https://proandroiddev.com/mocking-androidtest-in-kotlin-51f0a603d500)
-is helpful to know how to open Kotlin classes with that plugin only for
-testing.
+would be helpful to know how to open Kotlin classes with that plugin
+only for testing.
 
 ### [Dexmaker](https://github.com/linkedin/dexmaker)
 
