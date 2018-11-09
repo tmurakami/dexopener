@@ -1,10 +1,5 @@
 -dontoptimize
 
--dontnote com.google.common.**
--dontnote org.jf.util.jcommander.**
--dontnote sun.misc.Unsafe
-
--dontwarn com.beust.jcommander.**
 -dontwarn javax.annotation.**
 -dontwarn sun.misc.Unsafe
 
