@@ -44,6 +44,7 @@ dependencies {
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
     }
     compileOnly deps.androidx.annotation
+    implementation files(project(':classloaderhelper').jar)
     implementation files(repackagedJar) { builtBy 'repackageDependencies' }
     testImplementation deps.junit
     testImplementation deps.mockito.core
@@ -65,7 +66,6 @@ task repackageDependencies(type: ProGuardTask) {
                     classpath: configurations.jarjar.asPath
             jarjar(jarfile: repackagedJar) {
                 outJarFiles.each { zipfileset src: it }
-                rule pattern: 'com.github.tmurakami.classinjector.**', result: "$rootPackage.@0"
                 rule pattern: 'com.google.common.**', result: "$rootPackage.@0"
                 rule pattern: 'org.jf.**', result: "$rootPackage.@0"
             }

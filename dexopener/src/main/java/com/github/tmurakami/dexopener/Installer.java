@@ -16,7 +16,6 @@
 
 package com.github.tmurakami.dexopener;
 
-import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,20 +34,7 @@ final class Installer {
                 throw new IllegalStateException("Already installed");
             }
         }
-        Field parentField;
-        try {
-            parentField = ClassLoader.class.getDeclaredField("parent");
-        } catch (NoSuchFieldException e) {
-            throw new UnsupportedOperationException(e);
-        }
-        Injector injector = new Injector(target, classPath);
-        do {
-            parentField.setAccessible(true);
-            try {
-                parentField.set(target, injector);
-            } catch (IllegalAccessException ignored) {
-            }
-        } while (target.getParent() != injector);
+        ClassLoaderHelper.setParent(target, new Injector(target, classPath));
     }
 
     private static final class Injector extends ClassLoader {
@@ -72,7 +58,7 @@ final class Installer {
             if (logger.isLoggable(Level.FINEST)) {
                 String hash = Integer.toHexString(System.identityHashCode(target));
                 String target = this.target.getClass().getName() + '@' + hash;
-                logger.finest("The class " + c.getName() + " was injected into " + target);
+                logger.finest("The class '" + name + "' was injected into " + target);
             }
             return c;
         }
