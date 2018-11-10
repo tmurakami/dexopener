@@ -24,35 +24,21 @@ import org.mockito.junit.MockitoJUnitRunner;
 import test.MyClass;
 
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class InstallerTest {
+public class ClassInjectorTest {
 
     @Mock
     private ClassPath classPath;
-
-    @Test
-    public void should_throw_IllegalStateException_if_already_installed() {
-        ClassLoader loader = new ClassLoader() {
-        };
-        Installer installer = new Installer(classPath);
-        installer.installTo(loader);
-        try {
-            installer.installTo(loader);
-            fail();
-        } catch (IllegalStateException ignored) {
-        }
-    }
 
     @Test
     public void should_get_the_Class_with_the_given_name() throws ClassNotFoundException {
         ClassLoader loader = new ClassLoader() {
         };
         given(classPath.loadClass("foo.Bar", loader)).willReturn(MyClass.class);
-        new Installer(classPath).installTo(loader);
+        ClassLoaderHelper.setParent(loader, new ClassInjector(loader, classPath));
         assertSame(MyClass.class, loader.loadClass("foo.Bar"));
     }
 
@@ -61,7 +47,7 @@ public class InstallerTest {
             throws ClassNotFoundException {
         ClassLoader loader = new ClassLoader() {
         };
-        new Installer(classPath).installTo(loader);
+        ClassLoaderHelper.setParent(loader, new ClassInjector(loader, classPath));
         try {
             loader.loadClass("foo.Bar");
         } finally {

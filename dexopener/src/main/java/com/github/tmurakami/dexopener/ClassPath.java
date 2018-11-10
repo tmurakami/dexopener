@@ -28,7 +28,6 @@ import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
 
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -73,27 +72,18 @@ class ClassPath {
     }
 
     Class loadClass(String className, ClassLoader loader) {
-        if (classNameFilter.apply(className)) {
-            dalvik.system.DexFile dexFile = getDexFileMap().get(className);
-            if (dexFile != null) {
-                return dexFile.loadClass(className, loader);
-            }
+        if (!classNameFilter.apply(className)) {
+            return null;
         }
-        return null;
+        Map<String, dalvik.system.DexFile> map = dexFileMap;
+        if (map == null) {
+            dexFileMap = map = collectDexFiles();
+        }
+        dalvik.system.DexFile dexFile = map.get(className);
+        return dexFile == null ? null : dexFile.loadClass(className, loader);
     }
 
-    private Map<String, dalvik.system.DexFile> getDexFileMap() {
-        if (dexFileMap != null) {
-            return dexFileMap;
-        }
-        try {
-            return dexFileMap = collectDexFiles();
-        } catch (IOException e) {
-            throw new IOError(e);
-        }
-    }
-
-    private Map<String, dalvik.system.DexFile> collectDexFiles() throws IOException {
+    private Map<String, dalvik.system.DexFile> collectDexFiles() {
         File codeCacheDir = getCodeCacheDir(context);
         Function<ClassDef, String> classDefToClassName = classDefToJavaName();
         Predicate<ClassDef> classFilter = compose(classNameFilter, classDefToClassName);
@@ -112,6 +102,8 @@ class ClassPath {
                     taskMap.putAll(toMap(transform(set, classDefToClassName), constant(future)));
                 }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return transformValues(taskMap, dexFileFutureTaskToDexFile());
     }
@@ -138,7 +130,7 @@ class ClassPath {
             try (InputStream in = zipFile.getInputStream(entry)) {
                 return new DexBackedDexFile(null, ByteStreams.toByteArray(in));
             } catch (IOException e) {
-                throw new IOError(e);
+                throw new RuntimeException(e);
             }
         });
     }

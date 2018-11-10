@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 
 import sun.misc.Unsafe;
 
-@SuppressWarnings("unused")
 final class ClassLoaderHelper {
 
     private ClassLoaderHelper() {
@@ -31,33 +30,21 @@ final class ClassLoaderHelper {
         if (loader.getParent() == parent) {
             return;
         }
-        Field parentField = null;
-        Exception exception = null;
         try {
-            parentField = ClassLoader.class.getDeclaredField("parent");
-        } catch (NoSuchFieldException e) {
-            exception = e;
-        }
-        if (parentField != null) {
+            Field parentField = ClassLoader.class.getDeclaredField("parent");
+            Field theUnsafeField;
             try {
-                Field theUnsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-                theUnsafeField.setAccessible(true);
-                Unsafe unsafe = (Unsafe) theUnsafeField.get(null);
-                unsafe.putObject(loader, unsafe.objectFieldOffset(parentField), parent);
-            } catch (Throwable t) {
-                parentField.setAccessible(true);
-                try {
-                    parentField.set(loader, parent);
-                } catch (IllegalAccessException e) {
-                    exception = e;
-                }
+                theUnsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            } catch (NoSuchFieldException e) {
+                //noinspection JavaReflectionMemberAccess
+                theUnsafeField = Unsafe.class.getDeclaredField("THE_ONE"); // API <= 17
             }
+            theUnsafeField.setAccessible(true);
+            Unsafe unsafe = (Unsafe) theUnsafeField.get(null);
+            unsafe.putObject(loader, unsafe.objectFieldOffset(parentField), parent);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new RuntimeException("Could not replace the parent of a class loader", e);
         }
-        if (loader.getParent() == parent) {
-            return;
-        }
-        throw new UnsupportedOperationException(
-                "Replacing the parent of a class loader is not supported", exception);
     }
 
 }

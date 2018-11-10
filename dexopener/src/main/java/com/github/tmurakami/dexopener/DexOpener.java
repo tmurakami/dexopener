@@ -118,7 +118,6 @@ public final class DexOpener {
      * newApplication(ClassLoader, String, Context)} method overridden in your AndroidJUnitRunner
      * subclass.
      */
-    @SuppressWarnings("JavaDoc")
     public static void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
         if (context == null) {
@@ -128,9 +127,16 @@ public final class DexOpener {
         if (context.getApplicationContext() != null) {
             throw new IllegalStateException("An Application instance has already been created");
         }
+        ClassLoader loader = context.getClassLoader();
+        for (ClassLoader l = loader; l != null; l = l.getParent()) {
+            if (l instanceof ClassInjector) {
+                throw new IllegalStateException("Already installed");
+            }
+        }
         ClassNameFilter classNameFilter = createClassNameFilter(instrumentation.getClass());
-        ClassPath path = new ClassPath(context, classNameFilter, new DexFileLoader(), EXECUTOR);
-        new Installer(path).installTo(context.getClassLoader());
+        DexFileLoader dexFileLoader = new DexFileLoader();
+        ClassPath classPath = new ClassPath(context, classNameFilter, dexFileLoader, EXECUTOR);
+        ClassLoaderHelper.setParent(loader, new ClassInjector(loader, classPath));
     }
 
     private static ClassNameFilter createClassNameFilter(Class<?> rootClass) {
@@ -145,8 +151,7 @@ public final class DexOpener {
             return new ClassNameFilter(packageName, rootClass);
         }
         throw new UnsupportedOperationException(
-                "Manipulating final classes belonging to the '" + packageName +
-                "' package is not supported");
+                "Manipulating final classes under " + packageName + " package is not supported");
     }
 
     private static boolean isSupportedPackage(String packageName) {

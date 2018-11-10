@@ -30,7 +30,6 @@ public class FinalClassTest {
     }
 
     private static final class FinalClass {
-        @SuppressWarnings("unused")
         final void doIt() {
         }
     }

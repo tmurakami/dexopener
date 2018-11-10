@@ -26,6 +26,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DexOpenerTest {
@@ -45,6 +47,16 @@ public class DexOpenerTest {
     public void should_throw_IllegalStateException_if_the_Application_has_been_created() {
         given(instrumentation.getTargetContext()).willReturn(context);
         given(context.getApplicationContext()).willReturn(new Application());
+        DexOpener.install(instrumentation);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void should_throw_IllegalStateException_if_already_installed() {
+        ClassInjector injector = mock(ClassInjector.class, withSettings().stubOnly());
+        given(instrumentation.getTargetContext()).willReturn(context);
+        ClassLoader loader = new ClassLoader(injector) {
+        };
+        given(context.getClassLoader()).willReturn(loader);
         DexOpener.install(instrumentation);
     }
 
