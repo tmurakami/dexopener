@@ -23,6 +23,7 @@ import com.github.tmurakami.dexopener.repackaged.com.google.common.base.Function
 import com.github.tmurakami.dexopener.repackaged.com.google.common.base.Predicate;
 import com.github.tmurakami.dexopener.repackaged.com.google.common.io.ByteStreams;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.analysis.reflection.util.ReflectionUtils;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
@@ -57,50 +58,54 @@ class ClassPath {
     private static final int MAX_CLASSES_PER_DEX_FILE = 100;
 
     private final Context context;
-    private final Predicate<? super String> classNameFilter;
+    private final Predicate<? super String> dexNameFilter;
     private final DexFileLoader dexFileLoader;
     private final Executor executor;
     private Map<String, dalvik.system.DexFile> dexFileMap;
 
     ClassPath(Context context,
-              Predicate<? super String> classNameFilter,
+              Predicate<? super String> dexNameFilter,
               DexFileLoader dexFileLoader,
               Executor executor) {
         this.context = context;
-        this.classNameFilter = classNameFilter;
+        this.dexNameFilter = dexNameFilter;
         this.dexFileLoader = dexFileLoader;
         this.executor = executor;
     }
 
     Class loadClass(String className, ClassLoader loader) {
-        if (!classNameFilter.apply(className)) {
+        dalvik.system.DexFile dexFile = getDexFileFor(className);
+        return dexFile == null ? null : dexFile.loadClass(className, loader);
+    }
+
+    private dalvik.system.DexFile getDexFileFor(String className) {
+        String dexName = ReflectionUtils.javaToDexName(className);
+        if (!dexNameFilter.apply(dexName)) {
             return null;
         }
         Map<String, dalvik.system.DexFile> map = dexFileMap;
         if (map == null) {
             dexFileMap = map = collectDexFiles();
         }
-        dalvik.system.DexFile dexFile = map.get(className);
-        return dexFile == null ? null : dexFile.loadClass(className, loader);
+        return map.get(dexName);
     }
 
     private Map<String, dalvik.system.DexFile> collectDexFiles() {
         File codeCacheDir = getCodeCacheDir(context);
-        Function<ClassDef, String> classDefToClassName = classDefToJavaName();
-        Predicate<ClassDef> classFilter = compose(classNameFilter, classDefToClassName);
+        Predicate<ClassDef> classDefFilter = compose(dexNameFilter, ClassDef::getType);
         Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap = new HashMap<>();
         String sourceDir = context.getApplicationInfo().sourceDir;
         try (ZipFile zipFile = new ZipFile(sourceDir)) {
             for (DexFile dexFile : dexFiles(zipFile)) {
                 Opcodes opcodes = dexFile.getOpcodes();
-                Iterable<? extends ClassDef> classes = filter(dexFile.getClasses(), classFilter);
+                Iterable<? extends ClassDef> classes = filter(dexFile.getClasses(), classDefFilter);
                 for (List<? extends ClassDef> list : partition(classes, MAX_CLASSES_PER_DEX_FILE)) {
                     Set<ClassDef> set = new HashSet<>(list);
                     ClassTransformer transformer =
                             new ClassTransformer(opcodes, set, codeCacheDir, dexFileLoader);
                     RunnableFuture<dalvik.system.DexFile> future = new FutureTask<>(transformer);
                     executor.execute(future);
-                    futureMap.putAll(toMap(transform(set, classDefToClassName), constant(future)));
+                    futureMap.putAll(toMap(transform(set, ClassDef::getType), constant(future)));
                 }
             }
         } catch (IOException e) {
@@ -134,14 +139,6 @@ class ClassPath {
                 throw new RuntimeException(e);
             }
         });
-    }
-
-    private static Function<ClassDef, String> classDefToJavaName() {
-        return classDef -> {
-            String type = classDef.getType();
-            // `type` should be neither a primitive type nor an array type.
-            return type.substring(1, type.length() - 1).replace('/', '.');
-        };
     }
 
     private static <T> Function<RunnableFuture<T>, T> runnableFutureResult() {

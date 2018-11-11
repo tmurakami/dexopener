@@ -16,6 +16,7 @@
 
 package com.github.tmurakami.dexopener;
 
+import org.jf.dexlib2.analysis.reflection.util.ReflectionUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -27,17 +28,17 @@ import test.MyClass;
 import static org.junit.Assert.assertSame;
 
 @RunWith(Parameterized.class)
-public class ClassNameFilterTest {
+public class DexNameFilterTest {
 
     private static final boolean ALLOW = true;
     private static final boolean DENY = false;
 
-    private final ClassNameFilter testTarget = new ClassNameFilter("test", MyClass.class);
+    private final DexNameFilter testTarget = new DexNameFilter("test", MyClass.class);
 
     private final String className;
     private final boolean expected;
 
-    public ClassNameFilterTest(String className, boolean expected) {
+    public DexNameFilterTest(String className, boolean expected) {
         this.className = className;
         this.expected = expected;
     }
@@ -59,7 +60,7 @@ public class ClassNameFilterTest {
 
     @Test
     public void should_get_the_same_value_as_the_expected_value() {
-        assertSame(expected, testTarget.apply(className));
+        assertSame(expected, testTarget.apply(ReflectionUtils.javaToDexName(className)));
     }
 
 }

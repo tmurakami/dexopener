@@ -20,18 +20,38 @@ import org.junit.Test;
 
 import static java.lang.reflect.Modifier.isFinal;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class FinalClassTest {
 
     @Test
-    public void runner_should_remove_all_final_modifiers() throws NoSuchMethodException {
+    public void should_remove_all_final_modifiers() throws NoSuchMethodException {
         assertFalse(isFinal(FinalClass.class.getModifiers()));
         assertFalse(isFinal(FinalClass.class.getDeclaredMethod("doIt").getModifiers()));
+    }
+
+    @Test
+    public void should_load_the_final_class_as_a_non_final_class() throws ClassNotFoundException {
+        ClassLoader loader = getClass().getClassLoader();
+        assertNotNull(loader);
+        Class<?> c2 = loader.loadClass("test.com.github.tmurakami.dexopener.FinalClassTest$FinalClass2");
+        assertFalse(isFinal(c2.getModifiers()));
+        // On Android, it is possible to load a class with the slash-separated name via a class
+        // loader.
+        Class<?> c3 = loader.loadClass("test/com/github/tmurakami/dexopener/FinalClassTest$FinalClass3");
+        assertFalse(isFinal(c3.getModifiers()));
     }
 
     private static final class FinalClass {
         final void doIt() {
         }
+    }
+
+    private static final class FinalClass2 {
+    }
+
+    @SuppressWarnings("unused")
+    private static final class FinalClass3 {
     }
 
 }

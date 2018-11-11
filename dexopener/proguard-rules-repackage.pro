@@ -26,6 +26,9 @@
 -keep class com.google.common.io.ByteStreams {
     public static byte[] toByteArray(java.io.InputStream);
 }
+-keep class org.jf.dexlib2.analysis.reflection.util.ReflectionUtils {
+    public static java.lang.String javaToDexName(java.lang.String);
+}
 -keep class org.jf.dexlib2.dexbacked.DexBackedDexFile {
     public <init>(org.jf.dexlib2.Opcodes, byte[]);
 }

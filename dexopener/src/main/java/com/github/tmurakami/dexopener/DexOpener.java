@@ -133,13 +133,12 @@ public final class DexOpener {
                 throw new IllegalStateException("Already installed");
             }
         }
-        ClassNameFilter classNameFilter = createClassNameFilter(instrumentation.getClass());
-        DexFileLoader dexFileLoader = new DexFileLoader();
-        ClassPath classPath = new ClassPath(context, classNameFilter, dexFileLoader, EXECUTOR);
+        DexNameFilter dexNameFilter = createDexNameFilter(instrumentation.getClass());
+        ClassPath classPath = new ClassPath(context, dexNameFilter, new DexFileLoader(), EXECUTOR);
         ClassLoaderHelper.setParent(loader, new ClassInjector(loader, classPath));
     }
 
-    private static ClassNameFilter createClassNameFilter(Class<?> rootClass) {
+    private static DexNameFilter createDexNameFilter(Class<?> rootClass) {
         String className = rootClass.getName();
         int lastDotPos = className.lastIndexOf('.');
         String packageName = lastDotPos == -1 ? null : className.substring(0, lastDotPos);
@@ -148,7 +147,7 @@ public final class DexOpener {
             if (logger.isLoggable(Level.FINEST)) {
                 logger.finest("The package to be opened: " + packageName + ".**");
             }
-            return new ClassNameFilter(packageName, rootClass);
+            return new DexNameFilter(packageName, rootClass);
         }
         throw new UnsupportedOperationException(
                 "Manipulating final classes under " + packageName + " package is not supported");
