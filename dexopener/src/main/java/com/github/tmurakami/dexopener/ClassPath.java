@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.zip.ZipFile;
 
 import static com.github.tmurakami.dexopener.repackaged.com.google.common.base.Functions.constant;
@@ -87,7 +88,7 @@ class ClassPath {
         File codeCacheDir = getCodeCacheDir(context);
         Function<ClassDef, String> classDefToClassName = classDefToJavaName();
         Predicate<ClassDef> classFilter = compose(classNameFilter, classDefToClassName);
-        Map<String, FutureTask<dalvik.system.DexFile>> taskMap = new HashMap<>();
+        Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap = new HashMap<>();
         String sourceDir = context.getApplicationInfo().sourceDir;
         try (ZipFile zipFile = new ZipFile(sourceDir)) {
             for (DexFile dexFile : dexFiles(zipFile)) {
@@ -95,17 +96,17 @@ class ClassPath {
                 Iterable<? extends ClassDef> classes = filter(dexFile.getClasses(), classFilter);
                 for (List<? extends ClassDef> list : partition(classes, MAX_CLASSES_PER_DEX_FILE)) {
                     Set<ClassDef> set = new HashSet<>(list);
-                    ClassTransformationTask task =
-                            new ClassTransformationTask(opcodes, set, codeCacheDir, dexFileLoader);
-                    FutureTask<dalvik.system.DexFile> future = new FutureTask<>(task);
+                    ClassTransformer transformer =
+                            new ClassTransformer(opcodes, set, codeCacheDir, dexFileLoader);
+                    RunnableFuture<dalvik.system.DexFile> future = new FutureTask<>(transformer);
                     executor.execute(future);
-                    taskMap.putAll(toMap(transform(set, classDefToClassName), constant(future)));
+                    futureMap.putAll(toMap(transform(set, classDefToClassName), constant(future)));
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return transformValues(taskMap, dexFileFutureTaskToDexFile());
+        return transformValues(futureMap, runnableFutureResult());
     }
 
     private static File getCodeCacheDir(Context context) {
@@ -143,15 +144,15 @@ class ClassPath {
         };
     }
 
-    private static Function<FutureTask<dalvik.system.DexFile>, dalvik.system.DexFile> dexFileFutureTaskToDexFile() {
-        return task -> {
-            // The task might not be completed, so we do it here first.
-            task.run();
+    private static <T> Function<RunnableFuture<T>, T> runnableFutureResult() {
+        return future -> {
+            // The future might not be completed, so we do it here first.
+            future.run();
             boolean interrupted = false;
             try {
                 while (true) {
                     try {
-                        return task.get();
+                        return future.get();
                     } catch (InterruptedException e) {
                         // Refuse to be interrupted
                         interrupted = true;
@@ -164,7 +165,7 @@ class ClassPath {
                 } else if (cause instanceof Error) {
                     throw (Error) cause;
                 } else {
-                    throw new IllegalStateException(cause);
+                    throw new RuntimeException(cause);
                 }
             } finally {
                 if (interrupted) {

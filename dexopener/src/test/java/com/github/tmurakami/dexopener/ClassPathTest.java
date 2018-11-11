@@ -39,7 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -115,7 +115,7 @@ public class ClassPathTest {
         for (String className : classNames) {
             assertSame(MyClass.class, classPath.loadClass(className, loader));
         }
-        then(executor).should(times(2)).execute(any(FutureTask.class));
+        then(executor).should(times(2)).execute(any(RunnableFuture.class));
     }
 
 }
