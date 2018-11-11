@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    androidTestImplementation 'com.github.tmurakami:dexopener:2.0.0-alpha04'
+    androidTestImplementation 'com.github.tmurakami:dexopener:2.0.0-alpha05'
 
     androidTestImplementation 'androidx.test:runner:x.y.z
     // DexOpener is also usable together with the support test runner.
