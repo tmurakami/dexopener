@@ -7,6 +7,12 @@ dependencies {
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+compileJava {
+    options.fork = JavaVersion.current().java8
+    options.forkOptions.executable = 'javac'
+    options.compilerArgs << '-XDignore.symbol.file'
+}
+
 javadoc.enabled = false
 
 jar.archiveName = "${jar.baseName}.${jar.extension}"
