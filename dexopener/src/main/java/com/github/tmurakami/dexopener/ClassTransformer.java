@@ -79,7 +79,7 @@ final class ClassTransformer implements Callable<dalvik.system.DexFile>, DexFile
             }
             Logger logger = Loggers.get();
             if (logger.isLoggable(Level.FINEST)) {
-                logger.finest("A dex file generated: " + dexPath);
+                logger.finest("Generated " + dexPath);
             }
             return file;
         } finally {

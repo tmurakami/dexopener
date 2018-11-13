@@ -39,8 +39,7 @@ class ClassInjector extends ClassLoader {
         Logger logger = Loggers.get();
         if (logger.isLoggable(Level.FINEST)) {
             String hash = Integer.toHexString(System.identityHashCode(target));
-            String target = this.target.getClass().getName() + '@' + hash;
-            logger.finest("The " + name + " was injected into the " + target + " class loader");
+            logger.finest("Injected " + name + " into " + target.getClass().getName() + '@' + hash);
         }
         return c;
     }

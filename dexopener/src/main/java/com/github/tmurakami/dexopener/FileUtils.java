@@ -34,7 +34,7 @@ final class FileUtils {
             if (f.exists() && !f.delete()) {
                 Logger logger = Loggers.get();
                 if (logger.isLoggable(Level.WARNING)) {
-                    logger.warning("Cannot delete " + f);
+                    logger.warning("Could not delete " + f);
                 }
             }
         }

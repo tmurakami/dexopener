@@ -148,7 +148,7 @@ public final class DexOpener {
         if (isSupportedPackage(packageName)) {
             Logger logger = Loggers.get();
             if (logger.isLoggable(Level.FINEST)) {
-                logger.finest("The package to be opened: " + packageName + ".**");
+                logger.finest("The final classes under " + packageName + " will be opened");
             }
             return new DexNameFilter(packageName, rootClass);
         }
