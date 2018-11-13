@@ -121,11 +121,14 @@ public final class DexOpener {
     public static void install(@NonNull Instrumentation instrumentation) {
         Context context = instrumentation.getTargetContext();
         if (context == null) {
+            String instrumentationName = instrumentation.getClass().getSimpleName();
             throw new IllegalStateException(
-                    "The Instrumentation instance has not yet been initialized");
+                    "The " + instrumentationName + " instance has not yet been initialized");
         }
-        if (context.getApplicationContext() != null) {
-            throw new IllegalStateException("An Application instance has already been created");
+        Context app = context.getApplicationContext();
+        if (app != null) {
+            throw new IllegalStateException(
+                    "The " + app.getClass().getSimpleName() + " instance has already been created");
         }
         ClassLoader loader = context.getClassLoader();
         for (ClassLoader l = loader; l != null; l = l.getParent()) {
@@ -150,7 +153,7 @@ public final class DexOpener {
             return new DexNameFilter(packageName, rootClass);
         }
         throw new UnsupportedOperationException(
-                "Manipulating final classes under " + packageName + " package is not supported");
+                "Install to an Instrumentation instance the package of which is " + packageName);
     }
 
     private static boolean isSupportedPackage(String packageName) {
