@@ -18,18 +18,18 @@ package com.example.dexopener.mockk
 
 import android.os.Build
 import android.util.Log
+import androidx.test.filters.SdkSuppress
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 
 class MyServiceTest {
+    // Stubbing static methods is supported only on Android P+.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     fun doIt_should_log_some_debug_message() {
-        // Stubbing static methods is supported only on Android P+.
-        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
         mockkStatic(Log::class)
         try {
             every { Log.d(any(), any()) } returns 0
