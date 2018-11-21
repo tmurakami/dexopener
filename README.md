@@ -4,8 +4,8 @@
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
 <br>![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 
-A library provides the ability to mock your final classes on Android
-devices.
+An Android library that provides the ability to mock your final classes
+on Android devices.
 
 ## Installation
 
