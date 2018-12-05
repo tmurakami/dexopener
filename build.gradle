@@ -59,7 +59,7 @@ ext {
 
     deps.kotlin = [stdlib: "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",]
 
-    deps.androidx = [annotation: 'androidx.annotation:annotation:1.0.0',]
+    deps.androidx = [annotation: 'androidx.annotation:annotation:1.0.1',]
 
     def testVersion = '1.1.0'
     deps.androidx.test = [core  : 'androidx.test:core:1.0.0',
