@@ -3,6 +3,7 @@ buildscript {
                     jacoco: '0.8.2',]
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -31,8 +32,8 @@ scmVersion {
 
 allprojects {
     repositories {
-        maven { url 'https://jitpack.io' }
         google()
+        mavenCentral()
         jcenter()
     }
 }
