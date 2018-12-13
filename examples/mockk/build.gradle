@@ -24,5 +24,6 @@ dependencies {
     androidTestImplementation project(':dexopener')
     androidTestImplementation deps.androidx.test.core_ktx
     androidTestImplementation deps.androidx.test.runner
+    androidTestImplementation deps.androidx.test.ext.junit_ktx
     androidTestImplementation deps.mockk.android
 }

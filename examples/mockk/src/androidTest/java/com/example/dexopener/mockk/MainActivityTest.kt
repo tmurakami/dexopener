@@ -18,6 +18,7 @@ package com.example.dexopener.mockk
 
 import android.app.Activity
 import androidx.test.core.app.launchActivity
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.runner.lifecycle.ActivityLifecycleCallback
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
@@ -26,7 +27,9 @@ import io.mockk.verify
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class MainActivityTest : ActivityLifecycleCallback {
     @Before
     fun setUp() = ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(this)

@@ -62,10 +62,12 @@ ext {
 
     deps.androidx = [annotation: 'androidx.annotation:annotation:1.0.1',]
 
-    def testVersion = '1.1.1'
-    deps.androidx.test = [core    : 'androidx.test:core:1.1.0',
-                          core_ktx: 'androidx.test:core-ktx:1.1.0',
-                          runner  : "androidx.test:runner:$testVersion",]
+    def testVersion = '1.1.0'
+    deps.androidx.test = [core    : "androidx.test:core:$testVersion",
+                          core_ktx: "androidx.test:core-ktx:$testVersion",
+                          runner  : 'androidx.test:runner:1.1.1',
+                          ext     : [junit    : "androidx.test.ext:junit:$testVersion",
+                                     junit_ktx: "androidx.test.ext:junit-ktx:$testVersion",]]
 
     deps.android = [support: [annotation: 'com.android.support:support-annotations:28.0.0',
                               test      : [rules: 'com.android.support.test:rules:1.0.2',]]]

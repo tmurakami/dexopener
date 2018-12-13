@@ -17,11 +17,14 @@
 package com.example.dexopener.replaceapp;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.assertSame;
 
+@RunWith(AndroidJUnit4.class)
 public class TestAppTest {
     @Test
     public void app_should_be_replaced() {

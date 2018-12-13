@@ -18,10 +18,12 @@ package com.example.dexopener.supportlib;
 
 import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.test.runner.intercepting.SingleActivityFactory;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
@@ -29,6 +31,7 @@ import org.mockito.quality.Strictness;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
 
     @Rule

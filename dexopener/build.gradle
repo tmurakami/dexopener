@@ -50,6 +50,7 @@ dependencies {
     testImplementation deps.mockito.core
     testImplementation deps.dexlib2
     androidTestImplementation deps.androidx.test.runner
+    androidTestImplementation deps.androidx.test.ext.junit
 }
 
 task repackageDependencies(type: ProGuardTask) {
