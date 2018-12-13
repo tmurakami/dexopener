@@ -29,7 +29,8 @@ android {
 
 dependencies {
     implementation deps.androidx.annotation
-    androidTestImplementation deps.androidx.test.rules
+    androidTestImplementation deps.androidx.test.core
+    androidTestImplementation deps.androidx.test.runner
     androidTestMinApi16Implementation project(':dexopener')
     androidTestMinApi16Implementation deps.dexmaker.mockito
     androidTestMinApi28Implementation deps.dexmaker.mockito_inline_extended

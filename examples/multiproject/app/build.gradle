@@ -20,6 +20,7 @@ dependencies {
     implementation deps.androidx.annotation
     implementation project(':examples:multiproject:lib')
     androidTestImplementation project(':dexopener')
-    androidTestImplementation deps.androidx.test.rules
+    androidTestImplementation deps.androidx.test.core
+    androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.mockito.android
 }

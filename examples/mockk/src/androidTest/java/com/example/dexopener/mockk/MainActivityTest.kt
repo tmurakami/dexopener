@@ -16,28 +16,34 @@
 
 package com.example.dexopener.mockk
 
-import android.content.Intent
-import androidx.test.rule.ActivityTestRule
-import androidx.test.runner.intercepting.SingleActivityFactory
+import android.app.Activity
+import androidx.test.core.app.launchActivity
+import androidx.test.runner.lifecycle.ActivityLifecycleCallback
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.Rule
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 
-class MainActivityTest {
+class MainActivityTest : ActivityLifecycleCallback {
+    @Before
+    fun setUp() = ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(this)
 
-    @[Rule JvmField]
-    val activityRule =
-        ActivityTestRule(object : SingleActivityFactory<MainActivity>(MainActivity::class.java) {
-            override fun create(intent: Intent): MainActivity {
-                return MainActivity().also { it.myService = mockk(relaxUnitFun = true) }
-            }
-        }, /* initialTouchMode */ false, /* launchActivity */ false)
+    @After
+    fun tearDown() = ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(this)
+
+    override fun onActivityLifecycleChanged(activity: Activity, stage: Stage) {
+        if (stage == Stage.PRE_ON_CREATE) {
+            (activity as MainActivity).myService = mockk(relaxUnitFun = true)
+        }
+    }
 
     @Test
     fun onCreate_should_call_MyService_doIt() {
-        activityRule.launchActivity(null)
-        verify { activityRule.activity.myService.doIt() }
+        launchActivity<MainActivity>().use {
+            it.onActivity { activity -> verify { activity.myService.doIt() } }
+        }
     }
-
 }

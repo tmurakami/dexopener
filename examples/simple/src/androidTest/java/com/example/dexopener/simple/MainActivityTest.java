@@ -16,40 +16,51 @@
 
 package com.example.dexopener.simple;
 
-import android.content.Intent;
+import android.app.Activity;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
 
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.intercepting.SingleActivityFactory;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.runner.lifecycle.ActivityLifecycleCallback;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import androidx.test.runner.lifecycle.Stage;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class MainActivityTest {
-
-    @Rule
-    public final ActivityTestRule<MainActivity> activityRule =
-            new ActivityTestRule<>(new SingleActivityFactory<MainActivity>(MainActivity.class) {
-                @Override
-                protected MainActivity create(Intent intent) {
-                    MainActivity testTarget = new MainActivity();
-                    testTarget.myService = mock(MyService.class);
-                    return testTarget;
-                }
-            }, /* initialTouchMode */ false, /* launchActivity */ false);
+public class MainActivityTest implements ActivityLifecycleCallback {
 
     @Rule
     public final MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.STRICT_STUBS);
 
+    @Before
+    public void setUp() {
+        ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(this);
+    }
+
+    @After
+    public void tearDown() {
+        ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(this);
+    }
+
+    @Override
+    public void onActivityLifecycleChanged(Activity activity, Stage stage) {
+        if (stage == Stage.PRE_ON_CREATE) {
+            ((MainActivity) activity).myService = mock(MyService.class);
+        }
+    }
+
     @Test
     public void onCreate_should_call_MyService_doIt() {
-        activityRule.launchActivity(null);
-        verify(activityRule.getActivity().myService).doIt();
+        try (ActivityScenario<MainActivity> s = ActivityScenario.launch(MainActivity.class)) {
+            s.onActivity(activity -> verify(activity.myService).doIt());
+        }
     }
 
 }

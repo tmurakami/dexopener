@@ -22,6 +22,7 @@ dependencies {
     implementation deps.kotlin.stdlib
     implementation deps.androidx.annotation
     androidTestImplementation project(':dexopener')
-    androidTestImplementation deps.androidx.test.rules
+    androidTestImplementation deps.androidx.test.core_ktx
+    androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.mockk.android
 }
