@@ -7,11 +7,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0-rc02'
+        classpath 'com.android.tools.build:gradle:3.3.0-rc03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
         classpath 'pl.allegro.tech.build:axion-release-plugin:1.10.0'
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.4'
+        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.5'
     }
 }
 
@@ -80,5 +80,5 @@ ext {
     deps.dexmaker = [mockito                : "com.linkedin.dexmaker:dexmaker-mockito:$dexmakerVersion",
                      mockito_inline_extended: "com.linkedin.dexmaker:dexmaker-mockito-inline-extended:$dexmakerVersion",]
 
-    deps.mockk = [android: 'io.mockk:mockk-android:1.8.13.kotlin13',]
+    deps.mockk = [android: 'io.mockk:mockk-android:1.9',]
 }
