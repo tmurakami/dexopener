@@ -96,8 +96,11 @@ return super.newApplication(cl, YourTestApplication.class.getName(), context);
 
 ### [Kotlin all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 
-DexOpener removes the final modifier from your final classes and creates
-dex files to make the application class loader load those classes.
+DexOpener will do the following things at runtime:
+
+1. Remove the final modifier from the classes belonging to the specified package
+1. Create dex files to make the application class loader load those classes
+
 However, they are not so lightweight. If you want to save even a little
 testing time of your Kotlin app, you can introduce [the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 instead of DexOpener.
@@ -120,8 +123,8 @@ Note that these libraries will only work with Android 9+.
 ### [MockK](https://mockk.io/)
 
 The `mockk-android` library provides inline mocking feature derived from
-Dexmaker. The feature is automatically enabled on a device running
-Android 9+. You can see the supported features [here](https://github.com/mockk/mockk/blob/master/ANDROID.md).
+Dexmaker. The feature is automatically enabled with Android 9+. You can
+see the supported features [here](https://github.com/mockk/mockk/blob/master/ANDROID.md).
 
 By checking `Build.VERSION.SDK_INT`, you can switch that feature and
 DexOpener according to the OS version of the testing device. See [the example](examples/mockk).
