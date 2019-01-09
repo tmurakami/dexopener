@@ -34,7 +34,7 @@ dependencies {
 
 ## Usage
 
-Add an AndroidJUnitRunner subclass into your app's **androidTest**
+Add an `AndroidJUnitRunner` subclass into your app's **androidTest**
 directory.
 
 ```java
@@ -52,8 +52,8 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 }
 ```
 
-Then specify your AndroidJUnitRunner as the default test instrumentation
-runner in your app's build.gradle.
+Then specify your `AndroidJUnitRunner` as the default test
+instrumentation runner in your app's build.gradle.
 
 ```groovy
 android {
@@ -111,23 +111,24 @@ only for testing.
 
 ### [Dexmaker](https://github.com/linkedin/dexmaker)
 
-You can now even stub the final methods of the Android API using the
-`dexmaker-mockito-inline` library. In addition, the
-`dexmaker-mockito-inline-extended` library supports for stubbing static
-methods and spying on an object created by the Android system such as
-Activity. [Here](https://medium.com/androiddevelopers/mock-final-and-static-methods-on-android-devices-b383da1363ad)
+You can now even stub the final methods of the Android API using
+`dexmaker-mockito-inline` library. In addition,
+`dexmaker-mockito-inline-extended` supports for stubbing static methods
+and spying on an object created by the Android system such as Activity.
+[Here](https://medium.com/androiddevelopers/mock-final-and-static-methods-on-android-devices-b383da1363ad)
 is an introduction article.
 
 Note that these libraries will only work with Android 9+.
 
 ### [MockK](https://mockk.io/)
 
-The `mockk-android` library provides inline mocking feature derived from
-Dexmaker. The feature is automatically enabled with Android 9+. You can
+`mockk-android` library provides inline mocking feature derived from
+Dexmaker. That feature is automatically enabled with Android 9+. You can
 see the supported features [here](https://github.com/mockk/mockk/blob/master/ANDROID.md).
 
-By checking `Build.VERSION.SDK_INT`, you can switch that feature and
-DexOpener according to the OS version of the testing device. See [the example](examples/mockk).
+By checking `Build.VERSION.SDK_INT` in your test instrumentation runner,
+you can switch that feature and DexOpener according to the OS version of
+the testing device. See the test instrumentation runner in [the `mockk` example](examples/mockk).
 
 ## Notice
 
