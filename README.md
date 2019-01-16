@@ -54,11 +54,11 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 
 > Note: Using `androidx.test:runner` and `org.mockito:mockito-android`
 together, you would face [a Mockito bug](https://github.com/mockito/mockito/issues/1472). In that
-case, you should add `System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());` after
+case, you should add the following line after
 `DexOpener#install(Instrumentation)`:
-```java
-System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
-``` 
+> ```java
+> System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
+> ```
 
 Then specify your `AndroidJUnitRunner` as the default test
 instrumentation runner in your app's build.gradle.
