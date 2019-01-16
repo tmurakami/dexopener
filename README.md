@@ -28,7 +28,7 @@ dependencies {
 
     androidTestImplementation 'androidx.test:runner:x.y.z
 
-    // DexOpener is also usable together with the ASTL runner.
+    // DexOpener is also usable together with the ATSL runner.
     // androidTestImplementation 'com.android.support.test:runner:x.y.z'
 }
 ```
