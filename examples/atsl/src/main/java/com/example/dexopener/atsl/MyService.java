@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.dexopener.supportlib;
+package com.example.dexopener.atsl;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
-
-public final class MainActivity extends Activity {
-
-    @VisibleForTesting
-    MyService myService = new MyService();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        myService.doIt();
+final class MyService {
+    void doIt() {
     }
-
 }

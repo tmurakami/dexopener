@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-// Specify your root package as `package` statement.
-package com.example.dexopener.supportlib;
+package com.example.dexopener.atsl;
 
-import android.app.Application;
-import android.content.Context;
-import android.support.test.runner.AndroidJUnitRunner;
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 
-import com.github.tmurakami.dexopener.DexOpener;
+public final class MainActivity extends Activity {
 
-public class MyAndroidJUnitRunner extends AndroidJUnitRunner {
+    @VisibleForTesting
+    MyService myService = new MyService();
+
     @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        DexOpener.install(this); // Call me first!
-        return super.newApplication(cl, className, context);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        myService.doIt();
     }
+
 }

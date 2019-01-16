@@ -14,9 +14,9 @@ An example of replacing the Application instance for testing.
 
 An example of an application containing two projects, `app` and `lib`.
 
-### [supportlib](supportlib)
+### [atsl](atsl)
 
-An example with Android Support Libraries.
+An example with Android Testing Support Libraries.
 
 ### [dexmaker](dexmaker)
 

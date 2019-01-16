@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.dexopener.supportlib;
+package com.example.dexopener.atsl;
 
 import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
