@@ -49,9 +49,9 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 
         DexOpener.install(this); // Call me first!
 
-        // Using `androidx.test:runner` and `org.mockito:mockito-android` together, you would face
-        // a Mockito bug (https://github.com/mockito/mockito/issues/1472). In that case, you should
-        // uncomment the following line:
+        // Together with `androidx.test:runner` and `org.mockito:mockito-android`, you would face
+        // a Mockito bug (https://github.com/mockito/mockito/issues/1472). In that case, uncomment
+        // the following line:
         //
         // System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
 
