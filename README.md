@@ -27,7 +27,8 @@ dependencies {
     androidTestImplementation 'com.github.tmurakami:dexopener:2.0.0'
 
     androidTestImplementation 'androidx.test:runner:x.y.z
-    // DexOpener is also usable together with the support test runner.
+
+    // DexOpener is also usable together with the ASTL runner.
     // androidTestImplementation 'com.android.support.test:runner:x.y.z'
 }
 ```
@@ -50,8 +51,8 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
         DexOpener.install(this); // Call me first!
 
         // Together with `androidx.test:runner` and `org.mockito:mockito-android`, you would face
-        // a Mockito bug (https://github.com/mockito/mockito/issues/1472). In that case, uncomment
-        // the following line:
+        // a Mockito bug (https://github.com/mockito/mockito/issues/1472). To avoid that bug,
+        // uncomment the following line:
         //
         // System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
 
