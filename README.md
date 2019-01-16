@@ -46,12 +46,17 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+
         DexOpener.install(this); // Call me first!
-        // Using `androidx.test:runner` and `org.mockito:mockito-android`
-        // together, you would face a Mockito bug (https://github.com/mockito/mockito/issues/1472).
-        // In that case, you should uncomment the following line:
+
+        // Using `androidx.test:runner` and `org.mockito:mockito-android` together, you would face
+        // a Mockito bug (https://github.com/mockito/mockito/issues/1472). In that case, you should
+        // uncomment the following line:
+        //
         // System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
+
         return super.newApplication(cl, className, context);
+
     }
 }
 ```
