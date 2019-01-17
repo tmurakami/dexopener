@@ -47,20 +47,18 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-
         DexOpener.install(this); // Call me first!
-
-        // Using `org.mockito:mockito-android` with `androidx.test:runner` would cause a Mockito
-        // bug (https://github.com/mockito/mockito/issues/1472). To avoid that bug, uncomment the
-        // following line:
-        //
-        // System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
-
         return super.newApplication(cl, className, context);
-
     }
 }
 ```
+
+> Note: Using `org.mockito:mockito-android` with `androidx.test:runner`
+would cause [a Mockito bug](https://github.com/mockito/mockito/issues/1472).
+To avoid that bug, add the following line after `DexOpener#install(android.app.Instrumentation)`:
+> ```java
+> System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
+> ```
 
 Then specify your `AndroidJUnitRunner` as the default test
 instrumentation runner in your app's build.gradle.
