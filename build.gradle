@@ -76,7 +76,7 @@ ext {
     deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
                     android: "org.mockito:mockito-android:$mockitoVersion",]
 
-    def dexmakerVersion = '2.19.1'
+    def dexmakerVersion = '2.21.0'
     deps.dexmaker = [mockito                : "com.linkedin.dexmaker:dexmaker-mockito:$dexmakerVersion",
                      mockito_inline_extended: "com.linkedin.dexmaker:dexmaker-mockito-inline-extended:$dexmakerVersion",]
 
