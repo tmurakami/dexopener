@@ -10,7 +10,7 @@ jobs:
   build:
     working_directory: *workspace
     docker:
-      - image: circleci/android:api-27-alpha
+      - image: circleci/android:api-28-alpha
     environment:
       TERM: dumb
       GRADLE_OPTS: '-Dorg.gradle.daemon=false'
