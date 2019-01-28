@@ -54,7 +54,8 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
 ```
 
 > Note: Using `org.mockito:mockito-android` with `androidx.test:runner`
-would cause [a Mockito bug](https://github.com/mockito/mockito/issues/1472).
+would cause
+[a Mockito bug](https://github.com/mockito/mockito/issues/1472).
 To avoid that bug, add the following line after `DexOpener#install(android.app.Instrumentation)`:
 > ```java
 > System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
@@ -109,8 +110,9 @@ DexOpener will do the following things at runtime:
 1. Remove the final modifier from the classes belonging to the specified package
 1. Create dex files to make the application class loader load those classes
 
-However, they are not so lightweight. If you want to save even a little
-testing time of your Kotlin app, you can introduce [the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
+However, they are not so lightweight. If you would like to save even a
+little testing time of your Kotlin app, you can introduce
+[the all-open compiler plugin](https://kotlinlang.org/docs/reference/compiler-plugins.html#all-open-compiler-plugin)
 instead of DexOpener.
 
 [This article](https://proandroiddev.com/mocking-androidtest-in-kotlin-51f0a603d500)
@@ -121,8 +123,9 @@ only for testing.
 
 You can now even stub the final methods of the Android API using
 `dexmaker-mockito-inline` library. In addition,
-`dexmaker-mockito-inline-extended` supports for stubbing static methods
-and spying on an object created by the Android system such as Activity.
+`dexmaker-mockito-inline-extended` library supports for stubbing static
+methods and spying on an object created by the Android system such as
+Activity.
 [Here](https://medium.com/androiddevelopers/mock-final-and-static-methods-on-android-devices-b383da1363ad)
 is an introduction article.
 
@@ -130,13 +133,16 @@ Note that these libraries will only work with Android 9+.
 
 ### [MockK](https://mockk.io/)
 
-`mockk-android` library provides inline mocking feature derived from
-Dexmaker. That feature is automatically enabled with Android 9+. You can
-see the supported features [here](https://github.com/mockk/mockk/blob/master/ANDROID.md).
+MockK provides inline mocking feature derived from Dexmaker. You would
+be able to mock the final classes by using `mockk-android` library. That
+feature is automatically enabled with Android 9+. You can see the
+supported features
+[here](https://github.com/mockk/mockk/blob/master/ANDROID.md).
 
 By checking `Build.VERSION.SDK_INT` in your test instrumentation runner,
 you can switch that feature and DexOpener according to the OS version of
-the testing device. See the test instrumentation runner in [the `mockk` example](examples/mockk).
+the testing device. See the test instrumentation runner in
+[the `mockk` example](examples/mockk).
 
 ## Notice
 
@@ -145,8 +151,9 @@ DexOpener contains the classes of the following libraries:
 - [dexlib2 (part of smali/baksmali)](https://github.com/JesusFreke/smali)
 - [Guava (on which dexlib2 relies)](https://github.com/google/guava)
 
-They have been minified with [ProGuard](https://www.guardsquare.com/en/proguard)
-and repackaged with [Jar Jar Links](https://github.com/pantsbuild/jarjar).
+They have been minified with
+[ProGuard](https://www.guardsquare.com/en/proguard) and repackaged with
+[Jar Jar Links](https://github.com/pantsbuild/jarjar).
 
 ## License
 
