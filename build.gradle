@@ -80,5 +80,5 @@ ext {
     deps.dexmaker = [mockito                : "com.linkedin.dexmaker:dexmaker-mockito:$dexmakerVersion",
                      mockito_inline_extended: "com.linkedin.dexmaker:dexmaker-mockito-inline-extended:$dexmakerVersion",]
 
-    deps.mockk = [android: 'io.mockk:mockk-android:1.9',]
+    deps.mockk = [android: 'io.mockk:mockk-android:1.9.1',]
 }
