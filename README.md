@@ -26,7 +26,7 @@ repositories {
 dependencies {
     androidTestImplementation 'com.github.tmurakami:dexopener:2.0.1'
 
-    androidTestImplementation 'androidx.test:runner:x.y.z
+    androidTestImplementation 'androidx.test:runner:x.y.z'
 
     // DexOpener is also usable together with the ATSL runner.
     // androidTestImplementation 'com.android.support.test:runner:x.y.z'
@@ -52,14 +52,6 @@ public class YourAndroidJUnitRunner extends AndroidJUnitRunner {
     }
 }
 ```
-
-> Note: Using `org.mockito:mockito-android` with `androidx.test:runner`
-would cause
-[a Mockito bug](https://github.com/mockito/mockito/issues/1472).
-To avoid that bug, add the following line after `DexOpener#install(android.app.Instrumentation)`:
-> ```java
-> System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
-> ```
 
 Then specify your `AndroidJUnitRunner` as the default test
 instrumentation runner in your app's build.gradle.

@@ -29,8 +29,6 @@ public class MyAndroidJUnitRunner extends AndroidJUnitRunner {
     public Application newApplication(ClassLoader cl, String className, Context context)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         DexOpener.install(this); // Call me first!
-        // FIXME needed until https://github.com/mockito/mockito/issues/1472 is resolved
-        System.setProperty("org.mockito.android.target", context.getCacheDir().getAbsolutePath());
         // Do not call `Class#getName()` here. Otherwise, an `IllegalAccessError` saying `Class ref
         // in pre-verified class ...` may occur.
         return super.newApplication(cl, "com.example.dexopener.replaceapp.TestApp", context);
