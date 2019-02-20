@@ -72,7 +72,7 @@ ext {
     deps.android = [support: [annotation: 'com.android.support:support-annotations:28.0.0',
                               test      : [rules: 'com.android.support.test:rules:1.0.2',]]]
 
-    def mockitoVersion = '2.24.0'
+    def mockitoVersion = '2.24.5'
     deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
                     android: "org.mockito:mockito-android:$mockitoVersion",]
 
