@@ -17,18 +17,7 @@
 // Specify your root package as `package` statement.
 package com.example.dexopener.multiproject.lib;
 
-import android.app.Application;
-import android.content.Context;
+import com.example.dexopener.multiproject.test.BaseMyAndroidJUnitRunner;
 
-import com.github.tmurakami.dexopener.DexOpener;
-
-import androidx.test.runner.AndroidJUnitRunner;
-
-public class MyAndroidJUnitRunner extends AndroidJUnitRunner {
-    @Override
-    public Application newApplication(ClassLoader cl, String className, Context context)
-            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        DexOpener.install(this); // Call me first!
-        return super.newApplication(cl, className, context);
-    }
+public class MyAndroidJUnitRunner extends BaseMyAndroidJUnitRunner {
 }
