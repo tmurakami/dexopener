@@ -1,5 +1,8 @@
 -dontoptimize
 
+-dontnote java.lang.invoke.**
+-dontnote com.google.common.**
+
 -dontwarn javax.annotation.**
 -dontwarn sun.misc.Unsafe
 
