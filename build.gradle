@@ -10,7 +10,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.3.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
-        classpath 'pl.allegro.tech.build:axion-release-plugin:1.10.0'
+        classpath 'pl.allegro.tech.build:axion-release-plugin:1.10.1'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.6'
     }
 }
@@ -54,9 +54,10 @@ dependencyUpdates.resolutionStrategy {
 }
 
 ext {
-    deps = [jarjar : 'org.pantsbuild:jarjar:1.7.2',
-            dexlib2: 'org.smali:dexlib2:2.2.6',
-            junit  : 'junit:junit:4.12',]
+    deps = [jarjar     : 'org.pantsbuild:jarjar:1.7.2',
+            dexlib2    : 'org.smali:dexlib2:2.2.7',
+            junit      : 'junit:junit:4.12',
+            objenesis26: 'org.objenesis:objenesis:2.6',]
 
     deps.kotlin = [stdlib: "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",]
 
@@ -72,7 +73,7 @@ ext {
     deps.android = [support: [annotation: 'com.android.support:support-annotations:28.0.0',
                               test      : [rules: 'com.android.support.test:rules:1.0.2',]]]
 
-    def mockitoVersion = '2.25.1'
+    def mockitoVersion = '2.26.0'
     deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
                     android: "org.mockito:mockito-android:$mockitoVersion",]
 
@@ -80,5 +81,5 @@ ext {
     deps.dexmaker = [mockito                : "com.linkedin.dexmaker:dexmaker-mockito:$dexmakerVersion",
                      mockito_inline_extended: "com.linkedin.dexmaker:dexmaker-mockito-inline-extended:$dexmakerVersion",]
 
-    deps.mockk = [android: 'io.mockk:mockk-android:1.9.2',]
+    deps.mockk = [android: 'io.mockk:mockk-android:1.9.3',]
 }
