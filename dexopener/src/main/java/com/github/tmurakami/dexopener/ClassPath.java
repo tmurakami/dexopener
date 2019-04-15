@@ -19,7 +19,6 @@ package com.github.tmurakami.dexopener;
 import android.content.Context;
 import android.os.Build;
 
-import com.github.tmurakami.dexopener.repackaged.com.google.common.base.Function;
 import com.github.tmurakami.dexopener.repackaged.com.google.common.base.Predicate;
 import com.github.tmurakami.dexopener.repackaged.com.google.common.io.ByteStreams;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
@@ -96,7 +95,7 @@ class ClassPath {
         Map<String, RunnableFuture<dalvik.system.DexFile>> futureMap = new HashMap<>();
         String sourceDir = context.getApplicationInfo().sourceDir;
         try (ZipFile zipFile = new ZipFile(sourceDir)) {
-            for (DexFile dexFile : dexFiles(zipFile)) {
+            for (DexFile dexFile : getDexFiles(zipFile)) {
                 Opcodes opcodes = dexFile.getOpcodes();
                 Iterable<? extends ClassDef> classes = filter(dexFile.getClasses(), classDefFilter);
                 for (List<? extends ClassDef> list : partition(classes, MAX_CLASSES_PER_DEX_FILE)) {
@@ -111,7 +110,7 @@ class ClassPath {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return transformValues(futureMap, runnableFutureResult());
+        return transformValues(futureMap, ClassPath::getRunnableFutureResult);
     }
 
     private static File getCodeCacheDir(Context context) {
@@ -128,7 +127,7 @@ class ClassPath {
         return cacheDir;
     }
 
-    private static Iterable<DexFile> dexFiles(ZipFile zipFile) {
+    private static Iterable<DexFile> getDexFiles(ZipFile zipFile) {
         return transform(filter(list(zipFile.entries()), entry -> {
             String name = entry.getName();
             return name.startsWith("classes") && name.endsWith(".dex");
@@ -141,36 +140,34 @@ class ClassPath {
         });
     }
 
-    private static <T> Function<RunnableFuture<T>, T> runnableFutureResult() {
-        return future -> {
-            // The future might not be completed, so we do it here first.
-            future.run();
-            boolean interrupted = false;
-            try {
-                while (true) {
-                    try {
-                        return future.get();
-                    } catch (InterruptedException e) {
-                        // Refuse to be interrupted
-                        interrupted = true;
-                    }
-                }
-            } catch (ExecutionException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof RuntimeException) {
-                    throw (RuntimeException) cause;
-                } else if (cause instanceof Error) {
-                    throw (Error) cause;
-                } else {
-                    throw new RuntimeException(cause);
-                }
-            } finally {
-                if (interrupted) {
-                    // Restore the interrupted status
-                    Thread.currentThread().interrupt();
+    private static <T> T getRunnableFutureResult(RunnableFuture<T> future) {
+        // The future might not be completed, so we do it here first.
+        future.run();
+        boolean interrupted = false;
+        try {
+            while (true) {
+                try {
+                    return future.get();
+                } catch (InterruptedException e) {
+                    // Refuse to be interrupted
+                    interrupted = true;
                 }
             }
-        };
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else if (cause instanceof Error) {
+                throw (Error) cause;
+            } else {
+                throw new RuntimeException(cause);
+            }
+        } finally {
+            if (interrupted) {
+                // Restore the interrupted status
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
 }
