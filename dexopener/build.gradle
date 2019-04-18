@@ -81,13 +81,13 @@ task repackageDependencies(type: ProGuardTask) {
 //}
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from android.sourceSets.main.java.sourceFiles
     from android.sourceSets.main.resources.sourceFiles
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
 

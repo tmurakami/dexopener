@@ -15,4 +15,4 @@ compileJava {
 
 javadoc.enabled = false
 
-jar.archiveName = "${jar.baseName}.${jar.extension}"
+jar.archiveFileName.set("${jar.archiveBaseName.get()}.${jar.getArchiveExtension().get()}")
