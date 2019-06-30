@@ -22,7 +22,6 @@ import android.os.Bundle
 import androidx.annotation.VisibleForTesting
 
 class MainActivity : Activity() {
-
     @VisibleForTesting
     internal var myService = MyService()
 
@@ -30,5 +29,4 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         myService.doIt()
     }
-
 }

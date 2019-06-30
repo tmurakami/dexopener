@@ -19,9 +19,9 @@ package com.example.dexopener.multiproject.test;
 import android.app.Application;
 import android.content.Context;
 
-import com.github.tmurakami.dexopener.DexOpener;
-
 import androidx.test.runner.AndroidJUnitRunner;
+
+import com.github.tmurakami.dexopener.DexOpener;
 
 // This is the base test runner for `app` and `lib` runners.
 public class BaseMyAndroidJUnitRunner extends AndroidJUnitRunner {

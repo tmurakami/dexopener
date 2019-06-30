@@ -18,12 +18,12 @@ package com.example.dexopener.dexmaker;
 
 import android.util.Log;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoSession;
 import org.mockito.quality.Strictness;
-
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;

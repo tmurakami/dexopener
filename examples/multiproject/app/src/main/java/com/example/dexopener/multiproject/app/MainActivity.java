@@ -19,9 +19,9 @@ package com.example.dexopener.multiproject.app;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.example.dexopener.multiproject.lib.MyService;
-
 import androidx.annotation.VisibleForTesting;
+
+import com.example.dexopener.multiproject.lib.MyService;
 
 public final class MainActivity extends Activity {
 

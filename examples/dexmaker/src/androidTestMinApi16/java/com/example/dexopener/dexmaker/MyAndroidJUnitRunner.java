@@ -20,9 +20,9 @@ package com.example.dexopener.dexmaker;
 import android.app.Application;
 import android.content.Context;
 
-import com.github.tmurakami.dexopener.DexOpener;
-
 import androidx.test.runner.AndroidJUnitRunner;
+
+import com.github.tmurakami.dexopener.DexOpener;
 
 public class MyAndroidJUnitRunner extends AndroidJUnitRunner {
     @Override

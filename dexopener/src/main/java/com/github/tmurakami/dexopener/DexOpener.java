@@ -19,13 +19,13 @@ package com.github.tmurakami.dexopener;
 import android.app.Instrumentation;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import androidx.annotation.NonNull;
 
 import static com.github.tmurakami.dexopener.Constants.MY_PACKAGE_PREFIX;
 

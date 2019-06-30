@@ -16,10 +16,10 @@
 
 package test.com.github.tmurakami.dexopener;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static java.lang.reflect.Modifier.isFinal;
 import static org.junit.Assert.assertFalse;
