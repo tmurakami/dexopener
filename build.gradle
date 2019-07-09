@@ -75,11 +75,12 @@ ext {
     deps.android = [support: [annotation: 'com.android.support:support-annotations:28.0.0',
                               test      : [rules: 'com.android.support.test:rules:1.0.2',],],]
 
-    def mockitoVersion = '2.28.2'
+    def mockitoVersion = '3.0.0'
     deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
                     android: "org.mockito:mockito-android:$mockitoVersion",]
 
     def dexmakerVersion = '2.25.0'
+    deps.mockito2 = [core: "org.mockito:mockito-core:$dexmakerVersion",]
     deps.dexmaker = [mockito                : "com.linkedin.dexmaker:dexmaker-mockito:$dexmakerVersion",
                      mockito_inline_extended: "com.linkedin.dexmaker:dexmaker-mockito-inline-extended:$dexmakerVersion",]
 
