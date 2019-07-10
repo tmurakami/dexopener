@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         minSdkVersion 16
         testInstrumentationRunner 'com.example.dexopener.multiproject.lib.MyAndroidJUnitRunner'
