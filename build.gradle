@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.22.0'
         classpath 'pl.allegro.tech.build:axion-release-plugin:1.10.2'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.6'
     }
