@@ -3,7 +3,7 @@
 ![Android](https://img.shields.io/badge/Android-4.1%2B-blue.svg)
 [![CircleCI](https://circleci.com/gh/tmurakami/dexopener.svg?style=shield)](https://circleci.com/gh/tmurakami/dexopener)
 [![Release](https://jitpack.io/v/tmurakami/dexopener.svg)](https://jitpack.io/#tmurakami/dexopener)
-[![Javadoc](https://img.shields.io/badge/Javadoc-2.0.2-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/2.0.2/javadoc/)
+[![Javadoc](https://img.shields.io/badge/Javadoc-2.0.3-brightgreen.svg)](https://jitpack.io/com/github/tmurakami/dexopener/2.0.3/javadoc/)
 
 An Android library that provides the ability to mock your final classes
 on Android devices.
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    androidTestImplementation 'com.github.tmurakami:dexopener:2.0.2'
+    androidTestImplementation 'com.github.tmurakami:dexopener:2.0.3'
 
     androidTestImplementation 'androidx.test:runner:x.y.z'
 
