@@ -39,10 +39,7 @@ def repackagedJar = "$buildDir/libs/repackaged.jar"
 
 dependencies {
     jarjar deps.jarjar
-    repackage deps.dexlib2, {
-        exclude group: 'com.beust', module: 'jcommander'
-        exclude group: 'com.google.code.findbugs', module: 'jsr305'
-    }
+    repackage deps.dexlib2
     compileOnly deps.androidx.annotation
     implementation files(project(':classloaderhelper').jar)
     implementation files(repackagedJar) { builtBy 'repackageDependencies' }

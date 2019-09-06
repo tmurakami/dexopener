@@ -3,7 +3,8 @@
 -dontnote java.lang.invoke.**
 -dontnote com.google.common.**
 
--dontwarn javax.annotation.**
+-dontwarn java.lang.ClassValue
+-dontwarn javax.lang.model.element.Modifier
 -dontwarn sun.misc.Unsafe
 
 -keepattributes Exceptions,InnerClasses,Signature,SourceFile,LineNumberTable,EnclosingMethod
