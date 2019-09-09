@@ -27,6 +27,9 @@ final class FileUtils {
     }
 
     static void delete(File... files) {
+        if (files == null) {
+            return;
+        }
         for (File f : files) {
             if (f.isDirectory()) {
                 delete(f.listFiles());
