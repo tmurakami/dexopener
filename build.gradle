@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.24.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.25.0'
         classpath 'pl.allegro.tech.build:axion-release-plugin:1.10.2'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.6'
     }
@@ -55,7 +55,7 @@ dependencyUpdates.resolutionStrategy {
 
 ext {
     deps = [jarjar     : 'org.pantsbuild:jarjar:1.7.2',
-            dexlib2    : 'org.smali:dexlib2:2.3.1',
+            dexlib2    : 'org.smali:dexlib2:2.3.2',
             junit      : 'junit:junit:4.12',
             objenesis26: 'org.objenesis:objenesis:2.6',]
 
