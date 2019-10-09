@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.5.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.25.0'
         classpath 'pl.allegro.tech.build:axion-release-plugin:1.10.2'
@@ -55,7 +55,7 @@ dependencyUpdates.resolutionStrategy {
 
 ext {
     deps = [jarjar     : 'org.pantsbuild:jarjar:1.7.2',
-            dexlib2    : 'org.smali:dexlib2:2.3.2',
+            dexlib2    : 'org.smali:dexlib2:2.3.4',
             junit      : 'junit:junit:4.12',
             objenesis26: 'org.objenesis:objenesis:2.6',]
 
@@ -75,7 +75,7 @@ ext {
     deps.android = [support: [annotation: 'com.android.support:support-annotations:28.0.0',
                               test      : [rules: 'com.android.support.test:rules:1.0.2',],],]
 
-    def mockitoVersion = '3.0.0'
+    def mockitoVersion = '3.1.0'
     deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
                     android: "org.mockito:mockito-android:$mockitoVersion",]
 
