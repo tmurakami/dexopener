@@ -69,7 +69,7 @@ public class FinalModifierRemoverModuleTest {
                                                      null,
                                                      "V",
                                                      AccessFlags.FINAL.getValue(),
-                                                     null, null);
+                                                     null, null, null);
         ImmutableClassDef def = new ImmutableClassDef("Lfoo/Bar;",
                                                       0,
                                                       "Ljava/lang/Object;",

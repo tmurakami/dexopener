@@ -19,6 +19,7 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
+import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexFileRewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexRewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.io.FileDataStore;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.pool.DexPool;
@@ -63,7 +64,7 @@ final class ClassTransformer implements Callable<dalvik.system.DexFile>, DexFile
     public dalvik.system.DexFile call() throws IOException {
         DexRewriter dexRewriter = new DexRewriter(new FinalModifierRemoverModule());
         try {
-            DexFile dexFile = dexRewriter.rewriteDexFile(this);
+            DexFile dexFile = dexRewriter.getDexFileRewriter().rewrite(this);
             File dex = File.createTempFile("classes", ".dex", codeCacheDir);
             dex.deleteOnExit();
             String dexPath = dex.getCanonicalPath();

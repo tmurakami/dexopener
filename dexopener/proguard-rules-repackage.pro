@@ -38,7 +38,10 @@
 }
 -keep class org.jf.dexlib2.rewriter.DexRewriter {
     public <init>(org.jf.dexlib2.rewriter.RewriterModule);
-    public org.jf.dexlib2.iface.DexFile rewriteDexFile(org.jf.dexlib2.iface.DexFile);
+    public org.jf.dexlib2.rewriter.Rewriter getDexFileRewriter();
+}
+-keep class org.jf.dexlib2.rewriter.Rewriter {
+    public java.lang.Object rewrite(java.lang.Object);
 }
 -keep class org.jf.dexlib2.rewriter.RewriterModule
 -keep class org.jf.dexlib2.writer.io.FileDataStore {
