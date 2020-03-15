@@ -32,8 +32,8 @@ dependencies {
     androidTestImplementation deps.androidx.test.core
     androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.androidx.test.ext.junit
-    androidTestCompileOnly deps.mockito2.core
     androidTestMinApi16Implementation project(':dexopener')
+    androidTestMinApi16Implementation deps.mockito2.core
     androidTestMinApi16Implementation deps.dexmaker.mockito
     androidTestMinApi28Implementation deps.dexmaker.mockito_inline_extended
 }
