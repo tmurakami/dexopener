@@ -62,8 +62,7 @@ dependencyUpdates {
 ext {
     deps = [jarjar     : 'org.pantsbuild:jarjar:1.7.2',
             dexlib2    : 'org.smali:dexlib2:2.4.0',
-            junit      : 'junit:junit:4.13',
-            objenesis26: 'org.objenesis:objenesis:2.6',]
+            junit      : 'junit:junit:4.13',]
 
     deps.kotlin = [stdlib: "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",]
 

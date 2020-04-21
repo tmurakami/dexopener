@@ -25,8 +25,5 @@ dependencies {
     androidTestImplementation deps.androidx.test.core_ktx
     androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.androidx.test.ext.junit_ktx
-
-    // https://github.com/mockk/mockk/issues/281#issuecomment-479238315
-    androidTestImplementation(deps.mockk.android) { exclude module: 'objenesis' }
-    androidTestImplementation deps.objenesis26
+    androidTestImplementation deps.mockk.android
 }
