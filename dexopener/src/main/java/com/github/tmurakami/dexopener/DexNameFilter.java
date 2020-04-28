@@ -26,14 +26,29 @@ final class DexNameFilter implements Predicate<String> {
 
     private static final String[] INCLUDED_DEX_NAME_PREFIXES = {
             "Landroid/databinding/generated/",
+            "Landroidx/databinding/generated/",
     };
 
     private static final String[] INCLUDED_DEX_NAMES = {
-            // Since the Data Binding Library generates several classes that are tightly coupled
-            // with user classes, do not exclude the following classes.
             "Landroid/databinding/DataBinderMapper;",
+            "Landroid/databinding/DataBinderMapperImpl;",
             "Landroid/databinding/DataBindingComponent;",
             "Landroid/databinding/DataBindingUtil;",
+            "Landroid/databinding/MergedDataBinderMapper;",
+            "Landroid/databinding/ViewDataBinding;",
+            "Landroid/databinding/ViewStubProxy;",
+            "Landroid/databinding/adapter/ViewStubBindingAdapter;",
+            "Landroid/databinding/library/baseAdapters/DataBinderMapperImpl;",
+
+            "Landroidx/databinding/DataBinderMapper;",
+            "Landroidx/databinding/DataBinderMapperImpl;",
+            "Landroidx/databinding/DataBindingComponent;",
+            "Landroidx/databinding/DataBindingUtil;",
+            "Landroidx/databinding/MergedDataBinderMapper;",
+            "Landroidx/databinding/ViewDataBinding;",
+            "Landroidx/databinding/ViewStubProxy;",
+            "Landroidx/databinding/adapter/ViewStubBindingAdapter;",
+            "Landroidx/databinding/library/baseAdapters/DataBinderMapperImpl;",
     };
 
     private final String includedDexNamePrefix;
