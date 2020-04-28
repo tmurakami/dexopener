@@ -19,7 +19,6 @@ package com.github.tmurakami.dexopener;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.Opcodes;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.ClassDef;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.iface.DexFile;
-import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexFileRewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.rewriter.DexRewriter;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.io.FileDataStore;
 import com.github.tmurakami.dexopener.repackaged.org.jf.dexlib2.writer.pool.DexPool;
