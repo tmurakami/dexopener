@@ -10,7 +10,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.5.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.0'
-        classpath 'pl.allegro.tech.build:axion-release-plugin:1.11.0'
+        classpath 'pl.allegro.tech.build:axion-release-plugin:1.12.0'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:1.0.2'
     }
 }
@@ -84,8 +84,8 @@ ext {
     deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
                     android: "org.mockito:mockito-android:$mockitoVersion",]
 
-    deps.mockito2 = [core: 'org.mockito:mockito-core:2.25.0',]
-    def dexmakerVersion = '2.25.1'
+    deps.mockito2 = [core: 'org.mockito:mockito-core:2.28.2',]
+    def dexmakerVersion = '2.28.0'
     deps.dexmaker = [mockito                : "com.linkedin.dexmaker:dexmaker-mockito:$dexmakerVersion",
                      mockito_inline_extended: "com.linkedin.dexmaker:dexmaker-mockito-inline-extended:$dexmakerVersion",]
 
