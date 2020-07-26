@@ -9,9 +9,8 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.29.0'
         classpath 'pl.allegro.tech.build:axion-release-plugin:1.12.0'
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:1.0.3'
     }
 }
 
@@ -80,7 +79,7 @@ ext {
     deps.android = [support: [annotation: 'com.android.support:support-annotations:28.0.0',
                               test      : [rules: 'com.android.support.test:rules:1.0.2',],],]
 
-    def mockitoVersion = '3.4.2'
+    def mockitoVersion = '3.4.4'
     deps.mockito = [core   : "org.mockito:mockito-core:$mockitoVersion",
                     android: "org.mockito:mockito-android:$mockitoVersion",]
 
